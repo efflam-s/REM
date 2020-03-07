@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.489
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wiring", "Wiring\Wiring.csproj", "{272279B5-3F33-4BDC-9CB1-26AAE0EE63CB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{272279B5-3F33-4BDC-9CB1-26AAE0EE63CB}.Debug|x86.ActiveCfg = Debug|x86
+		{272279B5-3F33-4BDC-9CB1-26AAE0EE63CB}.Debug|x86.Build.0 = Debug|x86
+		{272279B5-3F33-4BDC-9CB1-26AAE0EE63CB}.Release|x86.ActiveCfg = Release|x86
+		{272279B5-3F33-4BDC-9CB1-26AAE0EE63CB}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7C4333C6-3227-4B62-AE18-6F2B4DB7B239}
+	EndGlobalSection
+EndGlobal
