@@ -13,8 +13,17 @@ namespace Wiring
     public class Input : Component
     {
         public static Texture2D texOn, texOff;
-        public bool value { set; private get; }
-        public void changeValue() => value = !value;
+        private bool value;
+        public void changeValue()
+        {
+            value = !value;
+            MustUpdate = true;
+        }
+        public void changeValue(bool v)
+        {
+            MustUpdate = (value != v);
+            value = v;
+        }
         public Input(Wire output, Vector2 position) : base(position)
         {
             value = false;

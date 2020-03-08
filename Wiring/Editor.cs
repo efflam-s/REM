@@ -118,7 +118,6 @@ namespace Wiring
                     if (tool == Tool.Edit && hovered is Input i)
                     {
                         i.changeValue();
-                        i.Update();
                     }
                     if (tool == Tool.Select && hovered != null && !selected.Contains(hovered))
                     {
@@ -168,6 +167,12 @@ namespace Wiring
 
             prevKbState = KbState;
             prevMsState = MsState;
+
+            foreach (Component c in mainSchem.components)
+            {
+                if (c.MustUpdate)
+                    c.Update();
+            }
         }
 
         /// <summary>

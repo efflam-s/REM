@@ -19,11 +19,13 @@ namespace Wiring
         public static float size { get => 16; }
         public List<Wire> wires;
         public Vector2 position;
+        public bool MustUpdate;
         //public bool updated;
         public Component(Vector2 position)
         {
             wires = new List<Wire> { };
             this.position = position;
+            MustUpdate = false;
         }
         public static void LoadContent(ContentManager Content)
         {
@@ -47,7 +49,7 @@ namespace Wiring
         }
         public virtual void Update()
         {
-            
+            MustUpdate = false;
         }
         public virtual Vector2 plugPosition(Wire wire)
         {

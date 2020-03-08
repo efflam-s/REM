@@ -30,27 +30,6 @@ namespace Wiring
         {
 
         }
-        /*public bool GetOutput(Output output)
-        {
-            foreach (Output o in outputs)
-            {
-                if (o == output)
-                {
-                    return output.GetValue();
-                }
-            }
-            return false;
-        }
-        public void SetInput(Input input, bool value)
-        {
-            foreach (Input i in inputs)
-            {
-                if (i == input)
-                {
-                    input.value = true;
-                }
-            }
-        }*/
         public void AddComponent(Component c)
         {
             if (c is Input i)
