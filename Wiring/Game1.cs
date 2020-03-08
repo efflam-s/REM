@@ -15,7 +15,7 @@ namespace Wiring
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Editor editor;
-        Matrix Camera = Matrix.CreateScale(4) * Matrix.CreateTranslation(50, -100, 0);
+        Matrix Camera = Matrix.CreateScale(4);// * Matrix.CreateTranslation(50, -100, 0);
 
 
         public Game1()
