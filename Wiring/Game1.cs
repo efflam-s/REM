@@ -14,7 +14,9 @@ namespace Wiring
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        Schematic schem;
+        Editor editor;
+        Matrix Camera = Matrix.CreateScale(4) * Matrix.CreateTranslation(50, -100, 0);
+
 
         public Game1()
         {
@@ -30,18 +32,9 @@ namespace Wiring
         /// </summary>
         protected override void Initialize()
         {
-            schem = new Schematic("main");
-            schem.wires.Add(new Wire());
-            schem.wires.Add(new Wire());
-            schem.wires.Add(new Wire());
-            schem.wires.Add(new Wire());
-            schem.AddComponent(new Input(schem.wires[0], new Vector2(32, 32)));
-            schem.AddComponent(new Input(schem.wires[1], new Vector2(32, 96)));
-            schem.AddComponent(new Not(schem.wires[0], schem.wires[2], new Vector2(64, 32)));
-            schem.AddComponent(new Not(schem.wires[1], schem.wires[2], new Vector2(64, 96)));
-            schem.AddComponent(new Not(schem.wires[2], schem.wires[3], new Vector2(96, 64)));
-            schem.AddComponent(new Output(schem.wires[3], new Vector2(128, 64)));
-            schem.Initialize();
+            IsMouseVisible = true;
+            editor = new Editor();
+            editor.Initialize();
             base.Initialize();
         }
 
@@ -54,6 +47,7 @@ namespace Wiring
             Schematic.LoadContent(Content);
             Component.LoadContent(Content);
             Wire.LoadContent(Content);
+            Editor.LoadContent(Content);
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
         }
@@ -74,24 +68,8 @@ namespace Wiring
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
-            // Press N to set inputs[0] to true
-            if (Keyboard.GetState().IsKeyDown(Keys.N))
-                schem.inputs[0].value = true;
-            else
-                schem.inputs[0].value = false;
-            schem.inputs[0].Update();
-
-            // Press B to set inputs[1] to true
-            if (Keyboard.GetState().IsKeyDown(Keys.B))
-                schem.inputs[1].value = true;
-            else
-                schem.inputs[1].value = false;
-            schem.inputs[1].Update();
-
-            //Console.WriteLine(schem.outputs[0].GetValue());
+            
+            editor.Update(gameTime, Camera);
 
             base.Update(gameTime);
         }
@@ -102,13 +80,16 @@ namespace Wiring
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            spriteBatch.Begin(SpriteSortMode.Immediate, transformMatrix:Matrix.CreateScale(4));
+            spriteBatch.Begin(SpriteSortMode.Immediate, transformMatrix: Camera);
             GraphicsDevice.Clear(Color.LightGray);
             GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
-
-            schem.Draw(spriteBatch);
-
+            editor.Draw(spriteBatch);
             spriteBatch.End();
+
+            /*spriteBatch.Begin();
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+
+            spriteBatch.End();*/
             base.Draw(gameTime);
         }
     }

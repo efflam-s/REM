@@ -11,7 +11,7 @@ namespace Wiring
     /// <summary>
     /// Système de composants reliés par des fils
     /// </summary>
-    class Schematic
+    public class Schematic
     {
         public string Name;
         public List<Wire> wires;
@@ -83,5 +83,16 @@ namespace Wiring
                 c.Draw(spriteBatch);
             }
         }
+        /*public void BasicDraw(SpriteBatch spriteBatch)
+        {
+            foreach (Wire w in wires)
+            {
+                w.Draw(spriteBatch);
+            }
+            foreach (Component c in components)
+            {
+                c.BasicDraw(spriteBatch);
+            }
+        }*/
     }
 }

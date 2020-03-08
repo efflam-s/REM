@@ -14,6 +14,7 @@ namespace Wiring
     {
         public static Texture2D texOn, texOff;
         public bool value { set; private get; }
+        public void changeValue() => value = !value;
         public Input(Wire output, Vector2 position) : base(position)
         {
             value = false;

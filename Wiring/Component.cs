@@ -15,6 +15,8 @@ namespace Wiring
     public abstract class Component
     {
         public static Texture2D square;
+        public static Texture2D select;
+        public static float size { get => 16; }
         public List<Wire> wires;
         public Vector2 position;
         //public bool updated;
@@ -26,6 +28,7 @@ namespace Wiring
         public static void LoadContent(ContentManager Content)
         {
             square = Content.Load<Texture2D>("component");
+            select = Content.Load<Texture2D>("selectComp");
             Output.LoadContent(Content);
             Input.LoadContent(Content);
             Not.LoadContent(Content);
@@ -54,5 +57,13 @@ namespace Wiring
         {
             spriteBatch.Draw(square, position - new Vector2(square.Width, square.Height) / 2, Color.White);
         }
+        public virtual void DrawSelected(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Draw(select, position - new Vector2(select.Width, select.Height) / 2, Color.White);
+        }
+        /*public void BasicDraw(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Draw(square, position - new Vector2(square.Width, square.Height) / 2, Color.White);
+        }*/
     }
 }

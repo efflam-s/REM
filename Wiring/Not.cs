@@ -42,9 +42,9 @@ namespace Wiring
         public override Vector2 plugPosition(Wire wire)
         {
             if (wire == wires[0])
-                return position + new Vector2(-7, 0);
+                return position + new Vector2(-8, 0);
             if (wire == wires[1])
-                return position + new Vector2(7, 0);
+                return position + new Vector2(8, 0);
             return base.plugPosition(wire);
         }
         public override void Draw(SpriteBatch spriteBatch)
