@@ -14,12 +14,13 @@ namespace Wiring
         private static Texture2D select;
 
         private enum Tool { Edit, Select, Move }
+        // Edit : Outil pour faire un peu tout (selection, déplacement, clics composants...)
         Tool tool;
         public Schematic mainSchem;
 
-        List<Component> selected;
-        List<Vector2> relativePositionToMouse;
-        Component MovingComp;
+        List<Component> selected; // la liste des composants sélectionnés
+        List<Vector2> relativePositionToMouse; // la liste de leur positions relative à la souris (ou la position relative du composant déplacé en 0)
+        Component MovingComp; // le composant déplacé non sélectionné
         
         KeyboardState prevKbState;
         MouseState prevMsState;
@@ -60,75 +61,70 @@ namespace Wiring
             MouseState MsState = Mouse.GetState();
             Vector2 newPosition = Vector2.Transform(MsState.Position.ToVector2(), Matrix.Invert(Camera));
             MsState = new MouseState((int)newPosition.X, (int)newPosition.Y, MsState.ScrollWheelValue, MsState.LeftButton, MsState.MiddleButton, MsState.RightButton, MsState.XButton1, MsState.XButton2);
-
-            // Toll-changing hotkeys
-            if (prevKbState.IsKeyUp(Keys.S) && KbState.IsKeyDown(Keys.S))
-            {
-                tool = Tool.Select;
-            }
-            if (prevKbState.IsKeyUp(Keys.E) && KbState.IsKeyDown(Keys.E))
-            {
-                tool = Tool.Edit;
-            }
-            if (prevKbState.IsKeyUp(Keys.M) && KbState.IsKeyDown(Keys.M))
-            {
-                relativePositionToMouse.Clear();
-                foreach (Component c in selected)
-                {
-                    relativePositionToMouse.Add(c.position - MsState.Position.ToVector2());
-                }
-                tool = Tool.Move;
-            }
+            bool Control = KbState.IsKeyDown(Keys.LeftControl) || KbState.IsKeyDown(Keys.RightControl);
 
             Component hovered = hover(MsState.Position.ToVector2()); // component pressed
-            if (MsState.LeftButton == ButtonState.Pressed && prevMsState.LeftButton == ButtonState.Released) // OnPressed
+            if (MsState.LeftButton == ButtonState.Pressed && prevMsState.LeftButton == ButtonState.Released)
             {
-                if (tool == Tool.Select && !(KbState.IsKeyDown(Keys.LeftControl) || KbState.IsKeyDown(Keys.RightControl)))
-                    selected.Clear();
-                if (tool == Tool.Edit)
-                {
-                    if (hovered != null && !selected.Contains(hovered))
+                // Au clic
+                if (tool == Tool.Edit) {
+                    // deselectionne
+                    if (hovered == null && !Control)
+                        selected.Clear();
+
+                    if (hovered != null && !Control)
                     {
-                        relativePositionToMouse.Clear();
-                        relativePositionToMouse.Add(hovered.position - MsState.Position.ToVector2());
-                        MovingComp = hovered;
-                    }
-                    else if (hovered != null)
-                    {
-                        relativePositionToMouse.Clear();
-                        foreach (Component c in selected)
+                        if (!selected.Contains(hovered))
                         {
-                            relativePositionToMouse.Add(c.position - MsState.Position.ToVector2());
+                            // preparation deplacement d'un seul composant (pas dans la selection)
+                            relativePositionToMouse.Clear();
+                            relativePositionToMouse.Add(hovered.position - MsState.Position.ToVector2());
+                            MovingComp = hovered;
+                        }
+                        else
+                        {
+                            // preparation deplacement selection
+                            relativePositionToMouse.Clear();
+                            foreach (Component c in selected)
+                            {
+                                relativePositionToMouse.Add(c.position - MsState.Position.ToVector2());
+                            }
+                            MovingComp = null;
                         }
                     }
+                    else if (hovered == null)
+                    {
+                        tool = Tool.Select;
+                    }
                 }
-                if (tool == Tool.Move && selected.Count() == 0 && hovered != null)
-                {
-                    relativePositionToMouse.Clear();
-                    relativePositionToMouse.Add(hovered.position - MsState.Position.ToVector2());
-                    MovingComp = hovered;
-                }
+                // stockage des infos importantes du clic (position + temps)
                 mousePositionOnClic = MsState.Position.ToVector2();
                 timeOnClic = gameTime.TotalGameTime;
             }
-            if (MsState.LeftButton == ButtonState.Released && prevMsState.LeftButton == ButtonState.Pressed) // OnReleased
+            if (MsState.LeftButton == ButtonState.Released && prevMsState.LeftButton == ButtonState.Pressed)
             {
+                // Au déclic
                 if (!hasMoved(MsState.Position.ToVector2(), Camera))
                 {
-                    if (tool == Tool.Edit && hovered is Input i)
+                    // clic simple (pas de déplacement)
+                    if (tool == Tool.Edit && hovered != null)
                     {
-                        i.changeValue();
-                    }
-                    if (tool == Tool.Select && hovered != null && !selected.Contains(hovered))
-                    {
-                        selected.Add(hovered);
-                    }
-                    if (tool == Tool.Edit)
-                    {
-                        MovingComp = null;
+                        if (hovered is Input i && !Control)
+                        {
+                            // switch d'un input
+                            i.changeValue();
+                        }
+                        else if (!selected.Contains(hovered))
+                        {
+                            // selection d'un composant
+                            if (!Control)
+                                selected.Clear();
+
+                            selected.Add(hovered);
+                        }
                     }
                 }
-                if (tool == Tool.Select && hasMoved(MsState.Position.ToVector2(), Camera))
+                if (tool == Tool.Select)// && hasMoved(MsState.Position.ToVector2(), Camera))
                 {
                     // rectangle de selection
                     foreach (Component c in mainSchem.components)
@@ -141,23 +137,28 @@ namespace Wiring
                 }
                 if (tool == Tool.Move)
                 {
+                    // fin de déplacement
                     MovingComp = null;
-                    tool = Tool.Edit;
                 }
+                tool = Tool.Edit;
             }
             if (MsState.LeftButton == ButtonState.Pressed)
             {
+                // Pendant le clic
                 if (tool == Tool.Edit && hovered != null && hasMoved(MsState.Position.ToVector2(), Camera) && (MovingComp != null || selected.Contains(hovered)))
                     tool = Tool.Move;
             }
             if (tool == Tool.Move)
             {
+                // déplacement de composant(s)
                 if (MovingComp != null)
                 {
+                    // composant seul, non sélectionné
                     MovingComp.position = MsState.Position.ToVector2() + relativePositionToMouse[0];
                 }
                 else
                 {
+                    // sélection
                     for (int i = 0; i < selected.Count; i++)
                     {
                         selected[i].position = MsState.Position.ToVector2() + relativePositionToMouse[i];
@@ -209,11 +210,16 @@ namespace Wiring
             {
                 c.DrawSelected(spriteBatch);
             }
+            if (MovingComp != null)
+            {
+                //MovingComp.DrawSelected(spriteBatch);
+            }
             mainSchem.Draw(spriteBatch);
 
             switch (tool) {
                 case Tool.Edit:
-                    if (hover(prevMsState.Position.ToVector2()) is Input)
+                    if (prevKbState.IsKeyUp(Keys.LeftControl) && prevKbState.IsKeyUp(Keys.RightControl) &&
+                            hover(prevMsState.Position.ToVector2()) is Input)
                         Mouse.SetCursor(MouseCursor.Hand);
                     else
                         Mouse.SetCursor(MouseCursor.Arrow);

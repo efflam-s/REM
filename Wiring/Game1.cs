@@ -17,7 +17,6 @@ namespace Wiring
         Editor editor;
         Matrix Camera = Matrix.CreateScale(4);// * Matrix.CreateTranslation(50, -100, 0);
 
-
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
