@@ -32,8 +32,8 @@ namespace Wiring
         }
         public static new void LoadContent(ContentManager Content)
         {
-            texOn = Content.Load<Texture2D>("inputOn");
-            texOff = Content.Load<Texture2D>("inputOff");
+            texOn = Content.Load<Texture2D>("Component/inputOn");
+            texOff = Content.Load<Texture2D>("Component/inputOff");
         }
         public override bool GetOutput(Wire wire)
         {

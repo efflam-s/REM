@@ -29,11 +29,12 @@ namespace Wiring
         }
         public static void LoadContent(ContentManager Content)
         {
-            square = Content.Load<Texture2D>("component");
+            square = Content.Load<Texture2D>("Component/component");
             select = Content.Load<Texture2D>("selectComp");
             Output.LoadContent(Content);
             Input.LoadContent(Content);
             Not.LoadContent(Content);
+            Diode.LoadContent(Content);
         }
         protected void plugWires()
         {
@@ -54,6 +55,18 @@ namespace Wiring
         public virtual Vector2 plugPosition(Wire wire)
         {
             return position;
+        }
+        public Wire nearestPlugWire(Vector2 position)
+        {
+            if (wires.Count() == 0)
+                return null;
+            Wire minWire = wires[0];
+            foreach (Wire w in wires)
+            {
+                if ((plugPosition(w) - position).Length() < (plugPosition(minWire) - position).Length())
+                    minWire = w;
+            }
+            return minWire;
         }
         public virtual void Draw(SpriteBatch spriteBatch)
         {

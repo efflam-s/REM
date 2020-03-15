@@ -1,12 +1,11 @@
 ## Liste de trucs à faire : Projet Wiring
 
 #### A faire maintenant :
-* Sélectionner les composants avant le déclic
-* Création de nouveaux composants dans l'éditeur => boutons
-* Suppression des composants
-* Ctrl + A
-* Edition des fils
-* Composant : `Delay`/`Diode`
+* Bug de selection : garde les composants hors du rectangle
+* Bordures de l'éditeur (à vérifier ?)
+* Edition des fils : suppression (tool Edit)
+* Edition des fils : création (tool Wire)
+* Composant : `Delay`/`Diode` (diode \~ok, delai à fix)
 
 #### A faire plus tard :
 * Déplacement de la Camera

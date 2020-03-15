@@ -41,6 +41,47 @@ namespace Wiring
                 outputs.Add(o);
             }
             components.Add(c);
+            foreach (Wire w in c.wires)
+            {
+                if (!wires.Contains(w))
+                    wires.Add(w);
+            }
+        }
+        public void DeleteComponent(Component c)
+        {
+            int i;
+            for (i = 0; i < components.Count() && components[i] != c; i++);
+            if (i < components.Count())
+            {
+                foreach (Wire w in c.wires)
+                {
+                    w.components.Remove(c);
+                }
+                components.Remove(c);
+                if (c is Input ip)
+                {
+                    inputs.Remove(ip);
+                }
+                if (c is Output op)
+                {
+                    outputs.Remove(op);
+                }
+            }
+        }
+        public void DeleteWire(Wire w)
+        {
+            int i;
+            for (i = 0; i < wires.Count() && wires[i] != w; i++) ;
+            if (i < wires.Count())
+            {
+                foreach (Component c in w.components)
+                {
+                    Wire newW = c.wires[c.wires.IndexOf(w)] = new Wire();
+                    newW.components.Add(c);
+                    wires.Add(newW);
+                }
+                wires.Remove(w);
+            }
         }
 
         public void Initialize()

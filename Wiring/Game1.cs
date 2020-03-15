@@ -15,7 +15,12 @@ namespace Wiring
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Editor editor;
-        Matrix Camera = Matrix.CreateScale(4);// * Matrix.CreateTranslation(50, -100, 0);
+        Matrix Camera;
+        Vector2 EditorSize;
+        Button[] AddButtons;
+        Texture2D toolBar;
+        MouseState prevMsState;
+        SpriteFont font;
 
         public Game1()
         {
@@ -31,9 +36,19 @@ namespace Wiring
         /// </summary>
         protected override void Initialize()
         {
+            Window.AllowUserResizing = true;
             IsMouseVisible = true;
             editor = new Editor();
             editor.Initialize();
+            AddButtons = new Button[4];
+            AddButtons[0] = new Button(new Vector2(36, 18));
+            AddButtons[1] = new Button(new Vector2(36*2, 18));
+            AddButtons[2] = new Button(new Vector2(36*3, 18));
+            AddButtons[3] = new Button(new Vector2(36*4, 18));
+            prevMsState = Mouse.GetState();
+            Camera = Matrix.CreateScale(4) * Matrix.CreateTranslation(0, 36, 0);
+            EditorSize = new Vector2(50, 50);
+
             base.Initialize();
         }
 
@@ -47,6 +62,13 @@ namespace Wiring
             Component.LoadContent(Content);
             Wire.LoadContent(Content);
             Editor.LoadContent(Content);
+            Button.LoadContent(Content);
+            toolBar = Content.Load<Texture2D>("Button/toolBar");
+            AddButtons[0].setTexture(Content.Load<Texture2D>("Button/addWireButton"));
+            AddButtons[1].setTexture(Content.Load<Texture2D>("Button/addInputButton"));
+            AddButtons[2].setTexture(Content.Load<Texture2D>("Button/addOutputButton"));
+            AddButtons[3].setTexture(Content.Load<Texture2D>("Button/addNotButton"));
+            font = Content.Load<SpriteFont>("Arial");
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
         }
@@ -67,10 +89,40 @@ namespace Wiring
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            
-            editor.Update(gameTime, Camera);
+            //Window.ClientBounds => rectangle de la fenêtre
+            EditorSize = Vector2.Transform(new Vector2(Window.ClientBounds.Width, Window.ClientBounds.Height), Matrix.Invert(Camera));
+            editor.Update(gameTime, Camera, EditorSize);
+            for (int i=0; i<AddButtons.Length; i++)
+            {
+                bool declic = Mouse.GetState().LeftButton == ButtonState.Released && prevMsState.LeftButton == ButtonState.Pressed;
+                if (AddButtons[i].toggle && declic)
+                {
+                    AddButtons[i].toggle = false;
+                }
+                if (AddButtons[i].hover(Mouse.GetState().Position.ToVector2()) && declic)
+                {
+                    AddButtons[i].toggle = true;
+                    switch (i)
+                    {
+                        case 0:
+                            editor.tool = Editor.Tool.Wire;
+                            break;
+                        case 1:
+                            editor.AddComponent(new Input(new Wire(), Mouse.GetState().Position.ToVector2()));
+                            break;
+                        case 2:
+                            editor.AddComponent(new Output(new Wire(), Mouse.GetState().Position.ToVector2()));
+                            break;
+                        case 3:
+                            editor.AddComponent(new Not(new Wire(), new Wire(), Mouse.GetState().Position.ToVector2()));
+                            break;
 
+                    }
+                }
+            }
+            prevMsState = Mouse.GetState();
             base.Update(gameTime);
+            
         }
 
         /// <summary>
@@ -85,10 +137,16 @@ namespace Wiring
             editor.Draw(spriteBatch);
             spriteBatch.End();
 
-            /*spriteBatch.Begin();
+            spriteBatch.Begin();
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
-
-            spriteBatch.End();*/
+            spriteBatch.Draw(toolBar, new Rectangle(0, 0, Window.ClientBounds.Width, toolBar.Height), Color.White);
+            foreach (Button b in AddButtons)
+            {
+                b.Draw(spriteBatch);
+            }
+            spriteBatch.Draw(toolBar, new Rectangle(0, Window.ClientBounds.Height - toolBar.Height, Window.ClientBounds.Width, toolBar.Height), Color.White);
+            spriteBatch.DrawString(font, editor.GetInfos(), new Vector2(36, Window.ClientBounds.Height -  toolBar.Height*3/4), Color.Black);
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }
