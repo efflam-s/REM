@@ -1,14 +1,10 @@
 ## Liste de trucs à faire : Projet Wiring
 
 #### A faire maintenant :
-* Bug de selection : garde les composants hors du rectangle
-* Bordures de l'éditeur (à vérifier ?)
-* Edition des fils : suppression (tool Edit)
-* Edition des fils : création (tool Wire)
-* Composant : `Delay`/`Diode` (diode \~ok, delai à fix)
+* Edition des fils : création (tool Wire) *(rajouter la possiblilté de relier à un fil + affichage)*
+* Déplacement de la Camera
 
 #### A faire plus tard :
-* Déplacement de la Camera
 * Angle des composants
 * Composant : `BlackBox`
 * Duplication
@@ -16,6 +12,8 @@
 * Composant : `Comment`
 
 #### Eventuellement, si j'ai le courage :
+* Edition des fils : bloquage de l'outils
+* Selection : sélectionner les composant avant le declic
 * Menu clic droit
 * Sauvegarder des schémas
 * Copier/Coller

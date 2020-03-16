@@ -37,7 +37,7 @@ namespace Wiring
             tool = Tool.Edit;
             mainSchem = new Schematic("main");
 
-            mainSchem.wires.Add(new Wire());
+            /*mainSchem.wires.Add(new Wire());
             mainSchem.wires.Add(new Wire());
             mainSchem.wires.Add(new Wire());
             mainSchem.wires.Add(new Wire());
@@ -46,7 +46,7 @@ namespace Wiring
             mainSchem.AddComponent(new Not(mainSchem.wires[0], mainSchem.wires[2], new Vector2(64, 32)));
             mainSchem.AddComponent(new Not(mainSchem.wires[1], mainSchem.wires[2], new Vector2(64, 96)));
             mainSchem.AddComponent(new Not(mainSchem.wires[2], mainSchem.wires[3], new Vector2(96, 64)));
-            mainSchem.AddComponent(new Output(mainSchem.wires[3], new Vector2(128, 64)));
+            mainSchem.AddComponent(new Output(mainSchem.wires[3], new Vector2(128, 64)));*/
             mainSchem.Initialize();
 
             selected = new List<Component>();
@@ -95,13 +95,12 @@ namespace Wiring
                             if (!Control && KbState.IsKeyUp(Keys.LeftAlt))
                                 // deselectionne
                                 selected.Clear();
-
                             // rectangle selection
                             tool = Tool.Select;
                         }
                         else
                         {
-
+                            
                         }
                     }
                     else
@@ -144,12 +143,15 @@ namespace Wiring
                                 // switch d'un input
                                 i.changeValue();
                             }
+                            else if (hoveredComponent is Diode d && !Control && KbState.IsKeyUp(Keys.LeftAlt))
+                            {
+                                d.changeDelay();
+                            }
                             else// if (!selected.Contains(hoveredComponent))
                             {
                                 // selection d'un composant
                                 if (!Control && KbState.IsKeyUp(Keys.LeftAlt))
                                     selected.Clear();
-
                                 if (KbState.IsKeyUp(Keys.LeftAlt) && !selected.Contains(hoveredComponent))
                                     selected.Add(hoveredComponent);
                                 else if (KbState.IsKeyDown(Keys.LeftAlt) && selected.Contains(hoveredComponent))
@@ -159,7 +161,20 @@ namespace Wiring
                         }
                         else if (hoveredWire != null)
                         {
-                            mainSchem.DeleteWire(hoveredWire);
+                            // Suppression d'un fil (ou d'une partie de fil)
+                            if (hoveredWire.components.Count() <= 2)
+                                mainSchem.DeleteWire(hoveredWire);
+                            else
+                            {
+                                Vector2 node = hoveredWire.Node();
+                                foreach (Component c in hoveredWire.components)
+                                {
+                                    if (hoveredWire.touchWire(MsState.Position.ToVector2(), node, c.plugPosition(hoveredWire)))
+                                        c.wires[c.wires.IndexOf(hoveredWire)] = new Wire();
+                                }
+                                mainSchem.ReloadWiresFromComponents();
+                            }
+
                         }
                     }
                 }
@@ -259,8 +274,9 @@ namespace Wiring
                 }
                 else if (leftClic == ClicState.Declic)
                 {
-                    if (hoveredComponent != null)
+                    if (hoveredComponent != null && MovingComp != null)
                     {
+                        // Ajout d'un fil
                         Wire start = MovingComp.nearestPlugWire(mousePositionOnClic);
                         Wire end = hoveredComponent.nearestPlugWire(MsState.Position.ToVector2());
                         if (hoveredComponent != MovingComp && start != end)
@@ -268,11 +284,14 @@ namespace Wiring
                             foreach (Component c in end.components)
                             {
                                 c.wires[c.wires.IndexOf(end)] = start;
-                                start.components.Add(c);
+                                //start.components.Add(c);
                             }
-                            mainSchem.wires.Remove(end);
+                            //mainSchem.wires.Remove(end);
+                            mainSchem.ReloadWiresFromComponents();
                         }
+                        start.Update();
                     }
+                    MovingComp = null;
                     tool = Tool.Edit;
                 }
             }
@@ -285,6 +304,8 @@ namespace Wiring
                 {
                     if (c.MustUpdate)
                         c.Update();
+                    if (c is Diode d)
+                        d.UpdateTime(gameTime);
                 }
         }
 
@@ -333,7 +354,7 @@ namespace Wiring
         {
             if (min < x && x < max)
                 return x;
-            else if (x < min)
+            else if (x <= min)
                 return min;
             else
                 return max;
@@ -353,10 +374,10 @@ namespace Wiring
             switch (tool) {
                 case Tool.Edit:
                     if (prevKbState.IsKeyUp(Keys.LeftControl) && prevKbState.IsKeyUp(Keys.RightControl) && prevKbState.IsKeyUp(Keys.LeftAlt) &&
-                            hover(prevMsState.Position.ToVector2()) is Input)
+                            (hover(prevMsState.Position.ToVector2()) is Input || hover(prevMsState.Position.ToVector2()) is Diode))
                         Mouse.SetCursor(MouseCursor.Hand);
                     else if (prevKbState.IsKeyUp(Keys.LeftControl) && prevKbState.IsKeyUp(Keys.RightControl) &&
-                            hoverWire(prevMsState.Position.ToVector2()) != null)
+                            hoverWire(prevMsState.Position.ToVector2()) != null && hover(prevMsState.Position.ToVector2()) == null)
                         Mouse.SetCursor(scissor);
                     else
                         Mouse.SetCursor(MouseCursor.Arrow);
@@ -395,8 +416,8 @@ namespace Wiring
         public string GetInfos()
         {
             return "M : ("+prevMsState.X+", "+prevMsState.Y+
-                ")  Comp : "+mainSchem.components.Count()+" Selected : "+selected.Count()+
-                "  Fil : "+mainSchem.wires.Count();
+                ")  Composants : "+mainSchem.components.Count()+" Selection : "+selected.Count()+
+                "  Fils : "+mainSchem.wires.Count();
         }
     }
 }

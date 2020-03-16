@@ -40,11 +40,12 @@ namespace Wiring
             IsMouseVisible = true;
             editor = new Editor();
             editor.Initialize();
-            AddButtons = new Button[4];
-            AddButtons[0] = new Button(new Vector2(36, 18));
-            AddButtons[1] = new Button(new Vector2(36*2, 18));
-            AddButtons[2] = new Button(new Vector2(36*3, 18));
-            AddButtons[3] = new Button(new Vector2(36*4, 18));
+            AddButtons = new Button[5];
+            AddButtons[0] = new Button(new Vector2(36, 18), "Ajouter un Fil");
+            AddButtons[1] = new Button(new Vector2(36*2, 18), "Ajouter une Entrée");
+            AddButtons[2] = new Button(new Vector2(36*3, 18), "Ajouter une Sortie");
+            AddButtons[3] = new Button(new Vector2(36*4, 18), "Ajouter un Inverseur");
+            AddButtons[4] = new Button(new Vector2(36*5, 18), "Ajouter une Diode");
             prevMsState = Mouse.GetState();
             Camera = Matrix.CreateScale(4) * Matrix.CreateTranslation(0, 36, 0);
             EditorSize = new Vector2(50, 50);
@@ -68,6 +69,7 @@ namespace Wiring
             AddButtons[1].setTexture(Content.Load<Texture2D>("Button/addInputButton"));
             AddButtons[2].setTexture(Content.Load<Texture2D>("Button/addOutputButton"));
             AddButtons[3].setTexture(Content.Load<Texture2D>("Button/addNotButton"));
+            AddButtons[4].setTexture(Content.Load<Texture2D>("Button/addDiodeButton"));
             font = Content.Load<SpriteFont>("Arial");
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -90,7 +92,7 @@ namespace Wiring
         protected override void Update(GameTime gameTime)
         {
             //Window.ClientBounds => rectangle de la fenêtre
-            EditorSize = Vector2.Transform(new Vector2(Window.ClientBounds.Width, Window.ClientBounds.Height), Matrix.Invert(Camera));
+            EditorSize = Vector2.Transform(new Vector2(Window.ClientBounds.Width, Window.ClientBounds.Height - 36), Matrix.Invert(Camera));
             editor.Update(gameTime, Camera, EditorSize);
             for (int i=0; i<AddButtons.Length; i++)
             {
@@ -116,7 +118,9 @@ namespace Wiring
                         case 3:
                             editor.AddComponent(new Not(new Wire(), new Wire(), Mouse.GetState().Position.ToVector2()));
                             break;
-
+                        case 4:
+                            editor.AddComponent(new Diode(new Wire(), new Wire(), Mouse.GetState().Position.ToVector2()));
+                            break;
                     }
                 }
             }

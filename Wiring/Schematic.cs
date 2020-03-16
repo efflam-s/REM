@@ -41,11 +41,12 @@ namespace Wiring
                 outputs.Add(o);
             }
             components.Add(c);
-            foreach (Wire w in c.wires)
+            /*foreach (Wire w in c.wires)
             {
                 if (!wires.Contains(w))
                     wires.Add(w);
-            }
+            }*/
+            ReloadWiresFromComponents();
         }
         public void DeleteComponent(Component c)
         {
@@ -53,10 +54,10 @@ namespace Wiring
             for (i = 0; i < components.Count() && components[i] != c; i++);
             if (i < components.Count())
             {
-                foreach (Wire w in c.wires)
+                /*foreach (Wire w in c.wires)
                 {
                     w.components.Remove(c);
-                }
+                }*/
                 components.Remove(c);
                 if (c is Input ip)
                 {
@@ -67,6 +68,7 @@ namespace Wiring
                     outputs.Remove(op);
                 }
             }
+            ReloadWiresFromComponents();
         }
         public void DeleteWire(Wire w)
         {
@@ -82,6 +84,30 @@ namespace Wiring
                 }
                 wires.Remove(w);
             }
+        }
+        public void ReloadWiresFromComponents()
+        {
+            // Supprime toute les informations que contiennent les fils (sauf leur valeur),
+            // et les recrée à partir des informations que contiennent les composants
+            foreach (Wire w in wires)
+            {
+                w.components.Clear();
+            }
+            wires.Clear();
+            foreach (Component c in components)
+            {
+                foreach(Wire w in c.wires)
+                {
+                    if (!wires.Contains(w))
+                    {
+                        wires.Add(w);
+                        w.components.Clear();
+                    }
+                    if (!w.components.Contains(c))
+                        w.components.Add(c);
+                }
+            }
+            //wires.RemoveAll(w => w.components.Count() == 0);
         }
 
         public void Initialize()

@@ -13,7 +13,7 @@ namespace Wiring
     /// </summary>
     public class Wire
     {
-        public static Texture2D wOn, wOff;
+        public static Texture2D wOn, wOff, nodeOn, nodeOff;
         public bool value { get; private set; }
         public List<Component> components;
         public Wire()
@@ -25,6 +25,8 @@ namespace Wiring
         {
             wOn = Content.Load<Texture2D>("wireOn");
             wOff = Content.Load<Texture2D>("wireOff");
+            nodeOn = Content.Load<Texture2D>("wireNodeOn");
+            nodeOff = Content.Load<Texture2D>("wireNodeOff");
         }
 
         public void Update()
@@ -58,7 +60,7 @@ namespace Wiring
                 center /= components.Count;
                 foreach (Component c in components)
                     drawLine(spriteBatch, center, c.plugPosition(this));
-                // TODO : add nodes
+                spriteBatch.Draw(value ? nodeOn : nodeOff, center - new Vector2(nodeOn.Width, nodeOn.Height)/2, Color.White);
             }
         }
         private void drawLine(SpriteBatch spriteBatch, Vector2 A, Vector2 B)
@@ -74,30 +76,34 @@ namespace Wiring
         {
             if (components.Count() == 2)
             {
-                Vector2 vectAB = components[1].plugPosition(this) - components[0].plugPosition(this);
-                Vector2 normal = Vector2.Normalize(vectAB);
-                Vector2 center = (components[1].plugPosition(this) + components[0].plugPosition(this)) / 2;
-                Vector2 relativ = position - center;
-                return Math.Abs(Vector2.Dot(relativ, normal)) <= vectAB.Length() / 2 && Math.Abs(Vector2.Dot(relativ, new Vector2(normal.Y, -normal.X))) <= 1;
+                return touchWire(position, components[1].plugPosition(this), components[0].plugPosition(this));
             }
             else if (components.Count() > 2)
             {
-                Vector2 node = Vector2.Zero;
-                foreach (Component c in components)
-                    node += c.plugPosition(this);
-                node /= components.Count;
+                Vector2 node = Node();
                 foreach (Component c in components)
                 {
-                    Vector2 vectAC = node - components[0].plugPosition(this);
-                    Vector2 normal = Vector2.Normalize(vectAC);
-                    Vector2 center = (components[1].plugPosition(this) + components[0].plugPosition(this)) / 2;
-                    Vector2 relativ = position - center;
-                    if (Math.Abs(Vector2.Dot(relativ, normal)) <= vectAC.Length() / 2 && Math.Abs(Vector2.Dot(relativ, new Vector2(normal.Y, -normal.X))) <= 1)
+                    if (touchWire(position, node, c.plugPosition(this)))
                         return true;
                 }
                 return false;
             }
             return false;
+        }
+        public bool touchWire(Vector2 position, Vector2 plugA, Vector2 plugB)
+        {
+            Vector2 vectAB = plugB - plugA;
+            Vector2 normal = Vector2.Normalize(vectAB);
+            Vector2 center = (plugB + plugA) / 2;
+            Vector2 relativ = position - center;
+            return Math.Abs(Vector2.Dot(relativ, normal)) <= vectAB.Length() / 2 && Math.Abs(Vector2.Dot(relativ, new Vector2(normal.Y, -normal.X))) <= 1;
+        }
+        public Vector2 Node()
+        {
+            Vector2 node = Vector2.Zero;
+            foreach (Component c in components)
+                node += c.plugPosition(this);
+            return node /= components.Count;
         }
     }
 }

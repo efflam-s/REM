@@ -12,19 +12,23 @@ namespace Wiring
     public class Button
     {
         public static Texture2D hoverTex, toggleTex;
+        public static SpriteFont font;
         private Texture2D texture;
         private Vector2 position;
         public bool toggle;
+        public String ToolTip;
 
-        public Button(Vector2 position)
+        public Button(Vector2 position, String ToolTip = "")
         {
             this.position = position;
             toggle = false;
+            this.ToolTip = ToolTip;
         }
         public static void LoadContent(ContentManager Content)
         {
             hoverTex = Content.Load<Texture2D>("Button/buttonHover");
             toggleTex = Content.Load<Texture2D>("Button/buttonToggle");
+            font = Content.Load<SpriteFont>("Arial");
         }
         public void setTexture(Texture2D texture)
         {
@@ -36,6 +40,8 @@ namespace Wiring
             if (hover(Mouse.GetState().Position.ToVector2()))
             {
                 spriteBatch.Draw(hoverTex, position - new Vector2(hoverTex.Width, hoverTex.Height) / 2, Color.White);
+                //tooltip
+                spriteBatch.DrawString(font, ToolTip, position + new Vector2(0, texture.Height) / 2, Color.Black);
             }
             else if (toggle)
             {
