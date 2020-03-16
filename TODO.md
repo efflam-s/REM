@@ -1,8 +1,10 @@
 ## Liste de trucs à faire : Projet Wiring
 
 #### A faire maintenant :
-* Edition des fils : création (tool Wire) *(rajouter la possiblilté de relier à un fil + affichage)*
+* Edition des fils : vérifier les bugs
 * Déplacement de la Camera
+* Diodes : fixer plein de bugs (en vrai il en n'a pas tant que ça)
+* Boutons : toggle et pas de création si reclic (vérifier la zone l'edition avant d'update ?)
 
 #### A faire plus tard :
 * Angle des composants

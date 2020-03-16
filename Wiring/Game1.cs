@@ -41,7 +41,7 @@ namespace Wiring
             editor = new Editor();
             editor.Initialize();
             AddButtons = new Button[5];
-            AddButtons[0] = new Button(new Vector2(36, 18), "Ajouter un Fil");
+            AddButtons[0] = new Button(new Vector2(36, 18), "Ajouter une Connection (C)");
             AddButtons[1] = new Button(new Vector2(36*2, 18), "Ajouter une Entrée");
             AddButtons[2] = new Button(new Vector2(36*3, 18), "Ajouter une Sortie");
             AddButtons[3] = new Button(new Vector2(36*4, 18), "Ajouter un Inverseur");
@@ -124,6 +124,8 @@ namespace Wiring
                     }
                 }
             }
+            if (Keyboard.GetState().IsKeyDown(Keys.C) && editor.tool == Editor.Tool.Wire)
+                AddButtons[0].toggle = true;
             prevMsState = Mouse.GetState();
             base.Update(gameTime);
             

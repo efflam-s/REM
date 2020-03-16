@@ -82,6 +82,30 @@ namespace Wiring
                 else
                     leftClic = ClicState.Up;
 
+            // Navigation avec roulette et clic roulette
+            /*ClicState middleClic;
+            if (MsState.MiddleButton == ButtonState.Pressed)
+                if (prevMsState.MiddleButton == ButtonState.Pressed)
+                    middleClic = ClicState.Down;
+                else
+                    middleClic = ClicState.Clic;
+            else
+                if (prevMsState.LeftButton == ButtonState.Pressed)
+                    middleClic = ClicState.Declic;
+                else
+                    middleClic = ClicState.Up;
+            if (middleClic == ClicState.Clic)
+            {
+                mousePositionOnClic = MsState.Position.ToVector2();
+                timeOnClic = gameTime.TotalGameTime;
+            }
+            else if (middleClic == ClicState.Declic)
+            {
+                Console.WriteLine(Camera.Translation);
+                Camera.Translation += new Vector3(mousePositionOnClic - MsState.Position.ToVector2(), 0);
+                Console.WriteLine(Camera.Translation);
+            }*/
+
             // Automate à états finis (avec des if parce que j'aime pas les switch)
             if (tool == Tool.Edit)
             {
@@ -162,14 +186,14 @@ namespace Wiring
                         else if (hoveredWire != null)
                         {
                             // Suppression d'un fil (ou d'une partie de fil)
-                            if (hoveredWire.components.Count() <= 2)
+                            if (hoveredWire.components.Count() <= 2 || (MsState.Position.ToVector2() - hoveredWire.Node()).Length() < 5)
                                 mainSchem.DeleteWire(hoveredWire);
                             else
                             {
                                 Vector2 node = hoveredWire.Node();
                                 foreach (Component c in hoveredWire.components)
                                 {
-                                    if (hoveredWire.touchWire(MsState.Position.ToVector2(), node, c.plugPosition(hoveredWire)))
+                                    if (Wire.touchWire(MsState.Position.ToVector2(), node, c.plugPosition(hoveredWire)))
                                         c.wires[c.wires.IndexOf(hoveredWire)] = new Wire();
                                 }
                                 mainSchem.ReloadWiresFromComponents();
@@ -266,7 +290,7 @@ namespace Wiring
                     if (hoveredComponent != null)
                     {
                         // Preparation liaison avec un autre composant
-                        MovingComp = hoveredComponent;
+                        //MovingComp = hoveredComponent;
                     }
                     // stockage des infos importantes du clic (position + temps)
                     mousePositionOnClic = MsState.Position.ToVector2();
@@ -274,12 +298,16 @@ namespace Wiring
                 }
                 else if (leftClic == ClicState.Declic)
                 {
-                    if (hoveredComponent != null && MovingComp != null)
+                    if ((hoveredComponent != null || hoveredWire != null) && (hover(mousePositionOnClic) != null || hoverWire(mousePositionOnClic) != null))
                     {
                         // Ajout d'un fil
-                        Wire start = MovingComp.nearestPlugWire(mousePositionOnClic);
-                        Wire end = hoveredComponent.nearestPlugWire(MsState.Position.ToVector2());
-                        if (hoveredComponent != MovingComp && start != end)
+                        Wire start = (hover(mousePositionOnClic) != null) ?
+                            hover(mousePositionOnClic).nearestPlugWire(mousePositionOnClic) :
+                            hoverWire(mousePositionOnClic);
+                        Wire end = (hoveredComponent != null) ?
+                            hoveredComponent.nearestPlugWire(MsState.Position.ToVector2()) :
+                            hoveredWire;
+                        if (start != end)// && hoveredComponent != hover(mousePositionOnClic))
                         {
                             foreach (Component c in end.components)
                             {
@@ -291,7 +319,7 @@ namespace Wiring
                         }
                         start.Update();
                     }
-                    MovingComp = null;
+                    //MovingComp = null;
                     tool = Tool.Edit;
                 }
             }
@@ -361,13 +389,33 @@ namespace Wiring
         }
         public void Draw(SpriteBatch spriteBatch) 
         {
+            if (tool == Tool.Wire && (hover(mousePositionOnClic) != null || hoverWire(mousePositionOnClic) != null))
+            {
+                // Ajout d'un fil
+                Component hoveredClic = hover(mousePositionOnClic);
+                Wire hoveredWireClic = hoverWire(mousePositionOnClic);
+                Vector2 start, end;
+
+                if (hoveredClic != null)
+                    start = hoveredClic.plugPosition(hoveredClic.nearestPlugWire(mousePositionOnClic));
+                else
+                    start = hoveredWireClic.Node();
+
+                Component hovered = hover(prevMsState.Position.ToVector2());
+                Wire hoveredWire = hoverWire(prevMsState.Position.ToVector2());
+                if (hovered != null)
+                    end = hovered.plugPosition(hovered.nearestPlugWire(prevMsState.Position.ToVector2()));
+                else if (hoveredWire != null)
+                    end = hoveredWire.Node();
+                else
+                    end = prevMsState.Position.ToVector2();
+
+                Wire.drawLine(spriteBatch, start, end, hovered != null || hoveredWire != null);
+            }
+
             foreach (Component c in selected)
             {
                 c.DrawSelected(spriteBatch);
-            }
-            if (MovingComp != null)
-            {
-                //MovingComp.DrawSelected(spriteBatch);
             }
             mainSchem.Draw(spriteBatch);
 

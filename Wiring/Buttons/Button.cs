@@ -41,7 +41,7 @@ namespace Wiring
             {
                 spriteBatch.Draw(hoverTex, position - new Vector2(hoverTex.Width, hoverTex.Height) / 2, Color.White);
                 //tooltip
-                spriteBatch.DrawString(font, ToolTip, position + new Vector2(0, texture.Height) / 2, Color.Black);
+                spriteBatch.DrawString(font, ToolTip, position + new Vector2(0, texture.Height) / 2 + new Vector2(-10, 5), Color.Black);
             }
             else if (toggle)
             {

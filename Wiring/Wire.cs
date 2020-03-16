@@ -50,7 +50,7 @@ namespace Wiring
         {
             if (components.Count() == 2)
             {
-                drawLine(spriteBatch, components[0].plugPosition(this), components[1].plugPosition(this));
+                drawLine(spriteBatch, components[0].plugPosition(this), components[1].plugPosition(this), value);
             }
             else if (components.Count() > 2)
             {
@@ -59,11 +59,11 @@ namespace Wiring
                     center += c.plugPosition(this);
                 center /= components.Count;
                 foreach (Component c in components)
-                    drawLine(spriteBatch, center, c.plugPosition(this));
+                    drawLine(spriteBatch, center, c.plugPosition(this), value);
                 spriteBatch.Draw(value ? nodeOn : nodeOff, center - new Vector2(nodeOn.Width, nodeOn.Height)/2, Color.White);
             }
         }
-        private void drawLine(SpriteBatch spriteBatch, Vector2 A, Vector2 B)
+        public static void drawLine(SpriteBatch spriteBatch, Vector2 A, Vector2 B, bool value)
         {
             int strokeWeight = 2;
             Vector2 ab = B - A;
@@ -90,7 +90,7 @@ namespace Wiring
             }
             return false;
         }
-        public bool touchWire(Vector2 position, Vector2 plugA, Vector2 plugB)
+        public static bool touchWire(Vector2 position, Vector2 plugA, Vector2 plugB)
         {
             Vector2 vectAB = plugB - plugA;
             Vector2 normal = Vector2.Normalize(vectAB);
