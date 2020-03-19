@@ -59,13 +59,13 @@ namespace Wiring
         }
 
         enum ClicState { Up, Clic, Down, Declic }
-        public void Update(GameTime gameTime, Matrix Camera, Vector2 Size)
+        public void Update(GameTime gameTime, ref Matrix Camera, Rectangle Window)
         {
             // variables utiles pour l'update
             KeyboardState KbState = Keyboard.GetState();
             MouseState MsState = Mouse.GetState();
-            Vector2 virtualMousePosition = Vector2.Transform(MsState.Position.ToVector2(), Matrix.Invert(Camera));
-            virtualMousePosition = new Vector2(minMax(virtualMousePosition.X, 0, Size.X), minMax(virtualMousePosition.Y, 0, Size.Y));
+            Vector2 virtualMousePosition = new Vector2(minMax(MsState.X, Window.X, Window.X + Window.Width), minMax(MsState.Y, Window.Y, Window.Y + Window.Height));
+            virtualMousePosition = Vector2.Transform(virtualMousePosition, Matrix.Invert(Camera));
             MsState = new MouseState((int)virtualMousePosition.X, (int)virtualMousePosition.Y, MsState.ScrollWheelValue, MsState.LeftButton, MsState.MiddleButton, MsState.RightButton, MsState.XButton1, MsState.XButton2);
             bool Control = KbState.IsKeyDown(Keys.LeftControl) || KbState.IsKeyDown(Keys.RightControl);
             Component hoveredComponent = hover(MsState.Position.ToVector2()); // component pressed
@@ -82,15 +82,15 @@ namespace Wiring
                 else
                     leftClic = ClicState.Up;
 
-            // Navigation avec roulette et clic roulette
-            /*ClicState middleClic;
+            // Navigation avec clic roulette
+            ClicState middleClic;
             if (MsState.MiddleButton == ButtonState.Pressed)
                 if (prevMsState.MiddleButton == ButtonState.Pressed)
                     middleClic = ClicState.Down;
                 else
                     middleClic = ClicState.Clic;
             else
-                if (prevMsState.LeftButton == ButtonState.Pressed)
+                if (prevMsState.MiddleButton == ButtonState.Pressed)
                     middleClic = ClicState.Declic;
                 else
                     middleClic = ClicState.Up;
@@ -99,12 +99,15 @@ namespace Wiring
                 mousePositionOnClic = MsState.Position.ToVector2();
                 timeOnClic = gameTime.TotalGameTime;
             }
-            else if (middleClic == ClicState.Declic)
+            else if (middleClic == ClicState.Down)
             {
-                Console.WriteLine(Camera.Translation);
-                Camera.Translation += new Vector3(mousePositionOnClic - MsState.Position.ToVector2(), 0);
-                Console.WriteLine(Camera.Translation);
-            }*/
+                Camera.Translation += new Vector3(MsState.Position.ToVector2() - mousePositionOnClic, 0);
+            }
+            // Zoom avec roulette
+            if (MsState.ScrollWheelValue - prevMsState.ScrollWheelValue != 0 && Control)
+            {
+                Camera *= Matrix.CreateScale((float)Math.Pow(1.001, MsState.ScrollWheelValue - prevMsState.ScrollWheelValue));
+            }
 
             // Automate à états finis (avec des if parce que j'aime pas les switch)
             if (tool == Tool.Edit)
@@ -198,7 +201,7 @@ namespace Wiring
                                 }
                                 mainSchem.ReloadWiresFromComponents();
                             }
-
+                            // update les composant voisins/les fils ?
                         }
                     }
                 }

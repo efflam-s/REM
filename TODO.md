@@ -1,9 +1,8 @@
 ## Liste de trucs à faire : Projet Wiring
 
 #### A faire maintenant :
-* Edition des fils : vérifier les bugs
+* Edition des fils : vérifier les bugs (update lors de la supression et de la création sans changement)
 * Déplacement de la Camera
-* Diodes : fixer plein de bugs (en vrai il en n'a pas tant que ça)
 * Boutons : toggle et pas de création si reclic (vérifier la zone l'edition avant d'update ?)
 
 #### A faire plus tard :
@@ -14,8 +13,9 @@
 * Composant : `Comment`
 
 #### Eventuellement, si j'ai le courage :
+* Fixer le stackoverflow
 * Edition des fils : bloquage de l'outils
-* Selection : sélectionner les composant avant le declic
+* (Selection : sélectionner les composant avant le declic)
 * Menu clic droit
 * Sauvegarder des schémas
 * Copier/Coller

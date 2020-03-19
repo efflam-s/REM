@@ -16,7 +16,6 @@ namespace Wiring
         SpriteBatch spriteBatch;
         Editor editor;
         Matrix Camera;
-        Vector2 EditorSize;
         Button[] AddButtons;
         Texture2D toolBar;
         MouseState prevMsState;
@@ -48,7 +47,6 @@ namespace Wiring
             AddButtons[4] = new Button(new Vector2(36*5, 18), "Ajouter une Diode");
             prevMsState = Mouse.GetState();
             Camera = Matrix.CreateScale(4) * Matrix.CreateTranslation(0, 36, 0);
-            EditorSize = new Vector2(50, 50);
 
             base.Initialize();
         }
@@ -92,8 +90,8 @@ namespace Wiring
         protected override void Update(GameTime gameTime)
         {
             //Window.ClientBounds => rectangle de la fenêtre
-            EditorSize = Vector2.Transform(new Vector2(Window.ClientBounds.Width, Window.ClientBounds.Height - 36), Matrix.Invert(Camera));
-            editor.Update(gameTime, Camera, EditorSize);
+            Rectangle EditorWindow = new Rectangle(0, 36, Window.ClientBounds.Width, Window.ClientBounds.Height - 36*2);
+            editor.Update(gameTime, ref Camera, EditorWindow);
             for (int i=0; i<AddButtons.Length; i++)
             {
                 bool declic = Mouse.GetState().LeftButton == ButtonState.Released && prevMsState.LeftButton == ButtonState.Pressed;
