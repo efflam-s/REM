@@ -37,16 +37,29 @@ namespace Wiring
             tool = Tool.Edit;
             mainSchem = new Schematic("main");
 
-            /*mainSchem.wires.Add(new Wire());
-            mainSchem.wires.Add(new Wire());
-            mainSchem.wires.Add(new Wire());
-            mainSchem.wires.Add(new Wire());
-            mainSchem.AddComponent(new Input(mainSchem.wires[0], new Vector2(32, 32)));
-            mainSchem.AddComponent(new Input(mainSchem.wires[1], new Vector2(32, 96)));
-            mainSchem.AddComponent(new Not(mainSchem.wires[0], mainSchem.wires[2], new Vector2(64, 32)));
-            mainSchem.AddComponent(new Not(mainSchem.wires[1], mainSchem.wires[2], new Vector2(64, 96)));
-            mainSchem.AddComponent(new Not(mainSchem.wires[2], mainSchem.wires[3], new Vector2(96, 64)));
-            mainSchem.AddComponent(new Output(mainSchem.wires[3], new Vector2(128, 64)));*/
+            Schematic boxSchem = new Schematic("box0");
+                boxSchem.wires.Add(new Wire());
+                boxSchem.wires.Add(new Wire());
+                boxSchem.wires.Add(new Wire());
+                boxSchem.wires.Add(new Wire());
+                boxSchem.components.Add(new Input(boxSchem.wires[0], new Vector2(32, 32)));
+                boxSchem.components.Add(new Input(boxSchem.wires[1], new Vector2(32, 96)));
+                boxSchem.inputs.Add((Input)boxSchem.components[0]);
+                boxSchem.inputs.Add((Input)boxSchem.components[1]);
+                boxSchem.components.Add(new Not(boxSchem.wires[0], boxSchem.wires[2], new Vector2(64, 32)));
+                boxSchem.components.Add(new Not(boxSchem.wires[1], boxSchem.wires[2], new Vector2(64, 96)));
+                Diode d = new Diode(boxSchem.wires[2], boxSchem.wires[3], new Vector2(96, 64));
+                d.changeDelay();
+                boxSchem.components.Add(d);
+                boxSchem.components.Add(new Output(boxSchem.wires[3], new Vector2(128, 64)));
+                boxSchem.outputs.Add((Output)boxSchem.components[5]);
+                boxSchem.Initialize();
+            BlackBox blackBox = new BlackBox(boxSchem, new Vector2(64, 64));
+            mainSchem.AddComponent(blackBox);
+            foreach (Component c in boxSchem.inputs)
+                blackBox.wires.Add(new Wire());
+            foreach (Component c in boxSchem.outputs)
+                blackBox.wires.Add(new Wire());
             mainSchem.Initialize();
 
             selected = new List<Component>();
@@ -61,10 +74,12 @@ namespace Wiring
         enum ClicState { Up, Clic, Down, Declic }
         public void Update(GameTime gameTime, ref Matrix Camera, Rectangle Window)
         {
+            
             // variables utiles pour l'update
             KeyboardState KbState = Keyboard.GetState();
             MouseState MsState = Mouse.GetState();
             Vector2 virtualMousePosition = new Vector2(minMax(MsState.X, Window.X, Window.X + Window.Width), minMax(MsState.Y, Window.Y, Window.Y + Window.Height));
+            //bool isMouseInScreen = virtualMousePosition == MsState.Position.ToVector2();
             virtualMousePosition = Vector2.Transform(virtualMousePosition, Matrix.Invert(Camera));
             MsState = new MouseState((int)virtualMousePosition.X, (int)virtualMousePosition.Y, MsState.ScrollWheelValue, MsState.LeftButton, MsState.MiddleButton, MsState.RightButton, MsState.XButton1, MsState.XButton2);
             bool Control = KbState.IsKeyDown(Keys.LeftControl) || KbState.IsKeyDown(Keys.RightControl);
@@ -101,12 +116,16 @@ namespace Wiring
             }
             else if (middleClic == ClicState.Down)
             {
-                Camera.Translation += new Vector3(MsState.Position.ToVector2() - mousePositionOnClic, 0);
+                Camera.Translation += new Vector3(MsState.Position.ToVector2() - mousePositionOnClic, 0) * Camera.M11; // pas trouvé de meilleur moyen pour trouver la valeur du zoom que M11
             }
             // Zoom avec roulette
             if (MsState.ScrollWheelValue - prevMsState.ScrollWheelValue != 0 && Control)
             {
-                Camera *= Matrix.CreateScale((float)Math.Pow(1.001, MsState.ScrollWheelValue - prevMsState.ScrollWheelValue));
+                float scale = (float)Math.Pow(2, (float)(MsState.ScrollWheelValue - prevMsState.ScrollWheelValue) / 720); // un cran de scroll = 120 ou -120
+                //Camera *= Matrix.CreateTranslation(MsState.X, MsState.Y, 0);
+                Camera *= Matrix.CreateScale(scale);
+                //Camera *= Matrix.CreateTranslation(-MsState.X, -MsState.Y, 0);
+                //Camera *= Matrix.CreateTranslation(scale * MsState.X, scale * MsState.Y, 0);
             }
 
             // Automate à états finis (avec des if parce que j'aime pas les switch)
@@ -337,6 +356,8 @@ namespace Wiring
                         c.Update();
                     if (c is Diode d)
                         d.UpdateTime(gameTime);
+                    if (c is BlackBox bb)
+                        bb.UpdateTime(gameTime);
                 }
         }
 

@@ -97,11 +97,14 @@ namespace Wiring
                 bool declic = Mouse.GetState().LeftButton == ButtonState.Released && prevMsState.LeftButton == ButtonState.Pressed;
                 if (AddButtons[i].toggle && declic)
                 {
+                    // détoggle dans le cas où on clique n'importe où
                     AddButtons[i].toggle = false;
                 }
                 if (AddButtons[i].hover(Mouse.GetState().Position.ToVector2()) && declic)
                 {
                     AddButtons[i].toggle = true;
+                    //AddButtons[i].toggle = !AddButtons[i].toggle;
+                    // création d'un composant
                     switch (i)
                     {
                         case 0:
@@ -122,8 +125,7 @@ namespace Wiring
                     }
                 }
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.C) && editor.tool == Editor.Tool.Wire)
-                AddButtons[0].toggle = true;
+            AddButtons[0].toggle = (editor.tool == Editor.Tool.Wire);
             prevMsState = Mouse.GetState();
             base.Update(gameTime);
             
@@ -149,7 +151,7 @@ namespace Wiring
                 b.Draw(spriteBatch);
             }
             spriteBatch.Draw(toolBar, new Rectangle(0, Window.ClientBounds.Height - toolBar.Height, Window.ClientBounds.Width, toolBar.Height), Color.White);
-            spriteBatch.DrawString(font, editor.GetInfos(), new Vector2(36, Window.ClientBounds.Height -  toolBar.Height*3/4), Color.Black);
+            spriteBatch.DrawString(font, editor.GetInfos() + "  Position Camera : ("+Camera.M41+", "+Camera.M42+")  Zoom : "+Camera.M11, new Vector2(36, Window.ClientBounds.Height -  toolBar.Height*3/4), Color.Black);
             spriteBatch.End();
             base.Draw(gameTime);
         }

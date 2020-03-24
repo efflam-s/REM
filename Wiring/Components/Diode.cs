@@ -49,7 +49,6 @@ namespace Wiring
         }
         public override void Update()
         {
-            Console.WriteLine("update diode");
             if (state == State.Down)
             {
                 if (wires[0].value)
@@ -106,6 +105,10 @@ namespace Wiring
             spriteBatch.Draw(texture, position - new Vector2(texture.Width, texture.Height) / 2, Color.White);
         }
 
+        /// <summary>
+        /// S'execute une et une seule fois à chaque update du jeu
+        /// </summary>
+        /// <returns>Si il y a eu un changement</returns>
         public void UpdateTime(GameTime gameTime)
         {
             if (state == State.Rise || state == State.Fall)

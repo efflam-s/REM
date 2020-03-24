@@ -35,6 +35,7 @@ namespace Wiring
             Input.LoadContent(Content);
             Not.LoadContent(Content);
             Diode.LoadContent(Content);
+            BlackBox.LoadContent(Content);
         }
         protected void plugWires()
         {

@@ -85,6 +85,7 @@ namespace Wiring
                 wires.Remove(w);
             }
         }
+
         public void ReloadWiresFromComponents()
         {
             // Supprime toute les informations que contiennent les fils (sauf leur valeur),
@@ -109,10 +110,10 @@ namespace Wiring
             }
             //wires.RemoveAll(w => w.components.Count() == 0);
         }
-
         public void Initialize()
         {
-            foreach(Wire w in wires)
+            ReloadWiresFromComponents();
+            foreach (Wire w in wires)
             {
                 w.Update();
             }
