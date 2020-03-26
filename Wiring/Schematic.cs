@@ -141,5 +141,14 @@ namespace Wiring
                 c.BasicDraw(spriteBatch);
             }
         }*/
+        public Schematic Copy()
+        {
+            Schematic newSchem = new Schematic(Name+" (copy)");
+            foreach (Component c in components)
+            {
+                newSchem.AddComponent(c.Copy());
+            }
+            return newSchem;
+        }
     }
 }

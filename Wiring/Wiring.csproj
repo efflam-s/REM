@@ -41,6 +41,8 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Buttons\StringButton.cs" />
+    <Compile Include="Buttons\TextureButton.cs" />
     <Compile Include="Components\BlackBox.cs" />
     <Compile Include="Buttons\Button.cs" />
     <Compile Include="Components\Component.cs" />
@@ -60,6 +62,7 @@
       <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\Windows\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>

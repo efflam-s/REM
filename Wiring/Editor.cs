@@ -17,7 +17,12 @@ namespace Wiring
         public enum Tool { Edit, Select, Move, Wire }
         // Edit : Outil pour faire un peu tout (selection, déplacement, clics composants...)
         public Tool tool;
-        private Schematic mainSchem;
+        public List<Schematic> schemPile;
+        public Schematic mainSchem
+        {
+            get => schemPile[schemPile.Count - 1];
+            set => schemPile[schemPile.Count - 1] = value;
+        }
 
         List<Component> selected; // la liste des composants sélectionnés
         List<Vector2> relativePositionToMouse; // la liste de leur positions relative à la souris (ou la position relative du composant déplacé en 0)
@@ -35,9 +40,9 @@ namespace Wiring
         public void Initialize()
         {
             tool = Tool.Edit;
-            mainSchem = new Schematic("main");
+            schemPile = new List<Schematic> { new Schematic("main") };
 
-            Schematic boxSchem = new Schematic("box0");
+            /*Schematic boxSchem = new Schematic("box0");
                 boxSchem.wires.Add(new Wire());
                 boxSchem.wires.Add(new Wire());
                 boxSchem.wires.Add(new Wire());
@@ -59,7 +64,7 @@ namespace Wiring
             foreach (Component c in boxSchem.inputs)
                 blackBox.wires.Add(new Wire());
             foreach (Component c in boxSchem.outputs)
-                blackBox.wires.Add(new Wire());
+                blackBox.wires.Add(new Wire());*/
             mainSchem.Initialize();
 
             selected = new List<Component>();
@@ -122,10 +127,13 @@ namespace Wiring
             if (MsState.ScrollWheelValue - prevMsState.ScrollWheelValue != 0 && Control)
             {
                 float scale = (float)Math.Pow(2, (float)(MsState.ScrollWheelValue - prevMsState.ScrollWheelValue) / 720); // un cran de scroll = 120 ou -120
-                //Camera *= Matrix.CreateTranslation(MsState.X, MsState.Y, 0);
-                Camera *= Matrix.CreateScale(scale);
-                //Camera *= Matrix.CreateTranslation(-MsState.X, -MsState.Y, 0);
-                //Camera *= Matrix.CreateTranslation(scale * MsState.X, scale * MsState.Y, 0);
+                if ((scale < 1 && Camera.M11 > 1) || scale > 1 && Camera.M11 < 8)
+                {
+                    //Camera *= Matrix.CreateTranslation(MsState.X, MsState.Y, 0);
+                    Camera *= Matrix.CreateScale(scale);
+                    //Camera *= Matrix.CreateTranslation(-MsState.X, -MsState.Y, 0);
+                    //Camera *= Matrix.CreateTranslation(scale * MsState.X, scale * MsState.Y, 0);
+                }
             }
 
             // Automate à états finis (avec des if parce que j'aime pas les switch)
@@ -193,6 +201,11 @@ namespace Wiring
                             {
                                 d.changeDelay();
                             }
+                            else if (hoveredComponent is BlackBox bb && !Control && KbState.IsKeyUp(Keys.LeftAlt))
+                            {
+                                // ouvrir une schematic de blackbox
+                                schemPile.Add(bb.schem);
+                            }
                             else// if (!selected.Contains(hoveredComponent))
                             {
                                 // selection d'un composant
@@ -257,6 +270,7 @@ namespace Wiring
                     if (KbState.IsKeyDown(Keys.C) && prevKbState.IsKeyUp(Keys.C))
                     {
                         tool = Tool.Wire;
+                        mousePositionOnClic = new Vector2();
                     }
                 }
             }
@@ -445,11 +459,12 @@ namespace Wiring
 
             switch (tool) {
                 case Tool.Edit:
+                    Vector2 MsPos = prevMsState.Position.ToVector2();
                     if (prevKbState.IsKeyUp(Keys.LeftControl) && prevKbState.IsKeyUp(Keys.RightControl) && prevKbState.IsKeyUp(Keys.LeftAlt) &&
-                            (hover(prevMsState.Position.ToVector2()) is Input || hover(prevMsState.Position.ToVector2()) is Diode))
+                            (hover(MsPos) is Input || hover(MsPos) is Diode || hover(MsPos) is BlackBox))
                         Mouse.SetCursor(MouseCursor.Hand);
                     else if (prevKbState.IsKeyUp(Keys.LeftControl) && prevKbState.IsKeyUp(Keys.RightControl) &&
-                            hoverWire(prevMsState.Position.ToVector2()) != null && hover(prevMsState.Position.ToVector2()) == null)
+                            hoverWire(MsPos) != null && hover(MsPos) == null)
                         Mouse.SetCursor(scissor);
                     else
                         Mouse.SetCursor(MouseCursor.Arrow);

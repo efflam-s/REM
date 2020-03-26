@@ -81,5 +81,9 @@ namespace Wiring
         {
             spriteBatch.Draw(square, position - new Vector2(square.Width, square.Height) / 2, Color.White);
         }*/
+        /*public virtual Component Copy()
+        {
+            throw new MissingMethodException("no Copy() method found for that type of Component : " + this.GetType());
+        }*/
     }
 }

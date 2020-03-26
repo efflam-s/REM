@@ -14,7 +14,7 @@ namespace Wiring
     public class BlackBox : Component
     {
         public static Texture2D texOn, texOff;
-        Schematic schem;
+        public Schematic schem;
         public BlackBox(Schematic schem, Vector2 position) : base(position)
         {
             this.schem = schem;
@@ -79,16 +79,16 @@ namespace Wiring
             int outpCount = schem.outputs.Count;
             if (inpCount + outpCount != wires.Count)
                 throw new Exception("inapropriate number of wires");
-            for (int i=0; i<wires.Count; i++)
+            for (int i = 0; i < wires.Count; i++)
             {
                 if (wire == wires[i]) // on a trouvé le fil
                 {
                     if (i < inpCount)
                     {
-                        return position + new Vector2(-8, 8f * i / inpCount);
+                        return position + (inpCount == 1 ? new Vector2(-8, 0) : new Vector2(-8, -6 + 12f * i / (inpCount - 1)));
                     } else
                     {
-                        return position + new Vector2(8, 8f * (i-inpCount) / outpCount);
+                        return position + (outpCount == 1 ? new Vector2(8, 0) : new Vector2(8, -6 + 12f * (i - inpCount) / (outpCount - 1)));
                     }
                 }
             }
@@ -101,17 +101,45 @@ namespace Wiring
             spriteBatch.Draw(texture, position - new Vector2(texture.Width, texture.Height) / 2, Color.White);
             //schem.BasicDraw(spriteBatch);
         }
-        /*public void ReloadPlugsFromInOut()
+        public void ReloadPlugsFromInOut(bool recursive)
         {
-            //wires.Clear();
-            foreach (Wire w in wires)
-            {
-                if ()
+            // probleme : pas de differentiation input/output (des outputs peuvent devenir des inputs)
+            if (wires.Count < schem.inputs.Count + schem.outputs.Count) {
+                // il manque des fils
+                for (int i= wires.Count; i < schem.inputs.Count + schem.outputs.Count; i++)
+                {
+                    wires.Add(new Wire());
+                }
             }
-            foreach (Input i in schem.inputs)
+            else if (wires.Count > schem.inputs.Count + schem.outputs.Count)
             {
-                wires.Add(new Wire());
+                // il y a des fils en trop
+                wires.RemoveRange(schem.inputs.Count + schem.outputs.Count, wires.Count - schem.inputs.Count - schem.outputs.Count);
             }
-        }*/
+            // sinon tout va bien (ou pas ?)
+
+            if (recursive)
+            {
+                foreach (Component c in schem.components)
+                    if (c is BlackBox bb)
+                        bb.ReloadPlugsFromInOut(true);
+            }
+        }
+        public static BlackBox Default(Vector2 position)
+        {
+            Schematic boxSchem = new Schematic("box0");
+                boxSchem.wires.Add(new Wire());
+                boxSchem.components.Add(new Input(boxSchem.wires[0], new Vector2(32, 32)));
+                boxSchem.inputs.Add((Input)boxSchem.components[0]);
+                boxSchem.components.Add(new Output(boxSchem.wires[0], new Vector2(64, 32)));
+                boxSchem.outputs.Add((Output)boxSchem.components[1]);
+            boxSchem.Initialize();
+            BlackBox blackBox = new BlackBox(boxSchem, position);
+            foreach (Component c in boxSchem.inputs)
+                blackBox.wires.Add(new Wire());
+            foreach (Component c in boxSchem.outputs)
+                blackBox.wires.Add(new Wire());
+            return blackBox;
+        }
     }
 }
