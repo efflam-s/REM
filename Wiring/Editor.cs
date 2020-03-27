@@ -90,6 +90,7 @@ namespace Wiring
             bool Control = KbState.IsKeyDown(Keys.LeftControl) || KbState.IsKeyDown(Keys.RightControl);
             Component hoveredComponent = hover(MsState.Position.ToVector2()); // component pressed
             Wire hoveredWire = hoverWire(MsState.Position.ToVector2()); // wire pressed
+            // get left clic state
             ClicState leftClic;
             if (MsState.LeftButton == ButtonState.Pressed)
                 if (prevMsState.LeftButton == ButtonState.Pressed)
@@ -123,16 +124,31 @@ namespace Wiring
             {
                 Camera.Translation += new Vector3(MsState.Position.ToVector2() - mousePositionOnClic, 0) * Camera.M11; // pas trouvé de meilleur moyen pour trouver la valeur du zoom que M11
             }
-            // Zoom avec roulette
-            if (MsState.ScrollWheelValue - prevMsState.ScrollWheelValue != 0 && Control)
+            if (MsState.ScrollWheelValue - prevMsState.ScrollWheelValue != 0)
             {
-                float scale = (float)Math.Pow(2, (float)(MsState.ScrollWheelValue - prevMsState.ScrollWheelValue) / 720); // un cran de scroll = 120 ou -120
-                if ((scale < 1 && Camera.M11 > 1) || scale > 1 && Camera.M11 < 8)
+                if (Control)
                 {
-                    //Camera *= Matrix.CreateTranslation(MsState.X, MsState.Y, 0);
-                    Camera *= Matrix.CreateScale(scale);
-                    //Camera *= Matrix.CreateTranslation(-MsState.X, -MsState.Y, 0);
-                    //Camera *= Matrix.CreateTranslation(scale * MsState.X, scale * MsState.Y, 0);
+                    // Zoom avec roulette
+                    float scale = (float)Math.Pow(2, (float)(MsState.ScrollWheelValue - prevMsState.ScrollWheelValue) / 720); // un cran de scroll = 120 ou -120
+                    Vector3 CameraPosition = Camera.Translation;
+                    float Zoom = Camera.M11;
+                    // around scale to fit between 1 and 8
+                    if (Zoom * scale < 1)
+                        scale = 1 / Zoom;
+                    if (Zoom * scale > 8)
+                        scale = 8 / Zoom;
+                    Vector2 originalMousePosition = Vector2.Transform(MsState.Position.ToVector2(), Camera);
+                    Camera = Matrix.CreateTranslation(new Vector3(-MsState.X, -MsState.Y, 0)) * Matrix.CreateScale(scale * Zoom) * Matrix.CreateTranslation(CameraPosition + new Vector3(MsState.X, MsState.Y, 0) * Zoom);
+                }
+                else if (KbState.IsKeyDown(Keys.LeftShift) || KbState.IsKeyDown(Keys.RightShift))
+                {
+                    // scroll horizontal
+                    Camera *= Matrix.CreateTranslation((float)(MsState.ScrollWheelValue - prevMsState.ScrollWheelValue) / 3, 0, 0);
+                }
+                else
+                {
+                    // scroll vertical
+                    Camera *= Matrix.CreateTranslation(0, (float)(MsState.ScrollWheelValue - prevMsState.ScrollWheelValue) / 3, 0);
                 }
             }
 

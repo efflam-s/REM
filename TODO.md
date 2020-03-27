@@ -1,14 +1,17 @@
 ## Liste de trucs à faire : Projet Wiring
 
 #### A faire maintenant :
-* Pouvoir rajouter ou enlever des entrée/sorties dans les `BlackBox` *(implémenté mais peut-être à fix)*
-* Edition des fils : vérifier les bugs *(update lors de la supression et de la création sans changement)*
-* Navigation : zoom dépendant de la position de la souris
-* Navigation : déplacement avec scroll (**V**) et shift+scroll (**H**)
 * Bug : écoute des hotkeys (notamment 'C') pdt le renommage
 * Hotkey : `Ctrl+R` pour renommer le Schematic
 * Caractère ">" entre les noms de schematic
 * Bouton de retour en arrière (navigation dans les schematics)
+* Pouvoir rajouter ou enlever des entrée/sorties dans les `BlackBox` *(implémenté mais peut-être à fix)*
+* Edition des fils : vérifier les bugs *(update lors de la supression et de la création sans changement)*
+* Edition des fils : afficher la prise où on branche
+* Curseur pour renommer les schematics
+
+#### Bugs de Martin :
+* Bug : pointeur de la souris override losqu'on veut changer la taille de la fenêtre
 
 #### A faire plus tard :
 * Angle des composants
