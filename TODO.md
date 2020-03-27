@@ -3,8 +3,6 @@
 #### A faire maintenant :
 * Bug : écoute des hotkeys (notamment 'C') pdt le renommage
 * Hotkey : `Ctrl+R` pour renommer le Schematic
-* Caractère ">" entre les noms de schematic
-* Bouton de retour en arrière (navigation dans les schematics)
 * Pouvoir rajouter ou enlever des entrée/sorties dans les `BlackBox` *(implémenté mais peut-être à fix)*
 * Edition des fils : vérifier les bugs *(update lors de la supression et de la création sans changement)*
 * Edition des fils : afficher la prise où on branche

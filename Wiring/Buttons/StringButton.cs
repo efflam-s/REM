@@ -16,12 +16,12 @@ namespace Wiring
         {
             Bounds.Location = position.ToPoint();
             this.text = text;
-            Bounds.Size = font.MeasureString(text).ToPoint() + new Point(16, 8);
+            Bounds.Size = font.MeasureString(text).ToPoint() + new Point(12, 8);
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);
-            spriteBatch.DrawString(font, text, Bounds.Location.ToVector2() + new Vector2(8, 4), Color.Black);
+            spriteBatch.DrawString(font, text, Bounds.Location.ToVector2() + new Vector2(6, 4), Color.Black);
         }
         public void setText(string newText)
         {

@@ -16,10 +16,11 @@ namespace Wiring
         SpriteBatch spriteBatch;
         Editor editor;
         Matrix Camera;
-        TextureButton[] AddButtons;
+        TextureButton[] AddButtons, MiscButtons;
         List<StringButton> SchematicPath;
-        Texture2D toolBar;
+        Texture2D toolBar, separator, pathSeparator;
         MouseState prevMsState;
+        KeyboardState prevKbState;
         SpriteFont font;
         StringBuilder builder;
         bool isListeningToInputText;
@@ -50,8 +51,11 @@ namespace Wiring
             AddButtons[3] = new TextureButton(new Vector2(20+36*3, 2), "Ajouter un Inverseur");
             AddButtons[4] = new TextureButton(new Vector2(20+36*4, 2), "Ajouter une Diode");
             AddButtons[5] = new TextureButton(new Vector2(20+36*5, 2), "Ajouter une Boîte Noire");
+            MiscButtons = new TextureButton[1];
+            MiscButtons[0] = new TextureButton(new Vector2(4, 38), "Retour (Echap)");
             SchematicPath = new List<StringButton>();
             prevMsState = Mouse.GetState();
+            prevKbState = Keyboard.GetState();
             Camera = Matrix.CreateScale(4) * Matrix.CreateTranslation(0, 36, 0);
             builder = new StringBuilder();
             isListeningToInputText = false;
@@ -71,15 +75,18 @@ namespace Wiring
             Editor.LoadContent(Content);
             Button.LoadContent(Content);
             toolBar = Content.Load<Texture2D>("Button/toolBar");
+            separator = Content.Load<Texture2D>("Button/separator");
+            pathSeparator = Content.Load<Texture2D>("Button/pathSeparator");
             AddButtons[0].setTexture(Content.Load<Texture2D>("Button/addWireButton"));
             AddButtons[1].setTexture(Content.Load<Texture2D>("Button/addInputButton"));
             AddButtons[2].setTexture(Content.Load<Texture2D>("Button/addOutputButton"));
             AddButtons[3].setTexture(Content.Load<Texture2D>("Button/addNotButton"));
             AddButtons[4].setTexture(Content.Load<Texture2D>("Button/addDiodeButton"));
             AddButtons[5].setTexture(Content.Load<Texture2D>("Button/addBlackBoxButton"));
+            MiscButtons[0].setTexture(Content.Load<Texture2D>("Button/arrowUp"));
             font = Content.Load<SpriteFont>("Arial");
 
-            SchematicPath.Add(new StringButton(new Vector2(20, 41), editor.mainSchem.Name, "Renommer"));
+            SchematicPath.Add(new StringButton(new Vector2(43, 41), editor.mainSchem.Name, "Renommer"));
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
         }
@@ -106,13 +113,22 @@ namespace Wiring
 
             if (editor.schemPile.Count > SchematicPath.Count)
             {
-                Vector2 newPosition = new Vector2(SchematicPath[SchematicPath.Count - 1].Bounds.Right, SchematicPath[SchematicPath.Count - 1].Bounds.Top) + new Vector2(4, 0);
+                Vector2 newPosition = new Vector2(SchematicPath[SchematicPath.Count - 1].Bounds.Right, SchematicPath[SchematicPath.Count - 1].Bounds.Top) + new Vector2(8, 0);
                 SchematicPath[SchematicPath.Count - 1].ToolTip = "";
                 SchematicPath.Add(new StringButton(newPosition, editor.mainSchem.Name, "Renommer"));
             }
 
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape) && prevKbState.IsKeyUp(Keys.Escape))
+            {
+                if (editor.schemPile.Count > 1)
+                {
+                    // navigation vers le schematic parent
+                    schematicNav(editor.schemPile.Count - 2);
+                }
+            }
+
             bool declic = Mouse.GetState().LeftButton == ButtonState.Released && prevMsState.LeftButton == ButtonState.Pressed;
-            for (int i=0; i<AddButtons.Length; i++)
+            for (int i = 0; i < AddButtons.Length; i++)
             {
                 if (AddButtons[i].toggle && declic)
                 {
@@ -149,6 +165,23 @@ namespace Wiring
             }
             AddButtons[0].toggle = (editor.tool == Editor.Tool.Wire);
 
+            for (int i = 0; i < MiscButtons.Length; i++)
+            {
+                if (MiscButtons[i].hover(Mouse.GetState().Position.ToVector2()) && declic)
+                {
+                    switch (i)
+                    {
+                        case 0:
+                            if (editor.schemPile.Count > 1)
+                            {
+                                // navigation vers le schematic parent
+                                schematicNav(editor.schemPile.Count - 2);
+                            }
+                            break;
+                    }
+                }
+            }
+
             for (int i = 0; i < SchematicPath.Count; i++)
             {
                 if (SchematicPath[i].toggle && declic)
@@ -174,14 +207,7 @@ namespace Wiring
                     else
                     {
                         // autre schematic => navigation
-                        editor.schemPile.RemoveRange(i + 1, editor.schemPile.Count - i - 1);
-                        SchematicPath.RemoveRange(i + 1, SchematicPath.Count - i - 1);
-                        SchematicPath[SchematicPath.Count-1].ToolTip = "Renommer";
-                        // à mettre dans une fonction ? :
-                        foreach (Component c in editor.mainSchem.components)
-                            if (c is BlackBox bb)
-                                bb.ReloadPlugsFromInOut(true);
-                        editor.mainSchem.ReloadWiresFromComponents();
+                        schematicNav(i);
                     }
                 }
             }
@@ -189,6 +215,7 @@ namespace Wiring
             //Console.WriteLine(SchematicPath[0].Bounds);
 
             prevMsState = Mouse.GetState();
+            prevKbState = Keyboard.GetState();
             base.Update(gameTime);
         }
 
@@ -208,17 +235,26 @@ namespace Wiring
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
             // schematic bar
             spriteBatch.Draw(toolBar, new Rectangle(0, toolBar.Height, Window.ClientBounds.Width, toolBar.Height), Color.White);
+            spriteBatch.Draw(separator, new Vector2(37, 36), Color.White);
             foreach (Button b in SchematicPath)
+            {
                 b.Draw(spriteBatch);
+                if (b != SchematicPath[SchematicPath.Count-1])
+                {
+                    spriteBatch.Draw(pathSeparator, new Vector2(b.Bounds.Right, b.Bounds.Top), Color.White);
+                }
+            }
             // buttons bar
             spriteBatch.Draw(toolBar, new Rectangle(0, 0, Window.ClientBounds.Width, toolBar.Height), Color.White);
             foreach (Button b in AddButtons)
-            {
                 b.Draw(spriteBatch);
-            }
             // debug bar
             spriteBatch.Draw(toolBar, new Rectangle(0, Window.ClientBounds.Height - toolBar.Height, Window.ClientBounds.Width, toolBar.Height), Color.White);
             spriteBatch.DrawString(font, editor.GetInfos() + "  Position Camera : ("+Camera.M41+", "+Camera.M42+")  Zoom : "+Camera.M11, new Vector2(36, Window.ClientBounds.Height -  toolBar.Height*3/4), Color.Black);
+            // other buttons
+            foreach (Button b in MiscButtons)
+                b.Draw(spriteBatch);
+            
             spriteBatch.End();
             base.Draw(gameTime);
         }
@@ -244,6 +280,21 @@ namespace Wiring
 
                 SchematicPath[SchematicPath.Count - 1].setText(builder.ToString());
             }
+        }
+
+        /// <summary>
+        /// Permet de naviguer vers le schematic n°id
+        /// </summary>
+        private void schematicNav(int id)
+        {
+            editor.schemPile.RemoveRange(id + 1, editor.schemPile.Count - id - 1);
+            SchematicPath.RemoveRange(id + 1, SchematicPath.Count - id - 1);
+            SchematicPath[SchematicPath.Count - 1].ToolTip = "Renommer";
+            // à mettre dans une fonction ? :
+            foreach (Component c in editor.mainSchem.components)
+                if (c is BlackBox bb)
+                    bb.ReloadPlugsFromInOut(true);
+            editor.mainSchem.ReloadWiresFromComponents();
         }
     }
 }

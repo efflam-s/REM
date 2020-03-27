@@ -15,4 +15,4 @@ Raccourcis clavier (présents et futurs) :
 * Z (bientôt) ou ctrl+roulette : Zommer
 * H (bientôt) ou clic milieu : déplacement panoramique
 * roulette et shift+roulette : déplacement vertical et horizontal
-* echap (bientôt ?) ou alt+haut (bientôt ?) : retour au schéma parent
+* echap ou alt+haut (bientôt ?) : retour au schéma parent
