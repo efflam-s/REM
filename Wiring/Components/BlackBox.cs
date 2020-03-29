@@ -127,7 +127,7 @@ namespace Wiring
         }
         public static BlackBox Default(Vector2 position)
         {
-            Schematic boxSchem = new Schematic("box0");
+            Schematic boxSchem = new Schematic("Box");
                 boxSchem.wires.Add(new Wire());
                 boxSchem.components.Add(new Input(boxSchem.wires[0], new Vector2(32, 32)));
                 boxSchem.inputs.Add((Input)boxSchem.components[0]);

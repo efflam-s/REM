@@ -41,7 +41,7 @@ namespace Wiring
         public void Initialize()
         {
             tool = Tool.Edit;
-            schemPile = new List<Schematic> { new Schematic("main") };
+            schemPile = new List<Schematic> { new Schematic("Schematic") };
             mainSchem.Initialize();
 
             selected = new List<Component>();
@@ -203,6 +203,7 @@ namespace Wiring
                                         c.wires[c.wires.IndexOf(hoveredWire)] = new Wire();
                                 }
                                 mainSchem.ReloadWiresFromComponents();
+                                hoveredWire.Update();
                             }
                             // update les composant voisins/les fils ?
                         }
@@ -334,15 +335,15 @@ namespace Wiring
             //prevMsState = MsState;
 
             //if ((gameTime.TotalGameTime - gameTime.ElapsedGameTime).TotalMilliseconds % 2000 > gameTime.TotalGameTime.TotalMilliseconds % 2000)
-                foreach (Component c in mainSchem.components)
-                {
-                    if (c.MustUpdate)
-                        c.Update();
-                    if (c is Diode d)
-                        d.UpdateTime(gameTime);
-                    if (c is BlackBox bb)
-                        bb.UpdateTime(gameTime);
-                }
+            foreach (Component c in mainSchem.components)
+            {
+                if (c.MustUpdate)
+                    c.Update();
+                if (c is Diode d)
+                    d.UpdateTime(gameTime);
+                if (c is BlackBox bb)
+                    bb.UpdateTime(gameTime);
+            }
         }
 
         /// <summary>
@@ -361,7 +362,7 @@ namespace Wiring
             return null;
         }
         /// <summary>
-        /// Détermine le fil sur lequel est positionné la souris. Retourne null si pas de composant trouvé
+        /// Détermine le fil sur lequel est positionné la souris. Retourne null si pas de fil trouvé
         /// </summary>
         public Wire hoverWire(Vector2 position)
         {
@@ -373,7 +374,7 @@ namespace Wiring
             return null;
         }
         /// <summary>
-        /// Détemine si la souris a bougée de plus de 12 pixels depuis le dernier clic
+        /// Détemine si la souris a bougée de plus de 4 pixels depuis le dernier clic
         /// </summary>
         private bool hasMoved(Vector2 MousePosition, Matrix Camera)
         {
@@ -428,28 +429,29 @@ namespace Wiring
             mainSchem.Draw(spriteBatch);
 
             if (Window.Contains(Mouse.GetState().Position))
-            switch (tool) {
-                case Tool.Edit:
-                    Vector2 MsPos = Inpm.MsPosition();
-                    if (!Inpm.Control && !Inpm.Alt &&
-                            (hover(MsPos) is Input || hover(MsPos) is Diode || hover(MsPos) is BlackBox))
-                        Mouse.SetCursor(MouseCursor.Hand);
-                    else if (!Inpm.Control &&
-                            hoverWire(MsPos) != null && hover(MsPos) == null)
-                        Mouse.SetCursor(scissor);
-                    else
+                switch (tool) {
+                    // Choix du curseur
+                    case Tool.Edit:
+                        Vector2 MsPos = Inpm.MsPosition();
+                        if (!Inpm.Control && !Inpm.Alt &&
+                                (hover(MsPos) is Input || hover(MsPos) is Diode || hover(MsPos) is BlackBox))
+                            Mouse.SetCursor(MouseCursor.Hand);
+                        else if (!Inpm.Control &&
+                                hoverWire(MsPos) != null && hover(MsPos) == null)
+                            Mouse.SetCursor(scissor);
+                        else
+                            Mouse.SetCursor(MouseCursor.Arrow);
+                        break;
+                    case Tool.Select:
+                        Mouse.SetCursor(MouseCursor.Crosshair); // peut-etre a modifier pour un curseur curstom
+                        break;
+                    case Tool.Move:
+                        Mouse.SetCursor(MouseCursor.SizeAll);
+                        break;
+                    default:
                         Mouse.SetCursor(MouseCursor.Arrow);
-                    break;
-                case Tool.Select:
-                    Mouse.SetCursor(MouseCursor.Crosshair); // peut-etre a modifier pour un curseur curstom
-                    break;
-                case Tool.Move:
-                    Mouse.SetCursor(MouseCursor.SizeAll);
-                    break;
-                default:
-                    Mouse.SetCursor(MouseCursor.Arrow);
-                    break;
-            }
+                        break;
+                }
             if (Inpm.MsState.LeftButton == ButtonState.Pressed)
             {
                 if (tool == Tool.Select)
@@ -464,6 +466,7 @@ namespace Wiring
         }
         public void AddComponent(Component c)
         {
+            c.position = Inpm.MsPosition();
             mainSchem.AddComponent(c);
             tool = Tool.Move;
             MovingComp = c;

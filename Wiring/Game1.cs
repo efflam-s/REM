@@ -57,6 +57,7 @@ namespace Wiring
             Camera = Matrix.CreateScale(4) * Matrix.CreateTranslation(0, 36*2, 0);
             builder = new StringBuilder();
             isListeningToInputText = false;
+            // seed random : DateTime.Now.Millisecond;
 
             base.Initialize();
         }
@@ -75,6 +76,7 @@ namespace Wiring
             toolBar = Content.Load<Texture2D>("Button/toolBar");
             separator = Content.Load<Texture2D>("Button/separator");
             pathSeparator = Content.Load<Texture2D>("Button/pathSeparator");
+            StringButton.editCursor = Content.Load<Texture2D>("EditBar");
             AddButtons[0].setTexture(Content.Load<Texture2D>("Button/addWireButton"));
             AddButtons[1].setTexture(Content.Load<Texture2D>("Button/addInputButton"));
             AddButtons[2].setTexture(Content.Load<Texture2D>("Button/addOutputButton"));
@@ -196,7 +198,10 @@ namespace Wiring
                     {
                         // fin de renommage
                         isListeningToInputText = false;
-                        editor.mainSchem.Name = SchematicPath[i].text;
+                        if (SchematicPath[i].text.Length == 0)
+                            SchematicPath[i].setText(editor.mainSchem.Name);
+                        else
+                            editor.mainSchem.Name = SchematicPath[i].text;
                     }
                 }
                 if (SchematicPath[i].hover(Inpm.MsPosition()) && declic)
@@ -214,6 +219,14 @@ namespace Wiring
                         schematicNav(i);
                     }
                 }
+            }
+
+            if (Inpm.Control && Inpm.OnPressed(Keys.R))
+            {
+                // Rename
+                isListeningToInputText = true;
+                SchematicPath[SchematicPath.Count-1].toggle = true;
+                builder = new StringBuilder(SchematicPath[SchematicPath.Count - 1].text);
             }
 
             //Console.WriteLine(SchematicPath[0].Bounds);
@@ -238,12 +251,16 @@ namespace Wiring
             // schematic bar
             spriteBatch.Draw(toolBar, new Rectangle(0, toolBar.Height, Window.ClientBounds.Width, toolBar.Height), Color.White);
             spriteBatch.Draw(separator, new Vector2(37, 36), Color.White);
-            foreach (Button b in SchematicPath)
+            foreach (StringButton b in SchematicPath)
             {
                 b.Draw(spriteBatch);
                 if (b != SchematicPath[SchematicPath.Count-1])
                 {
                     spriteBatch.Draw(pathSeparator, new Vector2(b.Bounds.Right, b.Bounds.Top), Color.White);
+                }
+                else if (isListeningToInputText)
+                {
+                    b.DrawEditCursor(spriteBatch, gameTime);
                 }
             }
             // buttons bar
@@ -252,7 +269,7 @@ namespace Wiring
                 b.Draw(spriteBatch);
             // debug bar
             spriteBatch.Draw(toolBar, new Rectangle(0, Window.ClientBounds.Height - toolBar.Height, Window.ClientBounds.Width, toolBar.Height), Color.White);
-            spriteBatch.DrawString(font, editor.GetInfos() + "  Position Camera : ("+Camera.M41+", "+Camera.M42+")  Zoom : "+Camera.M11, new Vector2(36, Window.ClientBounds.Height -  toolBar.Height*3/4), Color.Black);
+            spriteBatch.DrawString(font, editor.GetInfos(), new Vector2(36, Window.ClientBounds.Height -  toolBar.Height*3/4), Color.Black);
             // other buttons
             foreach (Button b in MiscButtons)
                 b.Draw(spriteBatch);
@@ -274,8 +291,12 @@ namespace Wiring
                 {
                     // fin de renommage
                     isListeningToInputText = false;
-                    editor.mainSchem.Name = SchematicPath[SchematicPath.Count-1].text;
+                    if (SchematicPath[SchematicPath.Count - 1].text.Length == 0)
+                        SchematicPath[SchematicPath.Count - 1].setText(editor.mainSchem.Name);
+                    else
+                        editor.mainSchem.Name = SchematicPath[SchematicPath.Count - 1].text;
                     SchematicPath[SchematicPath.Count - 1].toggle = false;
+                    return;
                 }
                 else
                     builder.Append(e.Character);

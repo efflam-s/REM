@@ -2,29 +2,31 @@
 
 #### A faire maintenant :
 * Bug : écoute des hotkeys (notamment 'C') pdt le renommage
-* Hotkey : `Ctrl+R` pour renommer le Schematic
-* Pouvoir rajouter ou enlever des entrée/sorties dans les `BlackBox` *(implémenté mais peut-être à fix)*
-* Edition des fils : vérifier les bugs *(update lors de la supression et de la création sans changement)*
+* Edition des fils : vérifier les bugs *(update de la création sans changement ?)*
 * Edition des fils : afficher la prise où on branche
-* Curseur pour renommer les schematics
+* Edition des fils : bloquage de l'outils
+* Navigation : outils de navigation *(zoom et panorama)* (pour les souris sans roulette)
+* Ajout de composant : non-création si souris hors de l'éditeur et annulation si reclic sur le bouton
 
 #### A faire plus tard :
+* Sauvegarder des schematics
+* Pouvoir rajouter ou enlever des entrée/sorties dans les `BlackBox` *(implémenté mais peut-être à fix)*
+* Blackbox : trier des input/output par hauteur
 * Angle des composants
-* Edition des fils : bloquage de l'outils
 * Duplication
-* Navigation : outils de navigation *(zoom et panorama)* (pour les souris sans roulette)
-* Menu de simulation (pas d'édition possible, possibilité de cacher des composants/fils, performances accrues ?)
 * Composant : `Comment`
-* Ajout de composant : non-création si souris hors de l'éditeur et annulation si reclic sur le bouton
-* Bug d'affichage : composant rendu pendant une frame lorsqu'on appuit sur un bouton Add
 * **LA DOOOOC !!**
 
 #### Eventuellement, si j'ai le courage :
+* Menu de simulation (pas d'édition possible, possibilité de cacher des composants/fils, performances accrues ?)
+* Faire des fils personnalisés : nodes où on veut
 * Fixer le stackoverflow
 * Menu clic droit
-* Sauvegarder des schémas
-* Copier/Coller
+* Couper/Copier/Coller
+* Composant `Random` : à chaque impulsion, renvoie  aléatoirement 1 ou 0 jusqu'à la fin de l'impulsion
 * Historique des modifications => Annuler, Refaire...
 * Ajustement auto de la Camera
 * Selection au lasso
 * "Librarie" de blackboxes utiles (and, add, mux...)
+* Pouvoir transformer les blackbox en bitmap pour gagner en efficacité
+* Ou alors : Composant `Bitmap`

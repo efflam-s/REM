@@ -11,6 +11,7 @@ namespace Wiring
 {
     public class StringButton : Button
     {
+        public static Texture2D editCursor;
         public String text { get; private set; }
         public StringButton(Vector2 position, String text, String ToolTip = "") : base(Rectangle.Empty, ToolTip)
         {
@@ -27,6 +28,13 @@ namespace Wiring
         {
             text = newText;
             Bounds.Size = font.MeasureString(text).ToPoint() + new Point(16, 8);
+        }
+        public void DrawEditCursor(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            if (gameTime.TotalGameTime.Milliseconds < 500)
+            {
+                spriteBatch.Draw(editCursor, new Vector2(Bounds.Right - 5 - editCursor.Width, Bounds.Top + 3), Color.White);
+            }
         }
     }
 }
