@@ -45,6 +45,8 @@ namespace Wiring
                     spriteBatch.Draw(tipBox, new Rectangle((Bounds.Location.ToVector2() + new Vector2(Bounds.Width / 2, Bounds.Height) + new Vector2(-12, 3)).ToPoint(), tipSize.ToPoint()), Color.White);
                     spriteBatch.DrawString(font, ToolTip, Bounds.Location.ToVector2() + new Vector2(Bounds.Width / 2, Bounds.Height) + new Vector2(-10, 5), Color.Gray);
                 }
+                if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                    spriteBatch.Draw(toggleTex, Bounds, Color.White);
             }
             else if (toggle)
             {

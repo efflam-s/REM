@@ -19,8 +19,7 @@ namespace Wiring
         TextureButton[] AddButtons, MiscButtons;
         List<StringButton> SchematicPath;
         Texture2D toolBar, separator, pathSeparator;
-        MouseState prevMsState;
-        KeyboardState prevKbState;
+        InputManager Inpm;
         SpriteFont font;
         StringBuilder builder;
         bool isListeningToInputText;
@@ -54,9 +53,8 @@ namespace Wiring
             MiscButtons = new TextureButton[1];
             MiscButtons[0] = new TextureButton(new Vector2(4, 38), "Retour (Echap)");
             SchematicPath = new List<StringButton>();
-            prevMsState = Mouse.GetState();
-            prevKbState = Keyboard.GetState();
-            Camera = Matrix.CreateScale(4) * Matrix.CreateTranslation(0, 36, 0);
+            Inpm = new InputManager();
+            Camera = Matrix.CreateScale(4) * Matrix.CreateTranslation(0, 36*2, 0);
             builder = new StringBuilder();
             isListeningToInputText = false;
 
@@ -111,6 +109,8 @@ namespace Wiring
             Rectangle EditorWindow = new Rectangle(0, 36*2, Window.ClientBounds.Width, Window.ClientBounds.Height - 36*3);
             editor.Update(gameTime, ref Camera, EditorWindow);
 
+            Inpm.Update();
+
             if (editor.schemPile.Count > SchematicPath.Count)
             {
                 Vector2 newPosition = new Vector2(SchematicPath[SchematicPath.Count - 1].Bounds.Right, SchematicPath[SchematicPath.Count - 1].Bounds.Top) + new Vector2(8, 0);
@@ -118,7 +118,7 @@ namespace Wiring
                 SchematicPath.Add(new StringButton(newPosition, editor.mainSchem.Name, "Renommer"));
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape) && prevKbState.IsKeyUp(Keys.Escape))
+            if (Inpm.OnPressed(Keys.Escape))
             {
                 if (editor.schemPile.Count > 1)
                 {
@@ -127,7 +127,11 @@ namespace Wiring
                 }
             }
 
-            bool declic = Mouse.GetState().LeftButton == ButtonState.Released && prevMsState.LeftButton == ButtonState.Pressed;
+            if (Inpm.leftClic == InputManager.ClicState.Clic)
+            {
+                Inpm.SaveClic(gameTime);
+            }
+            bool declic = Inpm.leftClic == InputManager.ClicState.Declic;
             for (int i = 0; i < AddButtons.Length; i++)
             {
                 if (AddButtons[i].toggle && declic)
@@ -135,7 +139,7 @@ namespace Wiring
                     // détoggle dans le cas où on clique n'importe où
                     AddButtons[i].toggle = false;
                 }
-                if (AddButtons[i].hover(Mouse.GetState().Position.ToVector2()) && declic)
+                if (AddButtons[i].hover(Inpm.MsPosition()) && declic && AddButtons[i].hover(Inpm.mousePositionOnClic))
                 {
                     AddButtons[i].toggle = true;
                     //AddButtons[i].toggle = !AddButtons[i].toggle;
@@ -146,19 +150,19 @@ namespace Wiring
                             editor.tool = Editor.Tool.Wire;
                             break;
                         case 1:
-                            editor.AddComponent(new Input(new Wire(), Mouse.GetState().Position.ToVector2()));
+                            editor.AddComponent(new Input(new Wire(), Inpm.MsPosition()));
                             break;
                         case 2:
-                            editor.AddComponent(new Output(new Wire(), Mouse.GetState().Position.ToVector2()));
+                            editor.AddComponent(new Output(new Wire(), Inpm.MsPosition()));
                             break;
                         case 3:
-                            editor.AddComponent(new Not(new Wire(), new Wire(), Mouse.GetState().Position.ToVector2()));
+                            editor.AddComponent(new Not(new Wire(), new Wire(), Inpm.MsPosition()));
                             break;
                         case 4:
-                            editor.AddComponent(new Diode(new Wire(), new Wire(), Mouse.GetState().Position.ToVector2()));
+                            editor.AddComponent(new Diode(new Wire(), new Wire(), Inpm.MsPosition()));
                             break;
                         case 5:
-                            editor.AddComponent(BlackBox.Default(Mouse.GetState().Position.ToVector2()));
+                            editor.AddComponent(BlackBox.Default(Inpm.MsPosition()));
                             break;
                     }
                 }
@@ -167,7 +171,7 @@ namespace Wiring
 
             for (int i = 0; i < MiscButtons.Length; i++)
             {
-                if (MiscButtons[i].hover(Mouse.GetState().Position.ToVector2()) && declic)
+                if (MiscButtons[i].hover(Inpm.MsPosition()) && declic)
                 {
                     switch (i)
                     {
@@ -195,7 +199,7 @@ namespace Wiring
                         editor.mainSchem.Name = SchematicPath[i].text;
                     }
                 }
-                if (SchematicPath[i].hover(Mouse.GetState().Position.ToVector2()) && declic)
+                if (SchematicPath[i].hover(Inpm.MsPosition()) && declic)
                 {
                     if (i == SchematicPath.Count - 1)
                     {
@@ -214,8 +218,6 @@ namespace Wiring
 
             //Console.WriteLine(SchematicPath[0].Bounds);
 
-            prevMsState = Mouse.GetState();
-            prevKbState = Keyboard.GetState();
             base.Update(gameTime);
         }
 
@@ -228,7 +230,7 @@ namespace Wiring
             spriteBatch.Begin(SpriteSortMode.Immediate, transformMatrix: Camera);
             GraphicsDevice.Clear(Color.LightGray);
             GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
-            editor.Draw(spriteBatch);
+            editor.Draw(spriteBatch, new Rectangle(0, 36 * 2, Window.ClientBounds.Width, Window.ClientBounds.Height - 36 * 3));
             spriteBatch.End();
 
             spriteBatch.Begin();

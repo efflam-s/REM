@@ -8,9 +8,6 @@
 * Edition des fils : afficher la prise où on branche
 * Curseur pour renommer les schematics
 
-#### Bugs de Martin :
-* Bug : pointeur de la souris override losqu'on veut changer la taille de la fenêtre
-
 #### A faire plus tard :
 * Angle des composants
 * Edition des fils : bloquage de l'outils
