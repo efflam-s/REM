@@ -53,5 +53,11 @@ namespace Wiring
             Texture2D texture = value ? texOn : texOff;
             spriteBatch.Draw(texture, position - new Vector2(texture.Width, texture.Height) / 2, Color.White);
         }
+        public override Component Copy()
+        {
+            Input newInput = new Input(new Wire(), position);
+            newInput.value = value;
+            return newInput;
+        }
     }
 }

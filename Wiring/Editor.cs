@@ -244,6 +244,11 @@ namespace Wiring
                         tool = Tool.Wire;
                         //Inpm.mousePositionOnClic = new Vector2(); // je sais plus à quoi sert cette ligne mais il doit y avoir moyen de faire mieux !!
                     }
+                    if (Inpm.Control && Inpm.OnPressed(Keys.D) && selected.Count == 1)
+                    {
+                        // Dupliquer un composant (temporaire ?)
+                        AddComponent(selected[0].Copy());
+                    }
                 }
             }
             else if (tool == Tool.Move)

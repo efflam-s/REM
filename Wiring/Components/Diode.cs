@@ -127,5 +127,11 @@ namespace Wiring
                 delay = TimeSpan.Zero;
             }
         }
+        public override Component Copy()
+        {
+            Diode newDiode = new Diode(new Wire(), new Wire(), position);
+            newDiode.delay = delay;
+            return newDiode;
+        }
     }
 }

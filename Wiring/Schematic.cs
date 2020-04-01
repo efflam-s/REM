@@ -141,14 +141,28 @@ namespace Wiring
                 c.BasicDraw(spriteBatch);
             }
         }*/
-        /*public Schematic Copy()
+        public Schematic Copy()
         {
+            // Retourne une copie du schematic
             Schematic newSchem = new Schematic(Name+" (copy)");
             foreach (Component c in components)
             {
                 newSchem.AddComponent(c.Copy());
             }
+            // Copier chaque composant déconnecte tout les fils. Il faut donc les reconnecter après coup
+            // Normalement, l'ordre des composants est conservé
+            foreach (Wire w in wires)
+            {
+                Wire newWire = new Wire();
+                foreach (Component c in w.components)
+                {
+                    int i = components.IndexOf(c);
+                    int j = c.wires.IndexOf(w);
+                    newSchem.components[i].wires[j] = newWire;
+                }
+            }
+            newSchem.Initialize();
             return newSchem;
-        }*/
+        }
     }
 }

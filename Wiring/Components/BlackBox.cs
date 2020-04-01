@@ -141,5 +141,11 @@ namespace Wiring
                 blackBox.wires.Add(new Wire());
             return blackBox;
         }
+        public override Component Copy()
+        {
+            BlackBox newBlackBox = new BlackBox(schem.Copy(), position);
+            ReloadPlugsFromInOut(false);
+            return newBlackBox;
+        }
     }
 }
