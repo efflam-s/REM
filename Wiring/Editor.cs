@@ -242,7 +242,7 @@ namespace Wiring
                     if (Inpm.OnPressed(Keys.C))
                     {
                         tool = Tool.Wire;
-                        Inpm.mousePositionOnClic = new Vector2(); // je sais plus à quoi sert cette ligne mais il doit y avoir moyen de faire mieux !!
+                        //Inpm.mousePositionOnClic = new Vector2(); // je sais plus à quoi sert cette ligne mais il doit y avoir moyen de faire mieux !!
                     }
                 }
             }
@@ -314,15 +314,23 @@ namespace Wiring
                         Wire end = (hoveredComponent != null) ?
                             hoveredComponent.nearestPlugWire(Inpm.MsPosition()) :
                             hoveredWire;
-                        if (start != end)// && hoveredComponent != hover(mousePositionOnClic))
+                        if (start != end)// && hoveredComponent != hover(Inpm.mousePositionOnClic))
                         {
-                            foreach (Component c in end.components)
+                            bool OK = true;
+                            foreach (Component c1 in end.components)
+                                foreach (Component c2 in start.components)
+                                    if (c1 == c2)
+                                        OK = false;
+                            if (OK)
                             {
-                                c.wires[c.wires.IndexOf(end)] = start;
-                                //start.components.Add(c);
+                                foreach (Component c in end.components)
+                                {
+                                    c.wires[c.wires.IndexOf(end)] = start;
+                                    //start.components.Add(c);
+                                }
+                                //mainSchem.wires.Remove(end);
+                                mainSchem.ReloadWiresFromComponents();
                             }
-                            //mainSchem.wires.Remove(end);
-                            mainSchem.ReloadWiresFromComponents();
                         }
                         start.Update();
                     }
@@ -396,9 +404,15 @@ namespace Wiring
             else
                 return max;
         }
-        public void Draw(SpriteBatch spriteBatch, Rectangle Window) 
+        public void Draw(SpriteBatch spriteBatch, Rectangle Window)
         {
-            if (tool == Tool.Wire && (hover(Inpm.mousePositionOnClic) != null || hoverWire(Inpm.mousePositionOnClic) != null))
+            foreach (Component c in selected)
+            {
+                c.DrawSelected(spriteBatch);
+            }
+            mainSchem.Draw(spriteBatch);
+
+            if (tool == Tool.Wire && (hover(Inpm.mousePositionOnClic) != null || hoverWire(Inpm.mousePositionOnClic) != null) && Inpm.leftClic == InputManager.ClicState.Down)
             {
                 // Ajout d'un fil
                 Component hoveredClic = hover(Inpm.mousePositionOnClic);
@@ -406,7 +420,9 @@ namespace Wiring
                 Vector2 start, end;
 
                 if (hoveredClic != null)
+                {
                     start = hoveredClic.plugPosition(hoveredClic.nearestPlugWire(Inpm.mousePositionOnClic));
+                }
                 else
                     start = hoveredWireClic.Node();
 
@@ -421,12 +437,6 @@ namespace Wiring
 
                 Wire.drawLine(spriteBatch, start, end, hovered != null || hoveredWire != null);
             }
-
-            foreach (Component c in selected)
-            {
-                c.DrawSelected(spriteBatch);
-            }
-            mainSchem.Draw(spriteBatch);
 
             if (Window.Contains(Mouse.GetState().Position))
                 switch (tool) {

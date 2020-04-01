@@ -50,10 +50,12 @@ namespace Wiring
         {
             if (components.Count() == 2)
             {
+                // fil simple
                 drawLine(spriteBatch, components[0].plugPosition(this), components[1].plugPosition(this), value);
             }
             else if (components.Count() > 2)
             {
+                // fil avec noeud
                 Vector2 center = Vector2.Zero;
                 foreach (Component c in components)
                     center += c.plugPosition(this);

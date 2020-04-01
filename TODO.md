@@ -2,8 +2,7 @@
 
 #### A faire maintenant :
 * Bug : écoute des hotkeys (notamment 'C') pdt le renommage
-* Edition des fils : vérifier les bugs *(update de la création sans changement ?)*
-* Edition des fils : afficher la prise où on branche
+* Edition des fils : bug d'update de la création sans changement ? *(je crois que c'est bon)*
 * Edition des fils : bloquage de l'outils
 * Navigation : outils de navigation *(zoom et panorama)* (pour les souris sans roulette)
 * Ajout de composant : non-création si souris hors de l'éditeur et annulation si reclic sur le bouton
@@ -11,9 +10,10 @@
 #### A faire plus tard :
 * Sauvegarder des schematics
 * Pouvoir rajouter ou enlever des entrée/sorties dans les `BlackBox` *(implémenté mais peut-être à fix)*
-* Blackbox : trier des input/output par hauteur
+* BlackBox : trier des input/output par hauteur
+* Petit bug : les fils ne sont pas toujours update dans les blackbox (mais pas de problème global détécté pour l'instant)
 * Angle des composants
-* Duplication
+* Duplication d'une séléction multiple
 * Composant : `Comment`
 * **LA DOOOOC !!**
 

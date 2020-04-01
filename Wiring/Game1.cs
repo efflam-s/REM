@@ -44,7 +44,7 @@ namespace Wiring
             editor = new Editor();
             editor.Initialize();
             AddButtons = new TextureButton[6];
-            AddButtons[0] = new TextureButton(new Vector2(20, 2), "Ajouter une Connection (C)");
+            AddButtons[0] = new TextureButton(new Vector2(20, 2), "Ajouter une Connexion (C)");
             AddButtons[1] = new TextureButton(new Vector2(20+36, 2), "Ajouter une Entrée");
             AddButtons[2] = new TextureButton(new Vector2(20+36*2, 2), "Ajouter une Sortie");
             AddButtons[3] = new TextureButton(new Vector2(20+36*3, 2), "Ajouter un Inverseur");

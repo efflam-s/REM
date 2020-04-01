@@ -1,0 +1,46 @@
+# Exemple de fichier de sauvegarde de schematic
+{
+	Name : "exampleSchem",
+	Components :
+	[	{
+			Type : Input,
+			Position : [32 64],
+			Wires : [0]
+			Data : {
+				value : false
+			}
+		}
+		{
+			Type : Not,
+			Position : [64 32],
+			Wires : [0 1]
+		}
+		{
+			Type : Diode,
+			Position : [64 96],
+			Wires : [0 2],
+			Data : {
+				delay : 1
+			}
+		}
+		{
+			Type : BlackBox,
+			Position : [96 64],
+			Wires : [1 2 3],
+			Data : {
+				Schematic : {
+					Name : "and",
+					Components :
+					[
+						# à completer
+					]
+				}
+			}
+		}
+		{
+			Type : Output,
+			Position : [128 64],
+			Wires : [3]
+		}
+	]
+}
