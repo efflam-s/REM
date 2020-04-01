@@ -14,8 +14,14 @@ namespace Wiring
         private static Texture2D select;
         private static MouseCursor scissor;
 
-        public enum Tool { Edit, Select, Move, Wire }
-        // Edit : Outil pour faire un peu tout (selection, déplacement, clics composants...)
+        /* Edit : Outil pour faire un peu tout (selection, déplacement, clics composants...)
+         * Select : Outil de rectangle de sélection
+         * Move : Outil de déplacement de composant
+         * Wire : Outil de connexion (création de nouveau fil)
+         * Pan : Outil de déplacement panoramique (caméra)
+         * Zoom : Outil de zoom/dezoom (clic gauche : zoom, clic droit : dezoom)
+         */
+        public enum Tool { Edit, Select, Move, Wire, Pan, Zoom }
         public Tool tool;
         public List<Schematic> schemPile;
         public Schematic mainSchem
@@ -70,8 +76,38 @@ namespace Wiring
             Component hoveredComponent = hover(Inpm.MsPosition()); // component pressed
             Wire hoveredWire = hoverWire(Inpm.MsPosition()); // wire pressed
 
+            // Choix de l'outil
+            if (Inpm.leftClic == InputManager.ClicState.Up)
+            {
+                // pas de clic
+                if (Inpm.OnPressed(Keys.S))
+                {
+                    tool = Tool.Edit;
+                }
+                if (Inpm.OnPressed(Keys.C))
+                {
+                    if (tool == Tool.Wire)
+                        tool = Tool.Edit;
+                    else
+                        tool = Tool.Wire;
+                }
+                if (Inpm.OnPressed(Keys.H))
+                {
+                    if (tool == Tool.Pan)
+                        tool = Tool.Edit;
+                    else
+                        tool = Tool.Pan;
+                }
+                if (Inpm.OnPressed(Keys.Z))
+                {
+                    if (tool == Tool.Zoom)
+                        tool = Tool.Edit;
+                    else
+                        tool = Tool.Zoom;
+                }
+            }
+
             // Navigation avec clic roulette
-            
             if (Inpm.middleClic == InputManager.ClicState.Clic)
             {
                 Inpm.SaveClic(gameTime);
@@ -126,7 +162,7 @@ namespace Wiring
                         }
                         else
                         {
-                            
+
                         }
                     }
                     else
@@ -176,6 +212,7 @@ namespace Wiring
                             {
                                 // ouvrir une schematic de blackbox
                                 schemPile.Add(bb.schem);
+                                selected.Clear();
                             }
                             else// if (!selected.Contains(hoveredComponent))
                             {
@@ -239,11 +276,6 @@ namespace Wiring
                             selected.Add(c);
                         }
                     }
-                    if (Inpm.OnPressed(Keys.C))
-                    {
-                        tool = Tool.Wire;
-                        //Inpm.mousePositionOnClic = new Vector2(); // je sais plus à quoi sert cette ligne mais il doit y avoir moyen de faire mieux !!
-                    }
                     if (Inpm.Control && Inpm.OnPressed(Keys.D) && selected.Count == 1)
                     {
                         // Dupliquer un composant (temporaire ?)
@@ -293,7 +325,7 @@ namespace Wiring
                     }
                     // fin de selection
                     //if (Inpm.leftClic == InputManager.ClicState.Declic)
-                        tool = Tool.Edit;
+                    tool = Tool.Edit;
                 }
             }
             else if (tool == Tool.Wire)
@@ -340,7 +372,49 @@ namespace Wiring
                         start.Update();
                     }
                     //MovingComp = null;
-                    tool = Tool.Edit;
+                    //tool = Tool.Edit;
+                }
+            }
+            else if (tool == Tool.Pan)
+            {
+                if (Inpm.leftClic == InputManager.ClicState.Clic)
+                {
+                    Inpm.SaveClic(gameTime);
+                }
+                else if (Inpm.leftClic == InputManager.ClicState.Down)
+                {
+                    Camera.Translation += new Vector3(Inpm.MsPosition() - Inpm.mousePositionOnClic, 0) * Camera.M11; // pas trouvé de meilleur moyen pour trouver la valeur du zoom que M11
+                }
+            }
+            else if (tool == Tool.Zoom && isMouseInScreen)
+            {
+                if (Inpm.leftClic == InputManager.ClicState.Clic)
+                {
+                    // Zoom avec clic
+                    float scale = (float)Math.Pow(2, 120.0 / 720);
+                    Vector3 CameraPosition = Camera.Translation;
+                    float Zoom = Camera.M11;
+                    // around scale to fit between 1 and 8
+                    if (Zoom * scale < 1)
+                        scale = 1 / Zoom;
+                    if (Zoom * scale > 8)
+                        scale = 8 / Zoom;
+                    Vector2 originalMousePosition = Vector2.Transform(Inpm.MsPosition(), Camera);
+                    Camera = Matrix.CreateTranslation(new Vector3(-Inpm.MsState.X, -Inpm.MsState.Y, 0)) * Matrix.CreateScale(scale * Zoom) * Matrix.CreateTranslation(CameraPosition + new Vector3(Inpm.MsState.X, Inpm.MsState.Y, 0) * Zoom);
+                }
+                if (Inpm.rightClic == InputManager.ClicState.Clic)
+                {
+                    // Dezoom avec clic draoit
+                    float scale = (float)Math.Pow(2, -120.0 / 720);
+                    Vector3 CameraPosition = Camera.Translation;
+                    float Zoom = Camera.M11;
+                    // around scale to fit between 1 and 8
+                    if (Zoom * scale < 1)
+                        scale = 1 / Zoom;
+                    if (Zoom * scale > 8)
+                        scale = 8 / Zoom;
+                    Vector2 originalMousePosition = Vector2.Transform(Inpm.MsPosition(), Camera);
+                    Camera = Matrix.CreateTranslation(new Vector3(-Inpm.MsState.X, -Inpm.MsState.Y, 0)) * Matrix.CreateScale(scale * Zoom) * Matrix.CreateTranslation(CameraPosition + new Vector3(Inpm.MsState.X, Inpm.MsState.Y, 0) * Zoom);
                 }
             }
             

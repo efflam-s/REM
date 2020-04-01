@@ -29,13 +29,13 @@ namespace Wiring
         }
         public static void LoadContent(ContentManager Content)
         {
-            square = Content.Load<Texture2D>("Component/component");
-            select = Content.Load<Texture2D>("selectComp");
             Output.LoadContent(Content);
             Input.LoadContent(Content);
             Not.LoadContent(Content);
             Diode.LoadContent(Content);
             BlackBox.LoadContent(Content);
+            square = Content.Load<Texture2D>("Component/component");
+            select = Content.Load<Texture2D>("selectComp");
         }
         protected void plugWires()
         {

@@ -43,15 +43,18 @@ namespace Wiring
             IsMouseVisible = true;
             editor = new Editor();
             editor.Initialize();
-            AddButtons = new TextureButton[6];
-            AddButtons[0] = new TextureButton(new Vector2(20, 2), "Ajouter une Connexion (C)");
-            AddButtons[1] = new TextureButton(new Vector2(20+36, 2), "Ajouter une Entrée");
-            AddButtons[2] = new TextureButton(new Vector2(20+36*2, 2), "Ajouter une Sortie");
-            AddButtons[3] = new TextureButton(new Vector2(20+36*3, 2), "Ajouter un Inverseur");
-            AddButtons[4] = new TextureButton(new Vector2(20+36*4, 2), "Ajouter une Diode");
-            AddButtons[5] = new TextureButton(new Vector2(20+36*5, 2), "Ajouter une Boîte Noire");
-            MiscButtons = new TextureButton[1];
+            AddButtons = new TextureButton[5];
+            AddButtons[0] = new TextureButton(new Vector2(43+36, 2), "Ajouter une Entrée");
+            AddButtons[1] = new TextureButton(new Vector2(43+36*2, 2), "Ajouter une Sortie");
+            AddButtons[2] = new TextureButton(new Vector2(43+36*3, 2), "Ajouter un Inverseur");
+            AddButtons[3] = new TextureButton(new Vector2(43+36*4, 2), "Ajouter une Diode");
+            AddButtons[4] = new TextureButton(new Vector2(43+36*5, 2), "Ajouter une Boîte Noire");
+            MiscButtons = new TextureButton[5];
             MiscButtons[0] = new TextureButton(new Vector2(4, 38), "Retour (Echap)");
+            MiscButtons[1] = new TextureButton(new Vector2(4, 2), "Selectionner/Modifier (S)");
+            MiscButtons[2] = new TextureButton(new Vector2(43, 2), "Ajouter une Connexion (C)");
+            MiscButtons[3] = new TextureButton(new Vector2(48+36*6, 2), "Panoramique (H)");
+            MiscButtons[4] = new TextureButton(new Vector2(48+36*7, 2), "Zoom (Z)");
             SchematicPath = new List<StringButton>();
             Inpm = new InputManager();
             Camera = Matrix.CreateScale(4) * Matrix.CreateTranslation(0, 36*2, 0);
@@ -68,22 +71,26 @@ namespace Wiring
         /// </summary>
         protected override void LoadContent()
         {
-            Schematic.LoadContent(Content);
-            Component.LoadContent(Content);
             Wire.LoadContent(Content);
+            Component.LoadContent(Content);
+            Schematic.LoadContent(Content);
             Editor.LoadContent(Content);
             Button.LoadContent(Content);
+
             toolBar = Content.Load<Texture2D>("Button/toolBar");
             separator = Content.Load<Texture2D>("Button/separator");
             pathSeparator = Content.Load<Texture2D>("Button/pathSeparator");
             StringButton.editCursor = Content.Load<Texture2D>("EditBar");
-            AddButtons[0].setTexture(Content.Load<Texture2D>("Button/addWireButton"));
-            AddButtons[1].setTexture(Content.Load<Texture2D>("Button/addInputButton"));
-            AddButtons[2].setTexture(Content.Load<Texture2D>("Button/addOutputButton"));
-            AddButtons[3].setTexture(Content.Load<Texture2D>("Button/addNotButton"));
-            AddButtons[4].setTexture(Content.Load<Texture2D>("Button/addDiodeButton"));
-            AddButtons[5].setTexture(Content.Load<Texture2D>("Button/addBlackBoxButton"));
+            AddButtons[0].setTexture(Content.Load<Texture2D>("Button/addInputButton"));
+            AddButtons[1].setTexture(Content.Load<Texture2D>("Button/addOutputButton"));
+            AddButtons[2].setTexture(Content.Load<Texture2D>("Button/addNotButton"));
+            AddButtons[3].setTexture(Content.Load<Texture2D>("Button/addDiodeButton"));
+            AddButtons[4].setTexture(Content.Load<Texture2D>("Button/addBlackBoxButton"));
             MiscButtons[0].setTexture(Content.Load<Texture2D>("Button/arrowUp"));
+            MiscButtons[1].setTexture(Content.Load<Texture2D>("Button/arrow"));
+            MiscButtons[2].setTexture(Content.Load<Texture2D>("Button/addWireButton"));
+            MiscButtons[3].setTexture(Content.Load<Texture2D>("Button/hand"));
+            MiscButtons[4].setTexture(Content.Load<Texture2D>("Button/zoom"));
             font = Content.Load<SpriteFont>("Arial");
 
             SchematicPath.Add(new StringButton(new Vector2(43, 41), editor.mainSchem.Name, "Renommer"));
@@ -149,27 +156,23 @@ namespace Wiring
                     switch (i)
                     {
                         case 0:
-                            editor.tool = Editor.Tool.Wire;
-                            break;
-                        case 1:
                             editor.AddComponent(new Input(new Wire(), Inpm.MsPosition()));
                             break;
-                        case 2:
+                        case 1:
                             editor.AddComponent(new Output(new Wire(), Inpm.MsPosition()));
                             break;
-                        case 3:
+                        case 2:
                             editor.AddComponent(new Not(new Wire(), new Wire(), Inpm.MsPosition()));
                             break;
-                        case 4:
+                        case 3:
                             editor.AddComponent(new Diode(new Wire(), new Wire(), Inpm.MsPosition()));
                             break;
-                        case 5:
+                        case 4:
                             editor.AddComponent(BlackBox.Default(Inpm.MsPosition()));
                             break;
                     }
                 }
             }
-            AddButtons[0].toggle = (editor.tool == Editor.Tool.Wire);
 
             for (int i = 0; i < MiscButtons.Length; i++)
             {
@@ -183,6 +186,18 @@ namespace Wiring
                                 // navigation vers le schematic parent
                                 schematicNav(editor.schemPile.Count - 2);
                             }
+                            break;
+                        case 1:
+                            editor.tool = Editor.Tool.Edit;
+                            break;
+                        case 2:
+                            editor.tool = Editor.Tool.Wire;
+                            break;
+                        case 3:
+                            editor.tool = Editor.Tool.Pan;
+                            break;
+                        case 4:
+                            editor.tool = Editor.Tool.Zoom;
                             break;
                     }
                 }
@@ -220,6 +235,12 @@ namespace Wiring
                     }
                 }
             }
+
+            // set buttons toggle
+            MiscButtons[1].toggle = editor.tool == Editor.Tool.Edit || editor.tool == Editor.Tool.Move || editor.tool == Editor.Tool.Select;
+            MiscButtons[2].toggle = editor.tool == Editor.Tool.Wire;
+            MiscButtons[3].toggle = editor.tool == Editor.Tool.Pan;
+            MiscButtons[4].toggle = editor.tool == Editor.Tool.Zoom;
 
             if (Inpm.Control && Inpm.OnPressed(Keys.R))
             {
@@ -265,6 +286,8 @@ namespace Wiring
             }
             // buttons bar
             spriteBatch.Draw(toolBar, new Rectangle(0, 0, Window.ClientBounds.Width, toolBar.Height), Color.White);
+            spriteBatch.Draw(separator, new Vector2(37, 0), Color.White);
+            spriteBatch.Draw(separator, new Vector2(36*7+5, 0), Color.White);
             foreach (Button b in AddButtons)
                 b.Draw(spriteBatch);
             // debug bar
@@ -301,7 +324,7 @@ namespace Wiring
                 else
                     builder.Append(e.Character);
 
-                SchematicPath[SchematicPath.Count - 1].setText(builder.ToString());
+                SchematicPath[SchematicPath.Count - 1].setText(builder.ToString()); // crash si mauvaise key entrée (ctrl+qqch)
             }
         }
 
