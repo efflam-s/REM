@@ -28,13 +28,7 @@
 			Position : [96 64],
 			Wires : [1 2 3],
 			Data : {
-				Schematic : {
-					Name : "and",
-					Components :
-					[
-						# à completer
-					]
-				}
+				schematic : "and.schem"
 			}
 		}
 		{

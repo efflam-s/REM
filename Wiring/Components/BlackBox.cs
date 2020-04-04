@@ -144,7 +144,7 @@ namespace Wiring
         public override Component Copy()
         {
             BlackBox newBlackBox = new BlackBox(schem.Copy(), position);
-            ReloadPlugsFromInOut(false);
+            newBlackBox.ReloadPlugsFromInOut(false);
             return newBlackBox;
         }
     }

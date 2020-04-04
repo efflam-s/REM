@@ -144,7 +144,7 @@ namespace Wiring
         public Schematic Copy()
         {
             // Retourne une copie du schematic
-            Schematic newSchem = new Schematic(Name+" (copy)");
+            Schematic newSchem = new Schematic(Name);
             foreach (Component c in components)
             {
                 newSchem.AddComponent(c.Copy());

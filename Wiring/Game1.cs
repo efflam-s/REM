@@ -324,7 +324,7 @@ namespace Wiring
                 else
                     builder.Append(e.Character);
 
-                SchematicPath[SchematicPath.Count - 1].setText(builder.ToString()); // crash si mauvaise key entrée (ctrl+qqch)
+                SchematicPath[SchematicPath.Count - 1].setText(builder.ToString()); // crash si mauvaise key entrée (ctrl+qqch, echap...)
             }
         }
 
