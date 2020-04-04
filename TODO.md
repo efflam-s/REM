@@ -2,25 +2,23 @@
 
 #### A faire maintenant :
 * Pouvoir rajouter ou enlever des entrée/sorties dans les `BlackBox` *(implémenté mais peut-être à fix)*
-* Bug : écoute des hotkeys pdt le renommage
-* Bug : ctrl + qqch pdt le renommage fait crash
-* Bug : pas de fin de renommage en changeant de schematic
-* Hotkey : ne pas écouter si ctlr ou alt est pressé
 * Edition des fils : bug d'update de la création sans changement ? *(je crois que c'est bon)*
 * Ajout de composant : non-création si souris hors de l'éditeur et annulation si reclic sur le bouton
-* Curseurs de zoom et panoramique
+* Panoramique à fix ?
+* Pas d'update pendant le renommage pose problème ?
+* Petit bug : pas de clear de selection pdt la navigation entre les schematics (retour en arrière)
+* Curseur : changer les ciseaux
 
 #### A faire plus tard :
 * Sauvegarder des schematics
 * BlackBox : trier des input/output par hauteur
+* Blackbox : afficher le nom dans un tooltip
 * Petit bug : les fils ne sont pas toujours update dans les blackbox (mais pas de problème global détécté pour l'instant)
-* Petit bug : pas de clear de selection pdt la navigation entre les schematics (retour en arrière)
 * Angle des composants
 * Mettre la couleur du texte dans une texture
 * Duplication d'une séléction multiple
 * Raccourcis pour les créations de composants (chiffres ?)
-* Curseur : changer les ciseaux
-* Activer es élements depuis l'outil wire
+* Activer les élements depuis l'outil wire
 * Composant : `Comment`
 * **LA DOOOOC !!**
 

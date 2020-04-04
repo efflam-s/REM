@@ -5,7 +5,7 @@
 	[	{
 			Type : Input,
 			Position : [32 64],
-			Wires : [0]
+			Wires : [0] # identifiant des fils connectées
 			Data : {
 				value : false
 			}

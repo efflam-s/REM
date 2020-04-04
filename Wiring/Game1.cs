@@ -116,7 +116,9 @@ namespace Wiring
         {
             //Window.ClientBounds => rectangle de la fenêtre
             Rectangle EditorWindow = new Rectangle(0, 36*2, Window.ClientBounds.Width, Window.ClientBounds.Height - 36*3);
-            editor.Update(gameTime, ref Camera, EditorWindow);
+            
+            if (!isListeningToInputText)
+                editor.Update(gameTime, ref Camera, EditorWindow);
 
             Inpm.Update();
 
@@ -127,7 +129,7 @@ namespace Wiring
                 SchematicPath.Add(new StringButton(newPosition, editor.mainSchem.Name, "Renommer"));
             }
 
-            if (Inpm.OnPressed(Keys.Escape))
+            if (Inpm.OnPressed(Keys.Escape) && !isListeningToInputText)
             {
                 if (editor.schemPile.Count > 1)
                 {
@@ -205,20 +207,6 @@ namespace Wiring
 
             for (int i = 0; i < SchematicPath.Count; i++)
             {
-                if (SchematicPath[i].toggle && declic)
-                {
-                    // détoggle dans le cas où on clique n'importe où
-                    SchematicPath[i].toggle = false;
-                    if (isListeningToInputText && i == SchematicPath.Count - 1)
-                    {
-                        // fin de renommage
-                        isListeningToInputText = false;
-                        if (SchematicPath[i].text.Length == 0)
-                            SchematicPath[i].setText(editor.mainSchem.Name);
-                        else
-                            editor.mainSchem.Name = SchematicPath[i].text;
-                    }
-                }
                 if (SchematicPath[i].hover(Inpm.MsPosition()) && declic)
                 {
                     if (i == SchematicPath.Count - 1)
@@ -234,6 +222,16 @@ namespace Wiring
                         schematicNav(i);
                     }
                 }
+            }
+            if (isListeningToInputText && Inpm.leftClic == InputManager.ClicState.Clic)
+            {
+                SchematicPath[SchematicPath.Count - 1].toggle = false;
+                // fin de renommage
+                isListeningToInputText = false;
+                if (SchematicPath[SchematicPath.Count - 1].text.Length == 0)
+                    SchematicPath[SchematicPath.Count - 1].setText(editor.mainSchem.Name);
+                else
+                    editor.mainSchem.Name = SchematicPath[SchematicPath.Count - 1].text;
             }
 
             // set buttons toggle
@@ -305,12 +303,7 @@ namespace Wiring
         {
             if (isListeningToInputText)
             {
-                if (e.Key == Keys.Back)
-                {
-                    if (builder.Length > 0)
-                        builder.Remove(builder.Length - 1, 1);
-                }
-                else if (e.Key == Keys.Enter)
+                if (e.Key == Keys.Enter)
                 {
                     // fin de renommage
                     isListeningToInputText = false;
@@ -320,11 +313,24 @@ namespace Wiring
                         editor.mainSchem.Name = SchematicPath[SchematicPath.Count - 1].text;
                     SchematicPath[SchematicPath.Count - 1].toggle = false;
                     return;
+                } else {
+                    try
+                    {
+                        if (e.Key == Keys.Back)
+                        {
+                            if (builder.Length > 0)
+                                builder.Remove(builder.Length - 1, 1);
+                        }
+                        else
+                            builder.Append(e.Character);
+                        SchematicPath[SchematicPath.Count - 1].setText(builder.ToString());
+                    } catch (ArgumentException) 
+                    {
+                        // caractère non valide : ctrl + qqch, echap...
+                        builder.Remove(builder.Length - 1, 1);
+                        SchematicPath[SchematicPath.Count - 1].setText(builder.ToString());
+                    }
                 }
-                else
-                    builder.Append(e.Character);
-
-                SchematicPath[SchematicPath.Count - 1].setText(builder.ToString()); // crash si mauvaise key entrée (ctrl+qqch, echap...)
             }
         }
 

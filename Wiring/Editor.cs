@@ -12,7 +12,7 @@ namespace Wiring
     public class Editor
     {
         private static Texture2D select;
-        private static MouseCursor scissor;
+        private static MouseCursor scissor, hand, grab, magnifier;
 
         /* Edit : Outil pour faire un peu tout (selection, déplacement, clics composants...)
          * Select : Outil de rectangle de sélection
@@ -59,6 +59,9 @@ namespace Wiring
         {
             select = Content.Load<Texture2D>("selectRect");
             scissor = MouseCursor.FromTexture2D(Content.Load<Texture2D>("cursorScissor"), 4, 4);
+            hand = MouseCursor.FromTexture2D(Content.Load<Texture2D>("cursorHand"), 16, 16);
+            grab = MouseCursor.FromTexture2D(Content.Load<Texture2D>("cursorGrab"), 16, 16);
+            magnifier = MouseCursor.FromTexture2D(Content.Load<Texture2D>("cursorMagnifier"), 13, 13);
         }
 
         public void Update(GameTime gameTime, ref Matrix Camera, Rectangle Window)
@@ -77,7 +80,7 @@ namespace Wiring
             Wire hoveredWire = hoverWire(Inpm.MsPosition()); // wire pressed
 
             // Choix de l'outil
-            if (Inpm.leftClic == InputManager.ClicState.Up)
+            if (Inpm.leftClic == InputManager.ClicState.Up && !Inpm.Alt && !Inpm.Control)
             {
                 // pas de clic
                 if (Inpm.OnPressed(Keys.S))
@@ -258,7 +261,7 @@ namespace Wiring
                 else if (Inpm.leftClic == InputManager.ClicState.Up)
                 {
                     // pas de clic
-                    if (Inpm.OnPressed(Keys.Delete) && selected.Count() > 0)
+                    if (!Inpm.Alt && !Inpm.Control && Inpm.OnPressed(Keys.Delete) && selected.Count() > 0)
                     {
                         // suppression de la selection
                         foreach (Component c in selected)
@@ -267,7 +270,7 @@ namespace Wiring
                         }
                         selected.Clear();
                     }
-                    if (Inpm.Control && Inpm.OnPressed(Keys.A))
+                    if (Inpm.Control && !Inpm.Alt && Inpm.OnPressed(Keys.A))
                     {
                         // selectionner tout
                         selected.Clear();
@@ -276,7 +279,7 @@ namespace Wiring
                             selected.Add(c);
                         }
                     }
-                    if (Inpm.Control && Inpm.OnPressed(Keys.D) && selected.Count == 1)
+                    if (Inpm.Control && !Inpm.Alt && Inpm.OnPressed(Keys.D) && selected.Count == 1)
                     {
                         // Dupliquer un composant (temporaire ?)
                         AddComponent(selected[0].Copy());
@@ -518,7 +521,13 @@ namespace Wiring
             }
 
             if (Window.Contains(Mouse.GetState().Position))
-                switch (tool) {
+            {
+                if (Inpm.middleClic == InputManager.ClicState.Down)
+                    // panoramique avec middleclic
+                    Mouse.SetCursor(grab);
+                else
+                switch (tool)
+                {
                     // Choix du curseur
                     case Tool.Edit:
                         Vector2 MsPos = Inpm.MsPosition();
@@ -537,10 +546,20 @@ namespace Wiring
                     case Tool.Move:
                         Mouse.SetCursor(MouseCursor.SizeAll);
                         break;
+                    case Tool.Zoom:
+                        Mouse.SetCursor(magnifier);
+                        break;
+                    case Tool.Pan:
+                        if (Inpm.leftClic == InputManager.ClicState.Down)
+                            Mouse.SetCursor(grab);
+                        else
+                            Mouse.SetCursor(hand);
+                        break;
                     default:
                         Mouse.SetCursor(MouseCursor.Arrow);
                         break;
                 }
+            }
             if (Inpm.MsState.LeftButton == ButtonState.Pressed)
             {
                 if (tool == Tool.Select)
