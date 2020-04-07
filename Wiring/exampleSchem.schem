@@ -1,22 +1,22 @@
 # Exemple de fichier de sauvegarde de schematic
-{
+Schematic : {
 	Name : "exampleSchem",
 	Components :
 	[	{
-			Type : Input,
-			Position : [32 64],
-			Wires : [0] # identifiant des fils connectées
+			Type : "Input",
+			Position : [-32 64],
+			Wires : [0], # identifiant des fils connectées
 			Data : {
 				value : false
 			}
 		}
 		{
-			Type : Not,
+			Type : "Not",
 			Position : [64 32],
 			Wires : [0 1]
 		}
 		{
-			Type : Diode,
+			Type : "Diode",
 			Position : [64 96],
 			Wires : [0 2],
 			Data : {
@@ -24,15 +24,15 @@
 			}
 		}
 		{
-			Type : BlackBox,
+			Type : "BlackBox",
 			Position : [96 64],
 			Wires : [1 2 3],
 			Data : {
-				schematic : "and.schem"
+				path : "or.schem"
 			}
 		}
 		{
-			Type : Output,
+			Type : "Output",
 			Position : [128 64],
 			Wires : [3]
 		}

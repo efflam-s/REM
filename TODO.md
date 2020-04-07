@@ -1,6 +1,7 @@
 ## Liste de trucs à faire : Projet Wiring
 
 #### A faire maintenant :
+* Sauvegarder des schematics : writer
 * Pouvoir rajouter ou enlever des entrée/sorties dans les `BlackBox` *(implémenté mais peut-être à fix)*
 * Edition des fils : bug d'update de la création sans changement ? *(je crois que c'est bon)*
 * Ajout de composant : non-création si souris hors de l'éditeur et annulation si reclic sur le bouton
@@ -10,7 +11,6 @@
 * Curseur : changer les ciseaux
 
 #### A faire plus tard :
-* Sauvegarder des schematics
 * BlackBox : trier des input/output par hauteur
 * Blackbox : afficher le nom dans un tooltip
 * Petit bug : les fils ne sont pas toujours update dans les blackbox (mais pas de problème global détécté pour l'instant)

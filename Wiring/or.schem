@@ -1,0 +1,19 @@
+Name : "Or",
+Components :
+[
+	{
+		Type : "Input",
+		Position : [32 32],
+		Wires : [0]
+	}
+	{
+		Type : "Input",
+		Position : [32 96],
+		Wires : [0]
+	}
+	{
+		Type : "Output",
+		Position : [128 64],
+		Wires : [0]
+	}
+]

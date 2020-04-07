@@ -30,7 +30,7 @@ namespace Wiring
         {
 
         }
-        public void AddComponent(Component c)
+        public void AddComponent(Component c, bool reloadWires = true)
         {
             if (c is Input i)
             {
@@ -46,9 +46,10 @@ namespace Wiring
                 if (!wires.Contains(w))
                     wires.Add(w);
             }*/
-            ReloadWiresFromComponents();
+            if (reloadWires)
+                ReloadWiresFromComponents();
         }
-        public void DeleteComponent(Component c)
+        public void DeleteComponent(Component c, bool reloadWires = true)
         {
             int i;
             for (i = 0; i < components.Count() && components[i] != c; i++);
@@ -68,7 +69,8 @@ namespace Wiring
                     outputs.Remove(op);
                 }
             }
-            ReloadWiresFromComponents();
+            if (reloadWires)
+                ReloadWiresFromComponents();
         }
         public void DeleteWire(Wire w)
         {
