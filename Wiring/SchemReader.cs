@@ -11,12 +11,12 @@ namespace Wiring
         public class SyntaxException : Exception
         {
             public SyntaxException(string message = "") : base(message) { }
-            public SyntaxException(int i, char c, object state) : base("character n°" + i + " : " + c + ", at state : " + state) { }
+            public SyntaxException(int i, char c, object state) : base("character n°" + i + " : " + c + ", at state : " + state.ToString()) { }
         }
         public class StructureException : Exception
         {
             public StructureException(string message = "") : base(message) { }
-            public StructureException(int i, string w, object state) : base("word n°" + i + " : " + w + ", at state : " + state) { }
+            public StructureException(int i, string w, object state) : base("word n°" + i + " : " + w + ", at state : " + state.ToString()) { }
         }
         public class MissingFieldException : Exception
         {
@@ -28,24 +28,38 @@ namespace Wiring
             public InvalidValueException(string message = "") : base(message) { }
             public InvalidValueException(string field, object value, string parent) : base("invalid field " + field + " value : " + value.ToString() + " in " + parent) { }
         }
-        
-        public static Schematic Read(string path)
+        public class UndefinedWordWarning : Exception
+        {
+            public UndefinedWordWarning(string message = "") : base(message) { }
+            public UndefinedWordWarning(string word, string parent) : base("undefined word : " + word + " in " + parent) { }
+        }
+        public class InvalidTypeWarning : Exception
+        {
+            public InvalidTypeWarning(string message = "") : base(message) { }
+            public InvalidTypeWarning(string expected, object given, string parent) : base("expected type " + expected + " but got " + given.ToString() + " in " + parent) { }
+        }
+
+        public static Schematic Read(string path, bool ignoreWarnings = false)
         {
             string s = File.ReadAllText(path);
 
-            string[] words = WordParser(s, true);
+            string[] words = WordParser(s);
 
             int i = 0;
-            Dictionary<string, object> tree = CreateTree(words, ref i, true);
+            Dictionary<string, object> tree = CreateTree(words, ref i);
 
             // on laisse le choix de mettre "Schematic : { Name : ... }" ou directement "Name : ..."
             if (tree.ContainsKey("Schematic") && tree["Schematic"] is Dictionary<string, object> schematic)
             {
-                return TreeToSchem(schematic);
+                if (!ignoreWarnings)
+                    checkSchem(schematic);
+                return TreeToSchem(schematic, ignoreWarnings);
             }
             else
             {
-                return TreeToSchem(tree);
+                if (!ignoreWarnings)
+                    checkSchem(tree);
+                return TreeToSchem(tree, ignoreWarnings);
             }
         }
 
@@ -305,9 +319,7 @@ namespace Wiring
                     list.Add(CreateList(w, ref i));
                 }
                 else
-                {
-                    // error
-                }
+                    throw new StructureException(i, w[i], "list");
             }
             if (i >= w.Length)
             {
@@ -317,7 +329,111 @@ namespace Wiring
             return list;
         }
 
-        private static Schematic TreeToSchem(Dictionary<string, object> tree)
+        /// <summary>
+        /// Vérifie que tout les mot-clés de l'arbre existe et qu'ils sont du bon type
+        /// </summary>
+        /// <param name="tree"></param>
+        private static void checkSchem(Dictionary<string, object> tree)
+        {
+            foreach (string key in tree.Keys)
+            {
+                if (key == "Name")
+                {
+                    if (!(tree["Name"] is string))
+                        throw new InvalidTypeWarning("string", tree["Name"], "Schematic");
+                }
+                else if (key == "Components")
+                {
+                    if (tree["Components"] is List<object> comps)
+                    {
+                        // On vérifie que c'est une liste de composants
+                        foreach (object obj in comps)
+                        {
+                            if (obj is Dictionary<string, object> comp)
+                                checkComp(comp);
+                            else
+                                throw new InvalidTypeWarning("Dictionary<string, object>", obj, "Schematic");
+                        }
+                    }
+                    else
+                        throw new InvalidTypeWarning("List<object>", tree["Components"], "Schematic");
+                }
+                else
+                    throw new UndefinedWordWarning(key, "Schematic");
+            }
+        }
+        private static void checkComp(Dictionary<string, object> tree)
+        {
+            foreach (string key in tree.Keys)
+            {
+                if (key == "Type")
+                {
+                    if (!(tree["Type"] is string))
+                        throw new InvalidTypeWarning("string", tree["Type"], "Component");
+                }
+                else if (key == "Position")
+                {
+                    if (!(tree["Position"] is List<object> position && position.Count == 2 && position[0] is int && position[1] is int))
+                        throw new InvalidTypeWarning("List<int>(2)", tree["Position"], "Component");
+                }
+                else if (key == "Wires")
+                {
+                    if (tree["Wires"] is List<object> wires)
+                    {
+                        foreach (object obj in wires)
+                            if (!(obj is int))
+                                throw new InvalidTypeWarning("int", obj, "Component");
+                    }
+                    else
+                        throw new InvalidTypeWarning("List<object>", tree["Wires"], "Component");
+                }
+                else if (key == "Data")
+                {
+                    if (tree["Data"] is Dictionary<string, object> data)
+                    {
+                        checkData(data);
+                    }
+                    else
+                        throw new InvalidTypeWarning("Dictionary<string, object>", tree["Data"], "Component");
+                }
+                else
+                    throw new UndefinedWordWarning(key, "Component");
+            }
+        }
+        private static void checkData(Dictionary<string, object> tree)
+        {
+            foreach (string key in tree.Keys)
+            {
+                if (key == "value")
+                {
+                    if (!(tree["value"] is bool))
+                        throw new InvalidTypeWarning("bool", tree["value"], "Data");
+                }
+                else if (key == "delay")
+                {
+                    if (!(tree["delay"] is int))
+                        throw new InvalidTypeWarning("int", tree["delay"], "Data");
+                }
+                else if (key == "path")
+                {
+                    if (!(tree["path"] is string))
+                        throw new InvalidTypeWarning("string", tree["path"], "Data");
+                }
+                else if (key == "schematic")
+                {
+                    if (tree["schematic"] is Dictionary<string, object> schematic)
+                    {
+                        checkSchem(schematic);
+                    }
+                    else
+                        throw new InvalidTypeWarning("Dictionary<string, object>", tree["schematic"], "Data");
+                }
+                else
+                    throw new UndefinedWordWarning(key, "Data");
+            }
+        }
+
+        private static Schematic TreeToSchem(Dictionary<string, object> tree, bool ignoreWarnings = false)
         {
             if (tree.ContainsKey("Name") && tree["Name"] is string Name)
             {
@@ -328,10 +444,7 @@ namespace Wiring
                     {
                         if (c is Dictionary<string, object> comp)
                         {
-                            schem.AddComponent(TreeToComp(comp, schem.wires), false);
-                        } else
-                        {
-                            throw new InvalidValueException("Component", c, "Components");
+                            schem.AddComponent(TreeToComp(comp, schem.wires, ignoreWarnings), false);
                         }
                     }
                 }
@@ -340,7 +453,7 @@ namespace Wiring
             else
                 throw new MissingFieldException("Name", "Schematic");
         }
-        private static Component TreeToComp(Dictionary<string, object> tree, List<Wire> SchemWires = null)
+        private static Component TreeToComp(Dictionary<string, object> tree, List<Wire> SchemWires = null, bool ignoreWarnings = false)
         {
             if (SchemWires == null)
                 SchemWires = new List<Wire>();
@@ -397,9 +510,9 @@ namespace Wiring
                         }
                         if (tree.ContainsKey("Data") && tree["Data"] is Dictionary<string, object> data2)
                             if (data2.ContainsKey("Schematic") && data2["Schematic"] is Dictionary<string, object> schematic)
-                                bb.schem = TreeToSchem(schematic);
+                                bb.schem = TreeToSchem(schematic, ignoreWarnings);
                             else if (data2.ContainsKey("path") && data2["path"] is string path)
-                                bb.schem = Read(path);
+                                bb.schem = Read(path, ignoreWarnings);
                         comp = bb;
                         break;
                     default:

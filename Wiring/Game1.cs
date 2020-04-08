@@ -62,7 +62,7 @@ namespace Wiring
             isListeningToInputText = false;
             // seed random : DateTime.Now.Millisecond;
 
-            editor.mainSchem = SchemReader.Read("exampleSchem.schem");
+            editor.mainSchem = SchemReader.Read("Schematics/exampleSchem.schem");
             editor.mainSchem.Initialize();
 
             base.Initialize();
