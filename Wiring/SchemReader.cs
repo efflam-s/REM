@@ -509,7 +509,7 @@ namespace Wiring
                             bb.wires.Add(SchemWires[i]);
                         }
                         if (tree.ContainsKey("Data") && tree["Data"] is Dictionary<string, object> data2)
-                            if (data2.ContainsKey("Schematic") && data2["Schematic"] is Dictionary<string, object> schematic)
+                            if (data2.ContainsKey("schematic") && data2["schematic"] is Dictionary<string, object> schematic)
                                 bb.schem = TreeToSchem(schematic, ignoreWarnings);
                             else if (data2.ContainsKey("path") && data2["path"] is string path)
                                 bb.schem = Read(path, ignoreWarnings);

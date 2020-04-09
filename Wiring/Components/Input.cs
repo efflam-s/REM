@@ -24,6 +24,8 @@ namespace Wiring
             MustUpdate = (value != v);
             value = v;
         }
+        public bool getValue() => value;
+
         public Input(Wire output, Vector2 position) : base(position)
         {
             value = false;

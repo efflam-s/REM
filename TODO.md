@@ -6,6 +6,8 @@
 * Petit bug : pas de clear de selection pdt la navigation entre les schematics (retour en arrière)
 * Ajout de composant : non-création si souris hors de l'éditeur et annulation si reclic sur le bouton
 * Mettre la couleur du texte dans une texture
+* Afficher des infos sur le composant hovered
+* Et/ou : ToolTip du nom du schematic d'une blackbox
 
 #### A faire plus tard :
 * BlackBox : trier des input/output par hauteur
