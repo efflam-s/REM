@@ -1,7 +1,6 @@
 ## Liste de trucs à faire : Projet Wiring
 
 #### A faire maintenant :
-* Sauvegarder des schematics : writer
 * Sauvegarder des schematics : interface
 * Petit bug : pas de clear de selection pdt la navigation entre les schematics (retour en arrière)
 * Ajout de composant : non-création si souris hors de l'éditeur et annulation si reclic sur le bouton

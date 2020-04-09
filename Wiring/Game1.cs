@@ -62,8 +62,8 @@ namespace Wiring
             isListeningToInputText = false;
             // seed random : DateTime.Now.Millisecond;
 
-            editor.mainSchem = SchemReader.Read("Schematics/testWrite.schem");
-            editor.mainSchem.Initialize();
+            //editor.mainSchem = SchemReader.Read("Schematics/testWrite.schem");
+            //editor.mainSchem.Initialize();
             //SchemWriter.write("Schematics/testWrite.schem", editor.mainSchem, true);
 
             base.Initialize();

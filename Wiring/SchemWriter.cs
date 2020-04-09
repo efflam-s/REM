@@ -20,17 +20,15 @@ namespace Wiring
                 code = schemToString(schem, indent);
             }
 
-            Console.WriteLine(code);
-
             if (!File.Exists(path))
             {
                 Console.WriteLine("create new file : " + path);
-                File.Create(path);
             }
             else
             {
                 Console.WriteLine("overwrite existant file : " + path);
             }
+            
             File.WriteAllText(path, code);
         }
 

@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.IO;
 
 namespace Wiring
 {
@@ -107,6 +108,24 @@ namespace Wiring
                         tool = Tool.Edit;
                     else
                         tool = Tool.Zoom;
+                }
+            }
+            // sauvegarde du schematic courant
+            if (Inpm.leftClic == InputManager.ClicState.Up && Inpm.Control && !Inpm.Alt && !Inpm.Shift && Inpm.OnPressed(Keys.S))
+            {
+                // Ctrl+S : sauvegarder sous le nom actuel
+                SchemWriter.write(@"Schematics\" + mainSchem.Name + ".schem", mainSchem, true);
+            }
+            if (Inpm.leftClic == InputManager.ClicState.Up && Inpm.Control && !Inpm.Alt && Inpm.Shift && Inpm.OnPressed(Keys.O))
+            {
+                // Ctrl+Shift+O : Ouvrir le schematic du nom actuel (temporaire)
+                try
+                {
+                    mainSchem = SchemReader.Read(@"Schematics\" + mainSchem.Name + ".schem");
+                    mainSchem.Initialize();
+                } catch (FileNotFoundException fe)
+                {
+                    Console.WriteLine("File \"Schematics\\" + mainSchem.Name + ".schem\" not found");
                 }
             }
 
