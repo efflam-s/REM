@@ -41,7 +41,9 @@ namespace Wiring
 
         public static Schematic Read(string path, bool ignoreWarnings = false)
         {
-            string s = File.ReadAllText(path);
+            string[] pathStrings = path.Split('/', '\\');
+            string folderPath = string.Join("\\", pathStrings, 0, pathStrings.Length - 1);
+            string s = File.ReadAllText(string.Join("\\", pathStrings));
 
             string[] words = WordParser(s);
 
@@ -53,13 +55,13 @@ namespace Wiring
             {
                 if (!ignoreWarnings)
                     checkSchem(schematic);
-                return TreeToSchem(schematic, ignoreWarnings);
+                return TreeToSchem(schematic, folderPath, ignoreWarnings);
             }
             else
             {
                 if (!ignoreWarnings)
                     checkSchem(tree);
-                return TreeToSchem(tree, ignoreWarnings);
+                return TreeToSchem(tree, folderPath, ignoreWarnings);
             }
         }
 
@@ -433,7 +435,10 @@ namespace Wiring
             }
         }
 
-        private static Schematic TreeToSchem(Dictionary<string, object> tree, bool ignoreWarnings = false)
+        /// <summary>
+        /// Transforme un arbre de dictionnaires et listes en un schematic
+        /// </summary>
+        private static Schematic TreeToSchem(Dictionary<string, object> tree, string folderPath, bool ignoreWarnings = false)
         {
             if (tree.ContainsKey("Name") && tree["Name"] is string Name)
             {
@@ -444,7 +449,7 @@ namespace Wiring
                     {
                         if (c is Dictionary<string, object> comp)
                         {
-                            schem.AddComponent(TreeToComp(comp, schem.wires, ignoreWarnings), false);
+                            schem.AddComponent(TreeToComp(comp, folderPath, schem.wires, ignoreWarnings), false);
                         }
                     }
                 }
@@ -453,7 +458,7 @@ namespace Wiring
             else
                 throw new MissingFieldException("Name", "Schematic");
         }
-        private static Component TreeToComp(Dictionary<string, object> tree, List<Wire> SchemWires = null, bool ignoreWarnings = false)
+        private static Component TreeToComp(Dictionary<string, object> tree, string folderPath, List<Wire> SchemWires = null, bool ignoreWarnings = false)
         {
             if (SchemWires == null)
                 SchemWires = new List<Wire>();
@@ -510,9 +515,9 @@ namespace Wiring
                         }
                         if (tree.ContainsKey("Data") && tree["Data"] is Dictionary<string, object> data2)
                             if (data2.ContainsKey("schematic") && data2["schematic"] is Dictionary<string, object> schematic)
-                                bb.schem = TreeToSchem(schematic, ignoreWarnings);
+                                bb.schem = TreeToSchem(schematic, folderPath, ignoreWarnings);
                             else if (data2.ContainsKey("path") && data2["path"] is string path)
-                                bb.schem = Read(path, ignoreWarnings);
+                                bb.schem = Read(folderPath + path, ignoreWarnings);
                         comp = bb;
                         break;
                     default:

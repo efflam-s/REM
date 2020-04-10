@@ -32,6 +32,7 @@ namespace Wiring
         }
 
         List<Component> selected; // la liste des composants sélectionnés
+        public void clearSelection() { selected.Clear(); }
         List<Vector2> relativePositionToMouse; // la liste de leur positions relative à la souris (ou la position relative du composant déplacé en 0)
         Component MovingComp; // le composant déplacé non sélectionné
 
@@ -178,7 +179,7 @@ namespace Wiring
                         {
                             if (!Inpm.Control && !Inpm.Alt)
                                 // deselectionne
-                                selected.Clear();
+                                clearSelection();
                             // rectangle selection
                             tool = Tool.Select;
                         }
@@ -234,13 +235,13 @@ namespace Wiring
                             {
                                 // ouvrir une schematic de blackbox
                                 schemPile.Add(bb.schem);
-                                selected.Clear();
+                                clearSelection();
                             }
                             else// if (!selected.Contains(hoveredComponent))
                             {
                                 // selection d'un composant
                                 if (!Inpm.Control && !Inpm.Alt)
-                                    selected.Clear();
+                                    clearSelection();
                                 if (!Inpm.Alt && !selected.Contains(hoveredComponent))
                                     selected.Add(hoveredComponent);
                                 else if (Inpm.Alt && selected.Contains(hoveredComponent))
@@ -287,12 +288,12 @@ namespace Wiring
                         {
                             mainSchem.DeleteComponent(c);
                         }
-                        selected.Clear();
+                        clearSelection();
                     }
                     if (Inpm.Control && !Inpm.Alt && Inpm.OnPressed(Keys.A))
                     {
                         // selectionner tout
-                        selected.Clear();
+                        clearSelection();
                         foreach (Component c in mainSchem.components)
                         {
                             selected.Add(c);
@@ -320,6 +321,30 @@ namespace Wiring
                     {
                         selected[i].position = Inpm.MsPosition() + relativePositionToMouse[i];
                     }
+                }
+                if ((Inpm.leftClic == InputManager.ClicState.Clic && !isMouseInScreen) || (Inpm.leftClic == InputManager.ClicState.Up && Inpm.rightClic == InputManager.ClicState.Clic))
+                {
+                    // Annulation de création de composant
+                    mainSchem.DeleteComponent(MovingComp);
+                    MovingComp = null;
+                    tool = Tool.Edit;
+                }
+                if ((Inpm.leftClic == InputManager.ClicState.Down && Inpm.rightClic == InputManager.ClicState.Clic))
+                {
+                    // Annulation de déplacement de composant
+                    if (MovingComp != null)
+                    {
+                        // composant seul, non sélectionné
+                        MovingComp.position = Inpm.mousePositionOnClic + relativePositionToMouse[0];
+                    }
+                    else
+                    {
+                        // sélection
+                        for (int i = 0; i < selected.Count; i++)
+                            selected[i].position = Inpm.mousePositionOnClic + relativePositionToMouse[i];
+                    }
+                    MovingComp = null;
+                    tool = Tool.Edit;
                 }
                 if (Inpm.leftClic == InputManager.ClicState.Declic)
                 {
@@ -373,7 +398,7 @@ namespace Wiring
                         Wire end = (hoveredComponent != null) ?
                             hoveredComponent.nearestPlugWire(Inpm.MsPosition()) :
                             hoveredWire;
-                        if (start != end)// && hoveredComponent != hover(Inpm.mousePositionOnClic))
+                        if (start != end && start != null && end != null)// && hoveredComponent != hover(Inpm.mousePositionOnClic))
                         {
                             bool OK = true;
                             foreach (Component c1 in end.components)
@@ -389,12 +414,10 @@ namespace Wiring
                                 }
                                 //mainSchem.wires.Remove(end);
                                 mainSchem.ReloadWiresFromComponents();
+                                start.Update();
                             }
                         }
-                        start.Update();
                     }
-                    //MovingComp = null;
-                    //tool = Tool.Edit;
                 }
             }
             else if (tool == Tool.Pan)
@@ -597,7 +620,7 @@ namespace Wiring
             mainSchem.AddComponent(c);
             tool = Tool.Move;
             MovingComp = c;
-            selected.Clear();
+            clearSelection();
             relativePositionToMouse.Clear();
             relativePositionToMouse.Add(Vector2.Zero);
         }

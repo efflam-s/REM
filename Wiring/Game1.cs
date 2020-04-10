@@ -62,7 +62,7 @@ namespace Wiring
             isListeningToInputText = false;
             // seed random : DateTime.Now.Millisecond;
 
-            //editor.mainSchem = SchemReader.Read("Schematics/testWrite.schem");
+            //editor.mainSchem = SchemReader.Read("Schematics/exampleSchem.schem");
             //editor.mainSchem.Initialize();
             //SchemWriter.write("Schematics/testWrite.schem", editor.mainSchem, true);
 
@@ -294,7 +294,7 @@ namespace Wiring
                 b.Draw(spriteBatch);
             // debug bar
             spriteBatch.Draw(toolBar, new Rectangle(0, Window.ClientBounds.Height - toolBar.Height, Window.ClientBounds.Width, toolBar.Height), Color.White);
-            spriteBatch.DrawString(font, editor.GetInfos(), new Vector2(36, Window.ClientBounds.Height -  toolBar.Height*3/4), Color.Black);
+            spriteBatch.DrawString(font, editor.GetInfos() + " FrameRate : " + (1/gameTime.ElapsedGameTime.TotalSeconds).ToString("0.00") + " fps", new Vector2(36, Window.ClientBounds.Height -  toolBar.Height*3/4), Color.Black);
             // other buttons
             foreach (Button b in MiscButtons)
                 b.Draw(spriteBatch);
@@ -346,10 +346,10 @@ namespace Wiring
             editor.schemPile.RemoveRange(id + 1, editor.schemPile.Count - id - 1);
             SchematicPath.RemoveRange(id + 1, SchematicPath.Count - id - 1);
             SchematicPath[SchematicPath.Count - 1].ToolTip = "Renommer";
-            // à mettre dans une fonction ? :
             foreach (Component c in editor.mainSchem.components)
                 if (c is BlackBox bb)
                     bb.ReloadPlugsFromInOut(true);
+            editor.clearSelection();
             editor.mainSchem.ReloadWiresFromComponents();
         }
     }

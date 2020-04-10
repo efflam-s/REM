@@ -1,8 +1,10 @@
 ## Liste de trucs à faire : Projet Wiring
 
 #### A faire maintenant :
-* Sauvegarder des schematics : interface
-* Petit bug : pas de clear de selection pdt la navigation entre les schematics (retour en arrière)
+* Sauvegarde des schematics : save as...
+* Sauvegarde des schematics : open...
+* Sauvegarde des schematics : save les blackbox dans un autre fichier
+* Bug : ouvrir un schematic ne modifie pas celui de la blackbox courante
 * Ajout de composant : non-création si souris hors de l'éditeur et annulation si reclic sur le bouton
 * Mettre la couleur du texte dans une texture
 * Afficher des infos sur le composant hovered
