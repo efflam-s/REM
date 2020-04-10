@@ -51,9 +51,7 @@ namespace Wiring
         }
         public void DeleteComponent(Component c, bool reloadWires = true)
         {
-            int i;
-            for (i = 0; i < components.Count() && components[i] != c; i++);
-            if (i < components.Count())
+            if (components.Contains(c))
             {
                 /*foreach (Wire w in c.wires)
                 {

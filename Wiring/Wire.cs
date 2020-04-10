@@ -29,7 +29,7 @@ namespace Wiring
             nodeOff = Content.Load<Texture2D>("wireNodeOff");
         }
 
-        public void Update()
+        public bool Update()
         {
             bool oldValue = value;
             value = false;
@@ -44,7 +44,9 @@ namespace Wiring
                 {
                     c.Update();
                 }
+                return true;
             }
+            return false;
         }
         public void Draw(SpriteBatch spriteBatch)
         {

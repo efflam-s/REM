@@ -267,14 +267,18 @@ namespace Wiring
                                 mainSchem.ReloadWiresFromComponents();
                                 hoveredWire.Update();
                             }
-                            // update les composant voisins/les fils ?
+                            // update les composant voisins
+                            foreach(Component c in hoveredWire.components)
+                            {
+                                c.Update();
+                            }
                         }
                     }
                 }
                 else if (Inpm.leftClic == InputManager.ClicState.Down)
                 {
                     // Pendant le clic
-                    if (hoveredComponent != null && hasMoved(Inpm.MsPosition(), Camera) && (MovingComp != null || selected.Contains(hoveredComponent)))
+                    if (hover(Inpm.mousePositionOnClic) != null && hasMoved(Inpm.MsPosition(), Camera) && (MovingComp != null || selected.Contains(hoveredComponent)))
                     {
                         // déplacement d'un composant ou de la sélection
                         tool = Tool.Move;
@@ -289,6 +293,10 @@ namespace Wiring
                         foreach (Component c in selected)
                         {
                             mainSchem.DeleteComponent(c);
+                            foreach (Wire w in c.wires)
+                            {
+                                w.Update();
+                            }
                         }
                         clearSelection();
                     }
@@ -416,7 +424,12 @@ namespace Wiring
                                 }
                                 //mainSchem.wires.Remove(end);
                                 mainSchem.ReloadWiresFromComponents();
-                                start.Update();
+                                bool updated = start.Update();
+                                if (!updated)
+                                {
+                                    foreach (Component c in start.components)
+                                        c.Update();
+                                }
                             }
                         }
                     }
