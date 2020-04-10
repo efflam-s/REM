@@ -508,6 +508,10 @@ namespace Wiring
             }
             return null;
         }
+        public Component currentHoveredComponent()
+        {
+            return hover(Inpm.MsPosition());
+        }
         /// <summary>
         /// Détermine le fil sur lequel est positionné la souris. Retourne null si pas de fil trouvé
         /// </summary>
@@ -587,12 +591,12 @@ namespace Wiring
                 {
                     // Choix du curseur
                     case Tool.Edit:
-                        Vector2 MsPos = Inpm.MsPosition();
+                        Component hovered = hover(Inpm.MsPosition());
                         if (!Inpm.Control && !Inpm.Alt &&
-                                (hover(MsPos) is Input || hover(MsPos) is Diode || hover(MsPos) is BlackBox))
+                                (hovered is Input || hovered is Diode || hovered is BlackBox))
                             Mouse.SetCursor(MouseCursor.Hand);
                         else if (!Inpm.Control &&
-                                hoverWire(MsPos) != null && hover(MsPos) == null)
+                                hoverWire(Inpm.MsPosition()) != null && hovered == null)
                             Mouse.SetCursor(scissor);
                         else
                             Mouse.SetCursor(MouseCursor.Arrow);

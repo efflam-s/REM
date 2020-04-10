@@ -4,8 +4,7 @@
 * Sauvegarde des schematics : save as...
 * Sauvegarde des schematics : open...
 * Sauvegarde des schematics : save les blackbox dans un autre fichier
-* Bug d'update de wires dans les blackbox
-* Mettre la couleur du texte dans une texture
+* Bug d'update de wires dans les blackbox (fixé mais il faudrait nettoyer le code)
 * Afficher des infos sur le composant hovered
 * Et/ou : ToolTip du nom du schematic d'une blackbox
 

@@ -84,7 +84,6 @@ namespace Wiring
             toolBar = Content.Load<Texture2D>("Button/toolBar");
             separator = Content.Load<Texture2D>("Button/separator");
             pathSeparator = Content.Load<Texture2D>("Button/pathSeparator");
-            StringButton.editCursor = Content.Load<Texture2D>("EditBar");
             AddButtons[0].setTexture(Content.Load<Texture2D>("Button/addInputButton"));
             AddButtons[1].setTexture(Content.Load<Texture2D>("Button/addOutputButton"));
             AddButtons[2].setTexture(Content.Load<Texture2D>("Button/addNotButton"));
@@ -294,11 +293,20 @@ namespace Wiring
                 b.Draw(spriteBatch);
             // debug bar
             spriteBatch.Draw(toolBar, new Rectangle(0, Window.ClientBounds.Height - toolBar.Height, Window.ClientBounds.Width, toolBar.Height), Color.White);
-            spriteBatch.DrawString(font, editor.GetInfos() + "  FrameRate : " + (1/gameTime.ElapsedGameTime.TotalSeconds).ToString("0.00") + " fps", new Vector2(36, Window.ClientBounds.Height -  toolBar.Height*3/4), Color.Black);
+            spriteBatch.DrawString(font, editor.GetInfos() + "  FrameRate : " + (1/gameTime.ElapsedGameTime.TotalSeconds).ToString("0.00") + " fps", new Vector2(36, Window.ClientBounds.Height -  toolBar.Height*3/4), StringButton.textColor);
             // other buttons
             foreach (Button b in MiscButtons)
                 b.Draw(spriteBatch);
-            
+
+            // blackbox tooltip
+            if (editor.tool == Editor.Tool.Edit || editor.tool == Editor.Tool.Wire)
+            {
+                if (editor.currentHoveredComponent() is BlackBox bb)
+                {
+                    Button.DrawToolTip(spriteBatch, bb.schem.Name, Inpm.MsPosition() + new Vector2(0, 25));
+                }
+            }
+
             spriteBatch.End();
             base.Draw(gameTime);
         }
