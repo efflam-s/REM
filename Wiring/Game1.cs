@@ -294,7 +294,7 @@ namespace Wiring
                 b.Draw(spriteBatch);
             // debug bar
             spriteBatch.Draw(toolBar, new Rectangle(0, Window.ClientBounds.Height - toolBar.Height, Window.ClientBounds.Width, toolBar.Height), Color.White);
-            spriteBatch.DrawString(font, editor.GetInfos() + " FrameRate : " + (1/gameTime.ElapsedGameTime.TotalSeconds).ToString("0.00") + " fps", new Vector2(36, Window.ClientBounds.Height -  toolBar.Height*3/4), Color.Black);
+            spriteBatch.DrawString(font, editor.GetInfos() + "  FrameRate : " + (1/gameTime.ElapsedGameTime.TotalSeconds).ToString("0.00") + " fps", new Vector2(36, Window.ClientBounds.Height -  toolBar.Height*3/4), Color.Black);
             // other buttons
             foreach (Button b in MiscButtons)
                 b.Draw(spriteBatch);

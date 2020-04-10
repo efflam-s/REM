@@ -4,8 +4,7 @@
 * Sauvegarde des schematics : save as...
 * Sauvegarde des schematics : open...
 * Sauvegarde des schematics : save les blackbox dans un autre fichier
-* Bug : ouvrir un schematic ne modifie pas celui de la blackbox courante
-* Ajout de composant : non-création si souris hors de l'éditeur et annulation si reclic sur le bouton
+* Bug d'update de wires dans les blackbox
 * Mettre la couleur du texte dans une texture
 * Afficher des infos sur le composant hovered
 * Et/ou : ToolTip du nom du schematic d'une blackbox
@@ -37,3 +36,21 @@
 * "Librarie" de blackboxes utiles (and, add, mux...)
 * Pouvoir transformer les blackbox en bitmap pour gagner en efficacité
 * Ou alors : Composant `Bitmap`
+
+---
+
+## Ouvrir...
+
+Chemin : `  ...  `.schem
+
+[x] Tenir compte des avertissements
+
+[ ] Ouvrir dans une nouvelle boîte noire
+
+## Enregistrer sous...
+Chemin : ` ... `.schem
+
+[ ] Enregistrer les boîtes noires dans des fichiers séparés <br/>
+/!\ les boîtes noires de même nom doivent être similaires
+
+[ ] Optimiser la taille du fichier (lisibilité réduite)

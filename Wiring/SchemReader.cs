@@ -517,7 +517,7 @@ namespace Wiring
                             if (data2.ContainsKey("schematic") && data2["schematic"] is Dictionary<string, object> schematic)
                                 bb.schem = TreeToSchem(schematic, folderPath, ignoreWarnings);
                             else if (data2.ContainsKey("path") && data2["path"] is string path)
-                                bb.schem = Read(folderPath + path, ignoreWarnings);
+                                bb.schem = Read(folderPath + '\\' + path, ignoreWarnings);
                         comp = bb;
                         break;
                     default:

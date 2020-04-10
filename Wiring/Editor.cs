@@ -122,11 +122,13 @@ namespace Wiring
                 // Ctrl+Shift+O : Ouvrir le schematic du nom actuel (temporaire)
                 try
                 {
-                    mainSchem = SchemReader.Read(@"Schematics\" + mainSchem.Name + ".schem");
-                    mainSchem.Initialize();
+                    Schematic newSchem = SchemReader.Read(@"Schematics\" + mainSchem.Name + ".schem");
+                    mainSchem.Name = newSchem.Name;
+                    mainSchem.components = newSchem.components;
+                    mainSchem.Initialize(true);
                 } catch (FileNotFoundException fe)
                 {
-                    Console.WriteLine("File \"Schematics\\" + mainSchem.Name + ".schem\" not found");
+                    Console.WriteLine("File \""+ @"Schematics\" + mainSchem.Name + ".schem" + "\" or one of the BlackBoxes not found");
                 }
             }
 

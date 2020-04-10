@@ -112,8 +112,19 @@ namespace Wiring
             }
             //wires.RemoveAll(w => w.components.Count() == 0);
         }
-        public void Initialize()
+        public void Initialize(bool recursive = false)
         {
+            foreach (Component c in components)
+            {
+                if (c is Input i && !inputs.Contains(i))
+                    inputs.Add(i);
+                if (c is Output o && !outputs.Contains(o))
+                    outputs.Add(o);
+                if (c is BlackBox bb && recursive)
+                {
+                    bb.schem.Initialize(true);
+                }
+            }
             ReloadWiresFromComponents();
             foreach (Wire w in wires)
             {
