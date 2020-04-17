@@ -8,18 +8,11 @@ namespace Wiring
 {
     static class SchemWriter
     {
+        /// <summary>
+        /// Ecrire à partir d'un chemin vers un fichier (ouvre un filestream)
+        /// </summary>
         public static void write(string path, Schematic schem, bool indent)
         {
-            string code;
-            if (indent)
-            {
-                code = "Schematic : {\r\n" + schemToString(schem, indent, 1) + "\r\n}\r\n";
-            }
-            else
-            {
-                code = schemToString(schem, indent);
-            }
-
             if (!File.Exists(path))
             {
                 Console.WriteLine("create new file : " + path);
@@ -28,8 +21,26 @@ namespace Wiring
             {
                 Console.WriteLine("overwrite existant file : " + path);
             }
-            
-            File.WriteAllText(path, code);
+            FileStream fs = new FileStream(path, FileMode.OpenOrCreate);
+            write(fs, schem, indent);
+            fs.Close();
+        }
+        /// <summary>
+        /// Ecrire à partir d'un FileStream
+        /// </summary>
+        public static void write(FileStream fs, Schematic schem, bool indent)
+        {
+            string code; // code représentant le schematic
+            if (indent)
+            {
+                code = "Schematic : {\r\n" + schemToString(schem, indent, 1) + "\r\n}\r\n";
+            }
+            else
+            {
+                code = schemToString(schem, indent);
+            }
+            fs.SetLength(0);
+            fs.Write(Encoding.UTF8.GetBytes(code), 0, Encoding.UTF8.GetByteCount(code));
         }
 
         private static string schemToString(Schematic schem, bool indent, int tabulation = 0)

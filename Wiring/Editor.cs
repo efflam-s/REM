@@ -111,26 +111,8 @@ namespace Wiring
                         tool = Tool.Zoom;
                 }
             }
-            // sauvegarde du schematic courant
-            if (Inpm.leftClic == InputManager.ClicState.Up && Inpm.Control && !Inpm.Alt && !Inpm.Shift && Inpm.OnPressed(Keys.S))
-            {
-                // Ctrl+S : sauvegarder sous le nom actuel
-                SchemWriter.write(@"Schematics\" + mainSchem.Name + ".schem", mainSchem, true);
-            }
-            if (Inpm.leftClic == InputManager.ClicState.Up && Inpm.Control && !Inpm.Alt && Inpm.Shift && Inpm.OnPressed(Keys.O))
-            {
-                // Ctrl+Shift+O : Ouvrir le schematic du nom actuel (temporaire)
-                try
-                {
-                    Schematic newSchem = SchemReader.Read(@"Schematics\" + mainSchem.Name + ".schem");
-                    mainSchem.Name = newSchem.Name;
-                    mainSchem.components = newSchem.components;
-                    mainSchem.Initialize(true);
-                } catch (FileNotFoundException fe)
-                {
-                    Console.WriteLine("File \""+ @"Schematics\" + mainSchem.Name + ".schem" + "\" or one of the BlackBoxes not found");
-                }
-            }
+
+            
 
             // Navigation avec clic roulette
             if (Inpm.middleClic == InputManager.ClicState.Clic)

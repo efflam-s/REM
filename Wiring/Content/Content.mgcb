@@ -128,6 +128,18 @@
 /processorParam:TextureFormat=Color
 /build:Button/buttonHover.png
 
+#begin Button/buttonsBar.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Button/buttonsBar.png
+
 #begin Button/buttonToggle.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -152,6 +164,18 @@
 /processorParam:TextureFormat=Color
 /build:Button/hand.png
 
+#begin Button/Open.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Button/Open.png
+
 #begin Button/pathSeparator.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -163,6 +187,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Button/pathSeparator.png
+
+#begin Button/Save.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Button/Save.png
+
+#begin Button/SaveAs.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Button/SaveAs.png
 
 #begin Button/separator.png
 /importer:TextureImporter
@@ -187,18 +235,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Button/textColor.png
-
-#begin Button/toolBar.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Button/toolBar.png
 
 #begin Button/toolTipBorder.png
 /importer:TextureImporter

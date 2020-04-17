@@ -41,9 +41,23 @@ namespace Wiring
 
         public static Schematic Read(string path, bool ignoreWarnings = false)
         {
+            FileStream fs = new FileStream(path, FileMode.Open);
+            Schematic newSchem = Read(fs, ignoreWarnings);
+            fs.Close();
+            return newSchem;
+        }
+        public static Schematic Read(FileStream fs, bool ignoreWarnings = false)
+        {
+            string path = fs.Name;
             string[] pathStrings = path.Split('/', '\\');
             string folderPath = string.Join("\\", pathStrings, 0, pathStrings.Length - 1);
-            string s = File.ReadAllText(string.Join("\\", pathStrings));
+            
+            string s;
+            using (StreamReader reader = new StreamReader(fs))
+            {
+                s = reader.ReadToEnd();
+            }
+            //string s = File.ReadAllText(string.Join("\\", pathStrings));
 
             string[] words = WordParser(s);
 

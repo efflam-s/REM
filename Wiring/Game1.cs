@@ -18,17 +18,22 @@ namespace Wiring
         Matrix Camera;
         TextureButton[] AddButtons, MiscButtons;
         List<StringButton> SchematicPath;
-        Texture2D toolBar, separator, pathSeparator;
+        Texture2D buttonsBar, separator, pathSeparator;
         InputManager Inpm;
         SpriteFont font;
         StringBuilder builder;
         bool isListeningToInputText;
+        string savePath;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            this.Window.TextInput += Window_TextInput;
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 720;
+            Window.TextInput += Window_TextInput; // évenements de textInput pour le renommage
             Content.RootDirectory = "Content";
+            Window.AllowUserResizing = true;
+            IsMouseVisible = true;
         }
 
         /// <summary>
@@ -39,27 +44,29 @@ namespace Wiring
         /// </summary>
         protected override void Initialize()
         {
-            Window.AllowUserResizing = true;
-            IsMouseVisible = true;
             editor = new Editor();
             editor.Initialize();
             AddButtons = new TextureButton[5];
-            AddButtons[0] = new TextureButton(new Vector2(43+36, 2), "Ajouter une Entrée");
-            AddButtons[1] = new TextureButton(new Vector2(43+36*2, 2), "Ajouter une Sortie");
-            AddButtons[2] = new TextureButton(new Vector2(43+36*3, 2), "Ajouter un Inverseur");
-            AddButtons[3] = new TextureButton(new Vector2(43+36*4, 2), "Ajouter une Diode");
-            AddButtons[4] = new TextureButton(new Vector2(43+36*5, 2), "Ajouter une Boîte Noire");
-            MiscButtons = new TextureButton[5];
-            MiscButtons[0] = new TextureButton(new Vector2(4, 38), "Retour (Echap)");
+            AddButtons[0] = new TextureButton(new Vector2(7+36*2, 2), "Ajouter une Entrée");
+            AddButtons[1] = new TextureButton(new Vector2(7+36*3, 2), "Ajouter une Sortie");
+            AddButtons[2] = new TextureButton(new Vector2(7+36*4, 2), "Ajouter un Inverseur");
+            AddButtons[3] = new TextureButton(new Vector2(7+36*5, 2), "Ajouter une Diode");
+            AddButtons[4] = new TextureButton(new Vector2(7+36*6, 2), "Ajouter une Boîte Noire");
+            MiscButtons = new TextureButton[8];
+            MiscButtons[0] = new TextureButton(new Vector2(7+36*3, 38), "Retour (Echap)");
             MiscButtons[1] = new TextureButton(new Vector2(4, 2), "Selectionner/Modifier (S)");
             MiscButtons[2] = new TextureButton(new Vector2(43, 2), "Ajouter une Connexion (C)");
-            MiscButtons[3] = new TextureButton(new Vector2(48+36*6, 2), "Panoramique (H)");
-            MiscButtons[4] = new TextureButton(new Vector2(48+36*7, 2), "Zoom (Z)");
+            MiscButtons[3] = new TextureButton(new Vector2(10+36*7, 2), "Panoramique (H)");
+            MiscButtons[4] = new TextureButton(new Vector2(10+36*8, 2), "Zoom (Z)");
+            MiscButtons[5] = new TextureButton(new Vector2(4, 38), "Ouvrir (Ctrl + O)");
+            MiscButtons[6] = new TextureButton(new Vector2(4+36, 38), "Enregistrer (Ctrl + S)");
+            MiscButtons[7] = new TextureButton(new Vector2(4+36*2, 38), "Enregistrer Sous (Ctrl + Maj + S)");
             SchematicPath = new List<StringButton>();
             Inpm = new InputManager();
             Camera = Matrix.CreateScale(4) * Matrix.CreateTranslation(0, 36*2, 0);
             builder = new StringBuilder();
             isListeningToInputText = false;
+            savePath = "";
             // seed random : DateTime.Now.Millisecond;
 
             //editor.mainSchem = SchemReader.Read("Schematics/exampleSchem.schem");
@@ -81,7 +88,7 @@ namespace Wiring
             Editor.LoadContent(Content);
             Button.LoadContent(Content);
 
-            toolBar = Content.Load<Texture2D>("Button/toolBar");
+            buttonsBar = Content.Load<Texture2D>("Button/buttonsBar");
             separator = Content.Load<Texture2D>("Button/separator");
             pathSeparator = Content.Load<Texture2D>("Button/pathSeparator");
             AddButtons[0].setTexture(Content.Load<Texture2D>("Button/addInputButton"));
@@ -94,9 +101,12 @@ namespace Wiring
             MiscButtons[2].setTexture(Content.Load<Texture2D>("Button/addWireButton"));
             MiscButtons[3].setTexture(Content.Load<Texture2D>("Button/hand"));
             MiscButtons[4].setTexture(Content.Load<Texture2D>("Button/zoom"));
+            MiscButtons[5].setTexture(Content.Load<Texture2D>("Button/Open"));
+            MiscButtons[6].setTexture(Content.Load<Texture2D>("Button/Save"));
+            MiscButtons[7].setTexture(Content.Load<Texture2D>("Button/SaveAs"));
             font = Content.Load<SpriteFont>("Arial");
 
-            SchematicPath.Add(new StringButton(new Vector2(43, 41), editor.mainSchem.Name, "Renommer"));
+            SchematicPath.Add(new StringButton(new Vector2(10+36*4, 41), editor.mainSchem.Name, "Renommer"));
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
         }
@@ -204,6 +214,18 @@ namespace Wiring
                         case 4:
                             editor.tool = Editor.Tool.Zoom;
                             break;
+                        case 5:
+                            // Bouton ouvrir un schematic
+                            Open();
+                            break;
+                        case 6:
+                            // Bouton sauvegarder sous le nom actuel
+                            Save();
+                            break;
+                        case 7:
+                            // Bouton sauvegarder sous...
+                            SaveAs();
+                            break;
                     }
                 }
             }
@@ -243,13 +265,22 @@ namespace Wiring
             MiscButtons[3].toggle = editor.tool == Editor.Tool.Pan;
             MiscButtons[4].toggle = editor.tool == Editor.Tool.Zoom;
 
-            if (Inpm.Control && Inpm.OnPressed(Keys.R))
+            if (Inpm.Control && !Inpm.Alt && !Inpm.Shift && Inpm.OnPressed(Keys.R))
             {
                 // Rename
                 isListeningToInputText = true;
                 SchematicPath[SchematicPath.Count-1].toggle = true;
                 builder = new StringBuilder(SchematicPath[SchematicPath.Count - 1].text);
             }
+            if (Inpm.leftClic == InputManager.ClicState.Up && Inpm.Control && !Inpm.Alt && !Inpm.Shift && Inpm.OnPressed(Keys.S))
+                // Ctrl+S : sauvegarder sous le nom actuel
+                Save();
+            if (Inpm.leftClic == InputManager.ClicState.Up && Inpm.Control && !Inpm.Alt && Inpm.Shift && Inpm.OnPressed(Keys.S))
+                // Ctrl+Shift+S : sauvegarder sous...
+                SaveAs();
+            if (Inpm.leftClic == InputManager.ClicState.Up && Inpm.Control && !Inpm.Alt && !Inpm.Shift && Inpm.OnPressed(Keys.O))
+                // Ctrl+O : Ouvrir un schematic
+                Open();
 
             //Console.WriteLine(SchematicPath[0].Bounds);
 
@@ -271,8 +302,9 @@ namespace Wiring
             spriteBatch.Begin();
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
             // schematic bar
-            spriteBatch.Draw(toolBar, new Rectangle(0, toolBar.Height, Window.ClientBounds.Width, toolBar.Height), Color.White);
-            spriteBatch.Draw(separator, new Vector2(37, 36), Color.White);
+            spriteBatch.Draw(buttonsBar, new Rectangle(0, buttonsBar.Height, Window.ClientBounds.Width, buttonsBar.Height), Color.White);
+            spriteBatch.Draw(separator, new Vector2(1+36*3, 36), Color.White);
+            spriteBatch.Draw(separator, new Vector2(4+36*4, 36), Color.White);
             foreach (StringButton b in SchematicPath)
             {
                 b.Draw(spriteBatch);
@@ -285,15 +317,15 @@ namespace Wiring
                     b.DrawEditCursor(spriteBatch, gameTime);
                 }
             }
-            // buttons bar
-            spriteBatch.Draw(toolBar, new Rectangle(0, 0, Window.ClientBounds.Width, toolBar.Height), Color.White);
-            spriteBatch.Draw(separator, new Vector2(37, 0), Color.White);
-            spriteBatch.Draw(separator, new Vector2(36*7+5, 0), Color.White);
+            // tool bar
+            spriteBatch.Draw(buttonsBar, new Rectangle(0, 0, Window.ClientBounds.Width, buttonsBar.Height), Color.White);
+            spriteBatch.Draw(separator, new Vector2(1+36, 0), Color.White);
+            spriteBatch.Draw(separator, new Vector2(4+36*7, 0), Color.White);
             foreach (Button b in AddButtons)
                 b.Draw(spriteBatch);
             // debug bar
-            spriteBatch.Draw(toolBar, new Rectangle(0, Window.ClientBounds.Height - toolBar.Height, Window.ClientBounds.Width, toolBar.Height), Color.White);
-            spriteBatch.DrawString(font, editor.GetInfos() + "  FrameRate : " + (1/gameTime.ElapsedGameTime.TotalSeconds).ToString("0.00") + " fps", new Vector2(36, Window.ClientBounds.Height -  toolBar.Height*3/4), StringButton.textColor);
+            spriteBatch.Draw(buttonsBar, new Rectangle(0, Window.ClientBounds.Height - buttonsBar.Height, Window.ClientBounds.Width, buttonsBar.Height), Color.White);
+            spriteBatch.DrawString(font, editor.GetInfos() + "  FrameRate : " + (1/gameTime.ElapsedGameTime.TotalSeconds).ToString("0.00") + " fps", new Vector2(36, Window.ClientBounds.Height -  buttonsBar.Height*3/4), StringButton.textColor);
             // other buttons
             foreach (Button b in MiscButtons)
                 b.Draw(spriteBatch);
@@ -351,6 +383,7 @@ namespace Wiring
         /// </summary>
         private void schematicNav(int id)
         {
+            savePath = "";
             editor.schemPile.RemoveRange(id + 1, editor.schemPile.Count - id - 1);
             SchematicPath.RemoveRange(id + 1, SchematicPath.Count - id - 1);
             SchematicPath[SchematicPath.Count - 1].ToolTip = "Renommer";
@@ -359,6 +392,65 @@ namespace Wiring
                     bb.ReloadPlugsFromInOut(true);
             editor.clearSelection();
             editor.mainSchem.ReloadWiresFromComponents();
+        }
+
+        /// <summary>
+        /// Sauvegarde sous le nom actuel si il est déjà enregistré. Sinon, ouvre la fenêtre d'enregistrement sous...
+        /// </summary>
+        private void Save()
+        {
+            if (savePath == "")
+                SaveAs();
+            else
+            {
+                Console.WriteLine("saving at path : " + savePath);
+                SchemWriter.write(savePath, editor.mainSchem, true);
+            }
+        }
+        /// <summary>
+        /// Ouvre la fenêtre d'enregistrement sous... de windows
+        /// </summary>
+        private void SaveAs()
+        {
+            System.Windows.Forms.SaveFileDialog saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            saveFileDialog1.Filter = "Fichier Schematic|*.schem";
+            saveFileDialog1.Title = "Sauvegarder un Schematic";
+            saveFileDialog1.FileName = editor.mainSchem.Name + ".schem";
+            saveFileDialog1.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory + "Schematics"; // positionner au chemin de l'appication + "Schematics"
+            saveFileDialog1.ShowDialog();
+
+            // If the file name is not an empty string open it for saving.
+            if (saveFileDialog1.FileName != "")
+            {
+                // Saves the File via a FileStream created by the OpenFile method.
+                System.IO.FileStream fs = (System.IO.FileStream)saveFileDialog1.OpenFile();
+                SchemWriter.write(fs, editor.mainSchem, true);
+                savePath = fs.Name;
+                fs.Close();
+            }
+        }
+        /// <summary>
+        /// Ouvre la fenêtre d'ouverture de fichier de windows
+        /// </summary>
+        private void Open()
+        {
+            System.Windows.Forms.OpenFileDialog openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            openFileDialog1.Filter = "Fichier Schematic|*.schem";
+            openFileDialog1.Title = "Ouvrir un Schematic";
+            openFileDialog1.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory + "Schematics"; // positionner au chemin de l'appication + "Schematics"
+            openFileDialog1.ShowDialog();
+            if (openFileDialog1.FileName != "")
+            {
+                System.IO.FileStream fs = (System.IO.FileStream)openFileDialog1.OpenFile();
+                Schematic newSchem = SchemReader.Read(fs);
+                editor.mainSchem.Name = newSchem.Name;
+                Console.WriteLine("opened " + editor.mainSchem.Name);
+                editor.mainSchem.components = newSchem.components;
+                editor.mainSchem.Initialize(true);
+                SchematicPath[SchematicPath.Count - 1].setText(editor.mainSchem.Name);
+                savePath = fs.Name;
+                fs.Close();
+            }
         }
     }
 }
