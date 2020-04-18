@@ -272,7 +272,7 @@
 /processorParam:TextureFormat=Color
 /build:Button/zoom.png
 
-#begin Component/blackboxOff.png
+#begin Component/blackbox.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -282,19 +282,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Component/blackboxOff.png
-
-#begin Component/blackboxOn.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Component/blackboxOn.png
+/build:Component/blackbox.png
 
 #begin Component/component.png
 /importer:TextureImporter

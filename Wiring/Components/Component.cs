@@ -71,6 +71,11 @@ namespace Wiring
         }
         public virtual void Draw(SpriteBatch spriteBatch)
         {
+            foreach(Wire w in wires)
+            {
+                Vector2 plugPos = plugPosition(w);
+                Wire.drawLine(spriteBatch, plugPos, new Vector2(position.X, plugPos.Y), w.value);
+            }
             spriteBatch.Draw(square, position - new Vector2(square.Width, square.Height) / 2, Color.White);
         }
         public virtual void DrawSelected(SpriteBatch spriteBatch)

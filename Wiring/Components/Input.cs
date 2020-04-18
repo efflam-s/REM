@@ -49,6 +49,12 @@ namespace Wiring
                 wires[0].Update();
             base.Update();
         }
+        public override Vector2 plugPosition(Wire wire)
+        {
+            if (wire == wires[0])
+                return position + new Vector2(1 + size / 2, 0);
+            return base.plugPosition(wire);
+        }
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);

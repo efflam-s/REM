@@ -13,7 +13,7 @@ namespace Wiring
     /// </summary>
     public class BlackBox : Component
     {
-        public static Texture2D texOn, texOff;
+        public static Texture2D texture;
         public Schematic schem;
         public BlackBox(Schematic schem, Vector2 position) : base(position)
         {
@@ -25,8 +25,7 @@ namespace Wiring
         }
         public static new void LoadContent(ContentManager Content)
         {
-            texOn = Content.Load<Texture2D>("Component/blackBoxOn");
-            texOff = Content.Load<Texture2D>("Component/blackBoxOff");
+            texture = Content.Load<Texture2D>("Component/blackBox");
         }
         public override bool GetOutput(Wire wire)
         {
@@ -85,10 +84,10 @@ namespace Wiring
                 {
                     if (i < inpCount)
                     {
-                        return position + (inpCount == 1 ? new Vector2(-8, 0) : new Vector2(-8, -6 + 12f * i / (inpCount - 1)));
+                        return position + new Vector2(-1 - size/2, (inpCount == 1) ? 0 : -6 + 12f * i / (inpCount - 1));
                     } else
                     {
-                        return position + (outpCount == 1 ? new Vector2(8, 0) : new Vector2(8, -6 + 12f * (i - inpCount) / (outpCount - 1)));
+                        return position + new Vector2(1 + size/2, (outpCount == 1) ? 0 : -6 + 12f * (i - inpCount) / (outpCount - 1));
                     }
                 }
             }
@@ -97,7 +96,6 @@ namespace Wiring
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);
-            Texture2D texture = texOff;
             spriteBatch.Draw(texture, position - new Vector2(texture.Width, texture.Height) / 2, Color.White);
             //schem.BasicDraw(spriteBatch);
         }
