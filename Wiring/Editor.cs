@@ -113,7 +113,6 @@ namespace Wiring
             }
 
             
-
             // Navigation avec clic roulette
             if (Inpm.middleClic == InputManager.ClicState.Clic)
             {
@@ -381,6 +380,24 @@ namespace Wiring
                 }
                 else if (Inpm.leftClic == InputManager.ClicState.Declic)
                 {
+                    if (!hasMoved(Inpm.MsPosition(), Camera) && hoveredComponent != null)
+                    {
+                        if (hoveredComponent is Input i && !Inpm.Control && !Inpm.Alt)
+                        {
+                            // switch d'un input
+                            i.changeValue();
+                        }
+                        else if (hoveredComponent is Diode d && !Inpm.Control && !Inpm.Alt)
+                        {
+                            d.changeDelay();
+                        }
+                        else if (hoveredComponent is BlackBox bb && !Inpm.Control && !Inpm.Alt)
+                        {
+                            // ouvrir une schematic de blackbox
+                            schemPile.Add(bb.schem);
+                            clearSelection();
+                        }
+                    }
                     if ((hoveredComponent != null || hoveredWire != null) && (hover(Inpm.mousePositionOnClic) != null || hoverWire(Inpm.mousePositionOnClic) != null))
                     {
                         // Ajout d'un fil
@@ -569,39 +586,47 @@ namespace Wiring
                     // panoramique avec middleclic
                     Mouse.SetCursor(grab);
                 else
-                switch (tool)
-                {
-                    // Choix du curseur
-                    case Tool.Edit:
-                        Component hovered = hover(Inpm.MsPosition());
-                        if (!Inpm.Control && !Inpm.Alt &&
+                    switch (tool)
+                    {
+                        // Choix du curseur
+                        case Tool.Edit:
+                            Component hovered = hover(Inpm.MsPosition());
+                            if (!Inpm.Control && !Inpm.Alt &&
+                                    (hovered is Input || hovered is Diode || hovered is BlackBox))
+                                Mouse.SetCursor(MouseCursor.Hand);
+                            else if (!Inpm.Control &&
+                                    hoverWire(Inpm.MsPosition()) != null && hovered == null)
+                                Mouse.SetCursor(scissor);
+                            else
+                                Mouse.SetCursor(MouseCursor.Arrow);
+                            break;
+                        case Tool.Select:
+                            Mouse.SetCursor(MouseCursor.Crosshair); // peut-etre a modifier pour un curseur curstom
+                            break;
+                        case Tool.Move:
+                            Mouse.SetCursor(MouseCursor.SizeAll);
+                            break;
+                        case Tool.Zoom:
+                            Mouse.SetCursor(magnifier);
+                            break;
+                        case Tool.Pan:
+                            if (Inpm.leftClic == InputManager.ClicState.Down)
+                                Mouse.SetCursor(grab);
+                            else
+                                Mouse.SetCursor(hand);
+                            break;
+                        case Tool.Wire:
+                            hovered = hover(Inpm.MsPosition());
+                            if (!Inpm.Control && !Inpm.Alt &&
                                 (hovered is Input || hovered is Diode || hovered is BlackBox))
-                            Mouse.SetCursor(MouseCursor.Hand);
-                        else if (!Inpm.Control &&
-                                hoverWire(Inpm.MsPosition()) != null && hovered == null)
-                            Mouse.SetCursor(scissor);
-                        else
+                                Mouse.SetCursor(MouseCursor.Hand);
+                            else
+                                Mouse.SetCursor(MouseCursor.Arrow);
+                            break;
+                        default:
                             Mouse.SetCursor(MouseCursor.Arrow);
-                        break;
-                    case Tool.Select:
-                        Mouse.SetCursor(MouseCursor.Crosshair); // peut-etre a modifier pour un curseur curstom
-                        break;
-                    case Tool.Move:
-                        Mouse.SetCursor(MouseCursor.SizeAll);
-                        break;
-                    case Tool.Zoom:
-                        Mouse.SetCursor(magnifier);
-                        break;
-                    case Tool.Pan:
-                        if (Inpm.leftClic == InputManager.ClicState.Down)
-                            Mouse.SetCursor(grab);
-                        else
-                            Mouse.SetCursor(hand);
-                        break;
-                    default:
-                        Mouse.SetCursor(MouseCursor.Arrow);
-                        break;
-                }
+                            break;
+                    }
             }
             if (Inpm.MsState.LeftButton == ButtonState.Pressed)
             {
