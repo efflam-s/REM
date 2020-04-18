@@ -1,31 +1,33 @@
 ## Liste de trucs à faire : Projet Wiring
 
 #### A faire maintenant :
-* Bug : entrée-sorties
 * Paramètres de sauvegarde et d'ouverture de schematics
 * Sauvegarde des schematics : save les blackbox dans un autre fichier
-* Bug d'update de wires dans les blackbox (fixé mais il faudrait nettoyer le code)
+* Bug : entrée-sorties (fixé ?)
+* Warning : Inapropriate number of wires pour les blackbox ?
+* Relire et nettoyer le projet entier
 * Afficher des infos sur le composant hovered ?
 * BlackBox : trier des input/output par hauteur
+* BlackBox : agrandir quand il y a trop de fils
+* Améliorer la visibilité des prises : afficher un bout de fil pour chaque prise de composant
 
 #### A faire plus tard :
-* Afficher la prise où on branche un nouveau fil
 * Petit bug : les fils ne sont pas toujours update dans les blackbox (mais pas de problème global détécté pour l'instant)
 * Duplication d'une séléction multiple
 * Raccourcis pour les créations de composants (chiffres ?)
-* Activer les élements depuis l'outil wire
 * Composant : `Comment`
 * **LA DOOOOC !!**
 * Curseur : changer les ciseaux
 * Ajustement auto de la Camera
+* Changer le système de delay : séparer diode/delay ? délais micro (tick) et macro (seconde) ?
 
 #### Eventuellement, si j'ai le courage :
 * Panoramique à fix ?
 * Angle des composants
 * Menu de simulation (pas d'édition possible, possibilité de cacher des composants/fils, performances accrues ?)
 * Faire des fils personnalisés : nodes où on veut
-* Créer une blackbox à partir du schematic courant / de la selection
 * OU : Fils à angle droit
+* Créer une blackbox à partir du schematic courant / de la selection
 * Fixer le stackoverflow
 * Couper/Copier/Coller
 * Effets sonores + animations
@@ -39,18 +41,18 @@
 
 ---
 
-## Ouvrir...
+## Paramètres...
 
-Chemin : `  ...  `.schem
+#### Ouverture
 
-[x] Tenir compte des avertissements
+[ ] Ignorer les avertissements<br/>
+/!\ Améliore les performances de chargement, déconseillé si vous éditez le code de vos schematics
 
 [ ] Ouvrir dans une nouvelle boîte noire
 
-## Enregistrer sous...
-Chemin : ` ... `.schem
+#### Enregistrement
 
 [ ] Enregistrer les boîtes noires dans des fichiers séparés <br/>
 /!\ les boîtes noires de même nom doivent être similaires
 
-[ ] Optimiser la taille du fichier (lisibilité réduite)
+[ ] Optimiser la taille du fichier (lisibilité réduite du code)

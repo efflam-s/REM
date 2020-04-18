@@ -38,6 +38,11 @@ namespace Wiring
             public InvalidTypeWarning(string message = "") : base(message) { }
             public InvalidTypeWarning(string expected, object given, string parent) : base("expected type " + expected + " but got " + given.ToString() + " in " + parent) { }
         }
+        public class InvalidListSizeWarning : Exception
+        {
+            public InvalidListSizeWarning(string message = "") : base(message) { }
+            public InvalidListSizeWarning(int expected, int given, string parent) : base("expected size " + expected + " but got " + given.ToString() + " in " + parent) { }
+        }
 
         public static Schematic Read(string path, bool ignoreWarnings = false)
         {
@@ -389,16 +394,35 @@ namespace Wiring
                 }
                 else if (key == "Position")
                 {
-                    if (!(tree["Position"] is List<object> position && position.Count == 2 && position[0] is int && position[1] is int))
-                        throw new InvalidTypeWarning("List<int>(2)", tree["Position"], "Component");
+                    if (tree["Position"] is List<object> position)
+                    {
+                        if (position.Count == 2)
+                        {
+                            if (!(position[0] is int))
+                                throw new InvalidTypeWarning("int", position[0], "Position");
+                            if (!(position[1] is int))
+                                throw new InvalidTypeWarning("int", position[1], "Position");
+                        }
+                        else
+                            throw new InvalidListSizeWarning(2, position.Count, "Postion");
+                    }
+                    else
+                        throw new InvalidTypeWarning("List", tree["Position"], "Component");
                 }
                 else if (key == "Wires")
                 {
                     if (tree["Wires"] is List<object> wires)
                     {
+                        if (tree.ContainsKey("Type") && tree["Type"] is string type)
+                        {
+                            if ((type == "Input" || type == "Output") && wires.Count != 1)
+                                throw new InvalidListSizeWarning(1, wires.Count, "Wires of "+type);
+                            if ((type == "Not" || type == "Diode") && wires.Count != 2)
+                                throw new InvalidListSizeWarning(2, wires.Count, "Wires of "+type);
+                        }
                         foreach (object obj in wires)
                             if (!(obj is int))
-                                throw new InvalidTypeWarning("int", obj, "Component");
+                                throw new InvalidTypeWarning("int", obj, "Wires");
                     }
                     else
                         throw new InvalidTypeWarning("List<object>", tree["Wires"], "Component");

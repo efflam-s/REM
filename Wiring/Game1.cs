@@ -137,9 +137,11 @@ namespace Wiring
 
             if (editor.schemPile.Count > SchematicPath.Count)
             {
+                // On est entré dans une blackbox à partir de l'éditeur
                 Vector2 newPosition = new Vector2(SchematicPath[SchematicPath.Count - 1].Bounds.Right, SchematicPath[SchematicPath.Count - 1].Bounds.Top) + new Vector2(8, 0);
                 SchematicPath[SchematicPath.Count - 1].ToolTip = "";
                 SchematicPath.Add(new StringButton(newPosition, editor.mainSchem.Name, "Renommer"));
+                savePath = "";
             }
 
             if (Inpm.OnPressed(Keys.Escape) && !isListeningToInputText)
@@ -294,7 +296,7 @@ namespace Wiring
         protected override void Draw(GameTime gameTime)
         {
             spriteBatch.Begin(SpriteSortMode.Immediate, transformMatrix: Camera);
-            GraphicsDevice.Clear(Color.LightGray);
+            GraphicsDevice.Clear(Color.LightGray); // TODO : rajouter une texture pour le fond (texture loop)
             GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
             editor.Draw(spriteBatch, new Rectangle(0, 36 * 2, Window.ClientBounds.Width, Window.ClientBounds.Height - 36 * 3));
             spriteBatch.End();
@@ -442,13 +444,49 @@ namespace Wiring
             if (openFileDialog1.FileName != "")
             {
                 System.IO.FileStream fs = (System.IO.FileStream)openFileDialog1.OpenFile();
-                Schematic newSchem = SchemReader.Read(fs);
-                editor.mainSchem.Name = newSchem.Name;
-                Console.WriteLine("opened " + editor.mainSchem.Name);
-                editor.mainSchem.components = newSchem.components;
-                editor.mainSchem.Initialize(true);
-                SchematicPath[SchematicPath.Count - 1].setText(editor.mainSchem.Name);
-                savePath = fs.Name;
+                try
+                {
+                    Schematic newSchem = SchemReader.Read(fs, Settings.IgnoreWarnings);
+                    editor.mainSchem.Name = newSchem.Name;
+                    Console.WriteLine("opened " + editor.mainSchem.Name);
+                    editor.mainSchem.components = newSchem.components;
+                    editor.mainSchem.Initialize(true);
+                    SchematicPath[SchematicPath.Count - 1].setText(editor.mainSchem.Name);
+                    savePath = fs.Name;
+                }
+                catch (System.IO.FileNotFoundException fnf)
+                {
+                    System.Windows.Forms.MessageBox.Show(fnf.Message, "Erreur : Fichier non trouvé");
+                }
+                catch (SchemReader.SyntaxException sy)
+                {
+                    System.Windows.Forms.MessageBox.Show(sy.Message, "Erreur : Syntaxe invalide");
+                }
+                catch (SchemReader.StructureException stc)
+                {
+                    System.Windows.Forms.MessageBox.Show(stc.Message, "Erreur : structure de schematic invalide");
+                }
+                catch (SchemReader.MissingFieldException mf)
+                {
+                    System.Windows.Forms.MessageBox.Show(mf.Message, "Erreur : Champ manquant");
+                }
+                catch (SchemReader.InvalidValueException iv)
+                {
+                    System.Windows.Forms.MessageBox.Show(iv.Message, "Erreur : Valeur invalide");
+                }
+                catch (SchemReader.UndefinedWordWarning uw)
+                {
+                    System.Windows.Forms.MessageBox.Show(uw.Message, "Avertissement : Mot-clé non défini");
+                }
+                catch (SchemReader.InvalidTypeWarning it)
+                {
+                    System.Windows.Forms.MessageBox.Show(it.Message, "Avertissement : Type invalide");
+                }
+                catch (SchemReader.InvalidListSizeWarning ils)
+                {
+                    System.Windows.Forms.MessageBox.Show(ils.Message, "Avertissement : Taille de liste invalide");
+                }
+
                 fs.Close();
             }
         }
