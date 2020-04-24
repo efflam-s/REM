@@ -2,32 +2,34 @@
 
 #### A faire maintenant :
 * Paramètres de sauvegarde et d'ouverture de schematics
-* Sauvegarde des schematics : save les blackbox dans un autre fichier
-* Bug : entrée-sorties (fixé ?)
-* Warning : Inapropriate number of wires pour les blackbox ?
 * Relire et nettoyer le projet entier
-* Afficher des infos sur le composant hovered ?
+* Warning : Inapropriate number of wires pour les blackbox
 * BlackBox : trier des input/output par hauteur
 * BlackBox : agrandir quand il y a trop de fils
-* Améliorer la visibilité des prises : afficher un bout de fil pour chaque prise de composant
+* Créer une blackbox à partir du schematic courant / de la selection
+* Bug : entrée-sorties (fixé ?)
+* Panoramique à fix ?
+* Afficher des infos sur le composant hovered ?
+* Petit bug : les fils ne sont pas toujours update dans les blackbox (mais pas de problème global détécté pour l'instant) ?
+* **LA DOOOOC !!**
 
 #### A faire plus tard :
-* Petit bug : les fils ne sont pas toujours update dans les blackbox (mais pas de problème global détécté pour l'instant)
+* Outil déplacement : flèches directionelles
+* Sauvegarde des schematics : save les blackbox dans un autre fichier
+* Création de fil : pouvoir créer à partir du petit morceau de fil qui dépasse
+* Composant : `Comment`
 * Duplication d'une séléction multiple
 * Raccourcis pour les créations de composants (chiffres ?)
-* Composant : `Comment`
-* **LA DOOOOC !!**
 * Curseur : changer les ciseaux
 * Ajustement auto de la Camera
 * Changer le système de delay : séparer diode/delay ? délais micro (tick) et macro (seconde) ?
 
 #### Eventuellement, si j'ai le courage :
-* Panoramique à fix ?
+* Fichier de settings (settings d'enregistrement + couleurs de texte, tooltip...)
 * Angle des composants
 * Menu de simulation (pas d'édition possible, possibilité de cacher des composants/fils, performances accrues ?)
 * Faire des fils personnalisés : nodes où on veut
 * OU : Fils à angle droit
-* Créer une blackbox à partir du schematic courant / de la selection
 * Fixer le stackoverflow
 * Couper/Copier/Coller
 * Effets sonores + animations
@@ -38,6 +40,7 @@
 * "Librarie" de blackboxes utiles (and, add, mux...)
 * Pouvoir transformer les blackbox en bitmap pour gagner en efficacité
 * Ou alors : Composant `Bitmap`
+* Fichier de langue => traduction
 
 ---
 

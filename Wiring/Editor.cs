@@ -70,14 +70,12 @@ namespace Wiring
         {
             
             // variables utiles pour l'update
-            //KeyboardState KbState = Keyboard.GetState();
             MouseState mouseState = Mouse.GetState();
             Vector2 virtualMousePosition = new Vector2(minMax(mouseState.X, Window.X, Window.X + Window.Width), minMax(mouseState.Y, Window.Y, Window.Y + Window.Height));
             bool isMouseInScreen = virtualMousePosition == mouseState.Position.ToVector2();
             virtualMousePosition = Vector2.Transform(virtualMousePosition, Matrix.Invert(Camera));
             mouseState = new MouseState((int)virtualMousePosition.X, (int)virtualMousePosition.Y, mouseState.ScrollWheelValue, mouseState.LeftButton, mouseState.MiddleButton, mouseState.RightButton, mouseState.XButton1, mouseState.XButton2);
             Inpm.Update(mouseState:mouseState);
-            //bool Control = KbState.IsKeyDown(Keys.LeftControl) || KbState.IsKeyDown(Keys.RightControl);
             Component hoveredComponent = hover(Inpm.MsPosition()); // component pressed
             Wire hoveredWire = hoverWire(Inpm.MsPosition()); // wire pressed
 

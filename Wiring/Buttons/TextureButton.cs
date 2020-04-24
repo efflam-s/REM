@@ -16,6 +16,11 @@ namespace Wiring
         {
             Bounds.Location = position.ToPoint();
         }
+        public TextureButton(Vector2 position, Texture2D texture, String ToolTip = "") : base(Rectangle.Empty, ToolTip)
+        {
+            Bounds.Location = position.ToPoint();
+            setTexture(texture);
+        }
         public void setTexture(Texture2D texture)
         {
             this.texture = texture;

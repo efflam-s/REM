@@ -41,6 +41,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ButtonsBar.cs" />
     <Compile Include="Buttons\StringButton.cs" />
     <Compile Include="Buttons\TextureButton.cs" />
     <Compile Include="Components\BlackBox.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="Schematic.cs" />
     <Compile Include="SchemReader.cs" />
     <Compile Include="SchemWriter.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Wire.cs" />
   </ItemGroup>
   <ItemGroup>

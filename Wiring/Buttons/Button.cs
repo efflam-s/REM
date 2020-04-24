@@ -47,17 +47,20 @@ namespace Wiring
             if (hover(Mouse.GetState().Position.ToVector2()))
             {
                 spriteBatch.Draw(hoverTex, Bounds, Color.White);
-                //tooltip
-                if (ToolTip != "")
-                {
-                    DrawToolTip(spriteBatch, ToolTip, Bounds.Location.ToVector2() + new Vector2(Bounds.Width / 2, Bounds.Height) + new Vector2(-13, 2));
-                }
+                
                 if (Mouse.GetState().LeftButton == ButtonState.Pressed)
                     spriteBatch.Draw(toggleTex, Bounds, Color.White);
             }
             else if (toggle)
             {
                 spriteBatch.Draw(toggleTex, Bounds, Color.White);
+            }
+        }
+        public void DrawToolTip(SpriteBatch spriteBatch)
+        {
+            if (hover(Mouse.GetState().Position.ToVector2()) && ToolTip != "")
+            {
+                DrawToolTip(spriteBatch, ToolTip, Bounds.Location.ToVector2() + new Vector2(Bounds.Width / 2, Bounds.Height) + new Vector2(-13, 2));
             }
         }
         public bool hover(Vector2 mouse)
