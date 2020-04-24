@@ -22,7 +22,7 @@ namespace Wiring
         TextureButton[] MiscButtons; // boutons qu'on ne peut pas mettre sur les barres (pour l'instant seulement paramètres)
         List<StringButton> SchematicPath; // chemin vers le schematic courant (boutons vers tout les schematics)
 
-        Texture2D /*buttonsBar, separator,*/ pathSeparator; // textures pour les boutons et barres de boutons => à suppr ?
+        Texture2D buttonsBar, /*separator,*/ pathSeparator; // textures pour les boutons et barres de boutons => à suppr ?
         SpriteFont font;
         StringBuilder builder; // Permet de construire des strings à partir de l'input de l'utilisateur (voir Window_TextInput)
         bool isListeningToInputText;
@@ -78,13 +78,13 @@ namespace Wiring
             Settings.LoadContent(Content);
             ButtonsBar.LoadContent(Content);
 
-            //buttonsBar = Content.Load<Texture2D>("Button/buttonsBar");
+            buttonsBar = Content.Load<Texture2D>("Button/buttonsBar");
             //separator = Content.Load<Texture2D>("Button/separator");
             pathSeparator = Content.Load<Texture2D>("Button/pathSeparator");
             firstBar = ButtonsBar.firstBar(Content);
             secondBar = ButtonsBar.secondBar(Content);
             MiscButtons[0].setTexture(Content.Load<Texture2D>("Button/Settings"));
-            SchematicPath.Add(new StringButton(new Vector2(10 + 36 * 4, 41), editor.mainSchem.Name, "Renommer"));
+            SchematicPath.Add(new StringButton(new Vector2(10 + 36 * 4, 41), editor.mainSchem.Name, "Renommer")); // A besoin de Button.LoadContent pour mesurer la taille du string
 
             font = Content.Load<SpriteFont>("Arial");
 
@@ -121,6 +121,10 @@ namespace Wiring
                 editor.Update(gameTime, ref editorCamera, EditorWindow);
 
             Inpm.Update();
+            if (Inpm.leftClic == InputManager.ClicState.Clic)
+            {
+                Inpm.SaveClic(gameTime);
+            }
 
             if (editor.schemPile.Count > SchematicPath.Count)
             {
@@ -133,12 +137,8 @@ namespace Wiring
 
             if (Inpm.OnPressed(Keys.Escape) && !isListeningToInputText)
             {
+                // Retour avec Echap
                 Back();
-            }
-
-            if (Inpm.leftClic == InputManager.ClicState.Clic)
-            {
-                Inpm.SaveClic(gameTime);
             }
 
             UpdateButtons();
@@ -150,32 +150,34 @@ namespace Wiring
                 {
                     if (i == SchematicPath.Count - 1)
                     {
-                        // schematic courant => rename
+                        // Schematic courant => renommage
                         isListeningToInputText = true;
                         SchematicPath[i].toggle = true;
                         builder = new StringBuilder(SchematicPath[i].text);
                     }
                     else
                     {
-                        // autre schematic => navigation
+                        // Autre schematic => navigation
                         schematicNav(i);
                     }
                 }
             }
             if (isListeningToInputText && Inpm.leftClic == InputManager.ClicState.Clic)
             {
-                SchematicPath[SchematicPath.Count - 1].toggle = false;
-                // fin de renommage
+                // Fin de renommage
                 isListeningToInputText = false;
-                if (SchematicPath[SchematicPath.Count - 1].text.Length == 0)
+                SchematicPath[SchematicPath.Count - 1].toggle = false;
+                if (SchematicPath[SchematicPath.Count - 1].text == "")
+                    // Chaîne vide => on garde le nom précedent
                     SchematicPath[SchematicPath.Count - 1].setText(editor.mainSchem.Name);
                 else
+                    // Sinon on change le nom
                     editor.mainSchem.Name = SchematicPath[SchematicPath.Count - 1].text;
             }
 
             if (Inpm.Control && !Inpm.Alt && !Inpm.Shift && Inpm.OnPressed(Keys.R))
             {
-                // Rename
+                // Ctrl+R : renommer le schematic actuel
                 isListeningToInputText = true;
                 SchematicPath[SchematicPath.Count-1].toggle = true;
                 builder = new StringBuilder(SchematicPath[SchematicPath.Count - 1].text);
@@ -190,8 +192,6 @@ namespace Wiring
                 // Ctrl+O : Ouvrir un schematic
                 Open();
 
-            //Console.WriteLine(SchematicPath[0].Bounds);
-
             base.Update(gameTime);
         }
 
@@ -205,14 +205,17 @@ namespace Wiring
             spriteBatch.Begin(SpriteSortMode.Immediate, transformMatrix: editorCamera);
             GraphicsDevice.Clear(Color.LightGray); // TODO : rajouter une texture pour le fond (texture loop)
             GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+
+            // Dessin de l'éditeur
             editor.Draw(spriteBatch, new Rectangle(0, 36 * 2, Window.ClientBounds.Width, Window.ClientBounds.Height - 36 * 3));
+
             spriteBatch.End();
 
-            // spriteBatch de l'UI
+            // spriteBatch des barres de boutons
             spriteBatch.Begin();
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
 
-            // Draw buttons bars
+            // Dessin des barres de boutons
             secondBar.Draw(spriteBatch, Window.ClientBounds.Width);
             firstBar.Draw(spriteBatch, Window.ClientBounds.Width);
             foreach (StringButton b in SchematicPath)
@@ -227,12 +230,17 @@ namespace Wiring
                     b.DrawEditCursor(spriteBatch, gameTime);
                 }
             }
-            // debug bar
+            // Barre d'informations et de debug
             spriteBatch.Draw(buttonsBar, new Rectangle(0, Window.ClientBounds.Height - buttonsBar.Height, Window.ClientBounds.Width, buttonsBar.Height), Color.White);
             spriteBatch.DrawString(font, editor.GetInfos() + "  FrameRate : " + (1/gameTime.ElapsedGameTime.TotalSeconds).ToString("0.00") + " fps", new Vector2(36, Window.ClientBounds.Height -  buttonsBar.Height*3/4), StringButton.textColor);
-            
+            // Boutons qui ne sont pas stockées dans les barres
+            foreach (Button b in MiscButtons)
+            {
+                b.Draw(spriteBatch);
+                b.DrawToolTip(spriteBatch);
+            }
 
-            // blackbox tooltip
+            // Blackbox tooltip
             if (editor.tool == Editor.Tool.Edit || editor.tool == Editor.Tool.Wire)
             {
                 if (editor.currentHoveredComponent() is BlackBox bb)
@@ -240,21 +248,21 @@ namespace Wiring
                     Button.DrawToolTip(spriteBatch, bb.schem.Name, Inpm.MsPosition() + new Vector2(0, 25));
                 }
             }
-            foreach (Button b in MiscButtons)
-            {
-                b.Draw(spriteBatch);
-                b.DrawToolTip(spriteBatch);
-            }
-            // settings menu
+
+            // Menu de paramètres
             if (MiscButtons[0].toggle) Settings.Draw(spriteBatch);
 
             spriteBatch.End();
             base.Draw(gameTime);
         }
 
+        /// <summary>
+        /// Mise à jour les barres de boutons et les autres boutons (sauf SchematicPath !)
+        /// </summary>
         void UpdateButtons()
         {
             bool declic = Inpm.leftClic == InputManager.ClicState.Declic;
+            // Organisation des boutons pour faciliter les boucles
             Button[] AddButtons = { firstBar[1, 1], firstBar[1, 2], firstBar[1, 3], firstBar[1, 4], firstBar[1, 5] };
             Button[] ToolButtons = { firstBar[0, 0], firstBar[1, 0], firstBar[2, 0], firstBar[2, 1] };
             Button[] FileButtons = secondBar[0].ToArray();
@@ -263,15 +271,16 @@ namespace Wiring
             // Boutons de création de composants
             for (int i = 0; i < AddButtons.Length; i++)
             {
-                if (AddButtons[i].toggle && declic && i != 0)
+                if (AddButtons[i].toggle && (declic || editor.tool != Editor.Tool.Move) && i != 0)
                 {
-                    // détoggle dans le cas où on clique n'importe où
+                    // Détoggle dans le cas où on clique n'importe où ou si l'outil n'est pas le déplacement
                     AddButtons[i].toggle = false;
                 }
                 if (AddButtons[i].hover(Inpm.MsPosition()) && declic && AddButtons[i].hover(Inpm.mousePositionOnClic))
                 {
+                    // Si ce bouton est cliqué
                     AddButtons[i].toggle = true;
-                    // création d'un composant
+                    // Création d'un composant
                     switch (i)
                     {
                         case 0:
@@ -298,6 +307,8 @@ namespace Wiring
             {
                 if (ToolButtons[i].hover(Inpm.MsPosition()) && declic)
                 {
+                    // Si ce bouton est cliqué
+                    // Choix de l'outil
                     switch (i)
                     {
                         case 0:
@@ -315,7 +326,7 @@ namespace Wiring
                     }
                 }
             }
-            // set buttons toggle
+            // Set tool buttons toggle
             ToolButtons[0].toggle = editor.tool == Editor.Tool.Edit || editor.tool == Editor.Tool.Move || editor.tool == Editor.Tool.Select;
             ToolButtons[1].toggle = editor.tool == Editor.Tool.Wire;
             ToolButtons[2].toggle = editor.tool == Editor.Tool.Pan;
@@ -326,6 +337,7 @@ namespace Wiring
             {
                 if (FileButtons[i].hover(Inpm.MsPosition()) && declic)
                 {
+                    // Si ce bouton est cliqué
                     switch (i) {
                         case 0:
                             // Bouton ouvrir un schematic
@@ -352,10 +364,12 @@ namespace Wiring
             // Bouton paramètres
             if (declic)
                 if (MiscButtons[0].hover(Inpm.MsPosition()))
+                    // Toggle si on clique dessus
                     MiscButtons[0].toggle = !MiscButtons[0].toggle;
                 else
+                    // Détoggle sinon
                     MiscButtons[0].toggle = false;
-            // set settings button position
+            // Position de bouton paramètres (à droite de la fenêtre)
             MiscButtons[0].Bounds.X = Window.ClientBounds.Width - MiscButtons[0].Bounds.Width - 4;
         }
 
@@ -369,7 +383,7 @@ namespace Wiring
             {
                 if (e.Key == Keys.Enter)
                 {
-                    // fin de renommage
+                    // Enter : fin de renommage
                     isListeningToInputText = false;
                     if (SchematicPath[SchematicPath.Count - 1].text.Length == 0)
                         SchematicPath[SchematicPath.Count - 1].setText(editor.mainSchem.Name);
@@ -382,6 +396,7 @@ namespace Wiring
                     {
                         if (e.Key == Keys.Back)
                         {
+                            // Backspace : suppression du dernier caractère
                             if (builder.Length > 0)
                                 builder.Remove(builder.Length - 1, 1);
                         }
@@ -403,10 +418,13 @@ namespace Wiring
         /// </summary>
         private void schematicNav(int id)
         {
-            savePath = "";
+            savePath = ""; // reset
+            // Supprime le dernier element de editor.schemPile et SchematicPath
             editor.schemPile.RemoveRange(id + 1, editor.schemPile.Count - id - 1);
             SchematicPath.RemoveRange(id + 1, SchematicPath.Count - id - 1);
+            // Set tooltips
             SchematicPath[SchematicPath.Count - 1].ToolTip = "Renommer";
+            // Reload plugs, selection and wires
             foreach (Component c in editor.mainSchem.components)
                 if (c is BlackBox bb)
                     bb.ReloadPlugsFromInOut(true);
@@ -433,6 +451,7 @@ namespace Wiring
         private void Save()
         {
             if (savePath == "")
+                // Pas de chemin enregistré => on ouvre la fenêtre Enregistrer sous
                 SaveAs();
             else
             {
@@ -445,8 +464,9 @@ namespace Wiring
         /// </summary>
         private void SaveAs()
         {
+            // Création d'une fenêtre "Sauvegarder un Schematic" avec Windows.Forms
             System.Windows.Forms.SaveFileDialog saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            saveFileDialog1.Filter = "Fichier Schematic|*.schem";
+            saveFileDialog1.Filter = "Fichier Schematic|*.schem"; // Extensions acceptées
             saveFileDialog1.Title = "Sauvegarder un Schematic";
             saveFileDialog1.FileName = editor.mainSchem.Name + ".schem";
             saveFileDialog1.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory + "Schematics"; // positionner au chemin de l'appication + "Schematics"
@@ -467,13 +487,17 @@ namespace Wiring
         /// </summary>
         private void Open()
         {
+            // Création d'une fenêtre "Ouvrir un Schematic" avec Windows.Forms
             System.Windows.Forms.OpenFileDialog openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            openFileDialog1.Filter = "Fichier Schematic|*.schem";
+            openFileDialog1.Filter = "Fichier Schematic|*.schem"; // Extensions acceptées
             openFileDialog1.Title = "Ouvrir un Schematic";
             openFileDialog1.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory + "Schematics"; // positionner au chemin de l'appication + "Schematics"
             openFileDialog1.ShowDialog();
+
+            // If the file name is not an empty string open it for saving.
             if (openFileDialog1.FileName != "")
             {
+                // Open the File via a FileStream created by the OpenFile method.
                 System.IO.FileStream fs = (System.IO.FileStream)openFileDialog1.OpenFile();
                 try
                 {
@@ -485,6 +509,7 @@ namespace Wiring
                     SchematicPath[SchematicPath.Count - 1].setText(editor.mainSchem.Name);
                     savePath = fs.Name;
                 }
+                // Si on trouve une exception, on affiche une fenêtre d'erreur avec Windows.Forms
                 catch (System.IO.FileNotFoundException fnf)
                 {
                     System.Windows.Forms.MessageBox.Show(fnf.Message, "Erreur : Fichier non trouvé");

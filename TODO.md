@@ -1,8 +1,29 @@
 ## Liste de trucs à faire : Projet Wiring
 
+
+### Relecture et Nettoyage du projet :
+* Editor
+* Editor : fix panoramique
+* Schematic
+* Wire
+* Component
+* *les différents composants*
+* BlackBox : ajouter les fonctionalitées ?
+* InputManager
+* SchemReader
+* SchemWriter
+* Settings
+* ButtonsBar
+* Button
+* *les différents boutons*
+
+### Documentation :
+* Les outils : S, H/Z
+* Les raccourcis claviers (suppr, ctrl+A, ctrl+R...)
+* Les fils (C)
+* Les différents composants
+
 #### A faire maintenant :
-* Paramètres de sauvegarde et d'ouverture de schematics
-* Relire et nettoyer le projet entier
 * Warning : Inapropriate number of wires pour les blackbox
 * BlackBox : trier des input/output par hauteur
 * BlackBox : agrandir quand il y a trop de fils
@@ -18,9 +39,10 @@
 * Sauvegarde des schematics : save les blackbox dans un autre fichier
 * Création de fil : pouvoir créer à partir du petit morceau de fil qui dépasse
 * Composant : `Comment`
+* Texture de fond de l'éditeur
 * Duplication d'une séléction multiple
 * Raccourcis pour les créations de composants (chiffres ?)
-* Curseur : changer les ciseaux
+* Curseur : changer les ciseaux ![Red](Wiring/Content/WireNodeOn.png)
 * Ajustement auto de la Camera
 * Changer le système de delay : séparer diode/delay ? délais micro (tick) et macro (seconde) ?
 
@@ -37,10 +59,10 @@
 * Historique des modifications => Annuler, Refaire...
 * Menu clic droit
 * Selection au lasso
-* "Librarie" de blackboxes utiles (and, add, mux...)
+* "Librarie" de blackboxes utiles (and, add, mux...) ![Red](Wiring/Content/WireNodeOn.png)
 * Pouvoir transformer les blackbox en bitmap pour gagner en efficacité
 * Ou alors : Composant `Bitmap`
-* Fichier de langue => traduction
+* Fichier de langue => traduction ![Red](Wiring/Content/WireNodeOn.png)
 
 ---
 
