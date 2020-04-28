@@ -21,3 +21,8 @@ Raccourcis clavier *(présents et futurs)* :
 * ctrl+S : enregistrer le schematic courant
 * ctrl+shift+S : enregistrer le schematic courant sous un nom et un emplacement donné (fenêtre windows)
 * ctrl+O : ouvrir un schematic à partir d'un fichier .schem (fenêtre windows)
+* flèches directionnelles *(à venir)* : déplacement du composant cliqué/nouvellement créé
+* ctrl+C *(à venir)* : copier
+* ctrl+V *(à venir)* : coller
+* ctrl+Z *(à venir ?)* : annuler
+* ctrl+Y ou ctrl+shift+Z *(à venir ?)* : refaire

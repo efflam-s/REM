@@ -32,7 +32,7 @@
 * Panoramique à fix ?
 * Afficher des infos sur le composant hovered ?
 * Petit bug : les fils ne sont pas toujours update dans les blackbox (mais pas de problème global détécté pour l'instant) ?
-* **LA DOOOOC !!**
+* **LA DOOOOC !!** ![Red](Wiring/Content/WireNodeOn.png)
 
 #### A faire plus tard :
 * Outil déplacement : flèches directionelles

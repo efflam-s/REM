@@ -8,12 +8,15 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Wiring
 {
+    /// <summary>
+    /// Un ensemble d'élements utiles pour les entrées souris et clavier
+    /// </summary>
     public class InputManager
     {
         public MouseState MsState, prevMsState;
         public KeyboardState KbState, prevKbState;
         public Vector2 mousePositionOnClic;
-        public TimeSpan timeOnClic;
+        public TimeSpan timeOnClic; // actuellement non utilisé
 
         public Vector2 MsPosition() => MsState.Position.ToVector2();
         public Vector2 MsPosition(MouseState mouseState) => mouseState.Position.ToVector2();
@@ -29,6 +32,11 @@ namespace Wiring
         {
 
         }
+        /// <summary>
+        /// A excécuter au début d'un Update(), avant d'utiliser ses variables
+        /// </summary>
+        /// <param name="keyboardState">L'état du clavier à utiliser, prendra Keyboard.GetState() si non donné</param>
+        /// <param name="mouseState">L'état de la souris à utiliser, prendra Mouse.GetState() si non donné</param>
         public void Update(KeyboardState? keyboardState = null, MouseState? mouseState = null)
         {
             // mise à jour des inputs

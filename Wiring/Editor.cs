@@ -6,14 +6,16 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.IO;
 
 namespace Wiring
 {
+    /// <summary>
+    /// La partie éditeur de l'application. Permet d'ouvrir, de créer, de modifier et d'enregistrer des schematics
+    /// </summary>
     public class Editor
     {
-        private static Texture2D select;
-        private static MouseCursor scissor, hand, grab, magnifier;
+        private static Texture2D select; // texture du rectangle de selection
+        private static MouseCursor scissor, hand, grab, magnifier; // textures des curseurs
 
         /* Edit : Outil pour faire un peu tout (selection, déplacement, clics composants...)
          * Select : Outil de rectangle de sélection
@@ -24,7 +26,7 @@ namespace Wiring
          */
         public enum Tool { Edit, Select, Move, Wire, Pan, Zoom }
         public Tool tool;
-        public List<Schematic> schemPile;
+        public List<Schematic> schemPile; // pile des schematics parents
         public Schematic mainSchem
         {
             get => schemPile[schemPile.Count - 1];
@@ -36,26 +38,21 @@ namespace Wiring
         List<Vector2> relativePositionToMouse; // la liste de leur positions relative à la souris (ou la position relative du composant déplacé en 0)
         Component MovingComp; // le composant déplacé non sélectionné
 
-        /*KeyboardState prevKbState;
-        MouseState prevMsState;
-        Vector2 mousePositionOnClic;
-        TimeSpan timeOnClic;*/
         InputManager Inpm;
 
         public Editor()
         {
-
-        }
-        public void Initialize()
-        {
             tool = Tool.Edit;
-            schemPile = new List<Schematic> { new Schematic("Schematic") };
-            mainSchem.Initialize();
 
             selected = new List<Component>();
             relativePositionToMouse = new List<Vector2>();
 
             Inpm = new InputManager();
+        }
+        public void Initialize()
+        {
+            schemPile = new List<Schematic> { new Schematic("Schematic") };
+            mainSchem.Initialize();
         }
         public static void LoadContent(ContentManager Content)
         {
@@ -68,48 +65,28 @@ namespace Wiring
 
         public void Update(GameTime gameTime, ref Matrix Camera, Rectangle Window)
         {
-            
+            Inpm.Update(mouseState: getTransformedMouseState(Camera, Window));
             // variables utiles pour l'update
-            MouseState mouseState = Mouse.GetState();
-            Vector2 virtualMousePosition = new Vector2(minMax(mouseState.X, Window.X, Window.X + Window.Width), minMax(mouseState.Y, Window.Y, Window.Y + Window.Height));
-            bool isMouseInScreen = virtualMousePosition == mouseState.Position.ToVector2();
-            virtualMousePosition = Vector2.Transform(virtualMousePosition, Matrix.Invert(Camera));
-            mouseState = new MouseState((int)virtualMousePosition.X, (int)virtualMousePosition.Y, mouseState.ScrollWheelValue, mouseState.LeftButton, mouseState.MiddleButton, mouseState.RightButton, mouseState.XButton1, mouseState.XButton2);
-            Inpm.Update(mouseState:mouseState);
+            bool isMouseInScreen = Window.Contains(Mouse.GetState().Position);
             Component hoveredComponent = hover(Inpm.MsPosition()); // component pressed
             Wire hoveredWire = hoverWire(Inpm.MsPosition()); // wire pressed
 
             // Choix de l'outil
             if (Inpm.leftClic == InputManager.ClicState.Up && !Inpm.Alt && !Inpm.Control)
             {
-                // pas de clic
+                // pas de clic ni de ctrl ou alt
                 if (Inpm.OnPressed(Keys.S))
-                {
                     tool = Tool.Edit;
-                }
-                if (Inpm.OnPressed(Keys.C))
-                {
-                    if (tool == Tool.Wire)
-                        tool = Tool.Edit;
-                    else
-                        tool = Tool.Wire;
-                }
-                if (Inpm.OnPressed(Keys.H))
-                {
-                    if (tool == Tool.Pan)
-                        tool = Tool.Edit;
-                    else
-                        tool = Tool.Pan;
-                }
-                if (Inpm.OnPressed(Keys.Z))
-                {
-                    if (tool == Tool.Zoom)
-                        tool = Tool.Edit;
-                    else
-                        tool = Tool.Zoom;
-                }
-            }
 
+                if (Inpm.OnPressed(Keys.C))
+                    tool = Tool.Wire;
+
+                if (Inpm.OnPressed(Keys.H))
+                    tool = Tool.Pan;
+
+                if (Inpm.OnPressed(Keys.Z))
+                    tool = Tool.Zoom;
+            }
             
             // Navigation avec clic roulette
             if (Inpm.middleClic == InputManager.ClicState.Clic)
@@ -120,6 +97,7 @@ namespace Wiring
             {
                 Camera.Translation += new Vector3(Inpm.MsPosition() - Inpm.mousePositionOnClic, 0) * Camera.M11; // pas trouvé de meilleur moyen pour trouver la valeur du zoom que M11
             }
+            // Scroll (zoom, deplacement vertical et horizontal)
             if (Inpm.MsState.ScrollWheelValue - Inpm.prevMsState.ScrollWheelValue != 0)
             {
                 if (Inpm.Control)
@@ -137,15 +115,11 @@ namespace Wiring
                     Camera = Matrix.CreateTranslation(new Vector3(-Inpm.MsState.X, -Inpm.MsState.Y, 0)) * Matrix.CreateScale(scale * Zoom) * Matrix.CreateTranslation(CameraPosition + new Vector3(Inpm.MsState.X, Inpm.MsState.Y, 0) * Zoom);
                 }
                 else if (Inpm.Shift)
-                {
                     // scroll horizontal
                     Camera *= Matrix.CreateTranslation((float)(Inpm.MsState.ScrollWheelValue - Inpm.prevMsState.ScrollWheelValue) / 3, 0, 0);
-                }
                 else
-                {
                     // scroll vertical
                     Camera *= Matrix.CreateTranslation(0, (float)(Inpm.MsState.ScrollWheelValue - Inpm.prevMsState.ScrollWheelValue) / 3, 0);
-                }
             }
 
             // Automate à états finis (avec des if parce que j'aime pas les switch)
@@ -488,6 +462,16 @@ namespace Wiring
                 if (c is BlackBox bb)
                     bb.UpdateTime(gameTime);
             }
+        }
+        /// <summary>
+        /// Transforme le position de la souris en fonction de la camra et des bordures de l'éditeur
+        /// </summary>
+        private MouseState getTransformedMouseState(Matrix Camera, Rectangle Window)
+        {
+            MouseState mouseState = Mouse.GetState();
+            Vector2 virtualMousePosition = new Vector2(minMax(mouseState.X, Window.X, Window.X + Window.Width), minMax(mouseState.Y, Window.Y, Window.Y + Window.Height));
+            virtualMousePosition = Vector2.Transform(virtualMousePosition, Matrix.Invert(Camera));
+            return new MouseState((int)virtualMousePosition.X, (int)virtualMousePosition.Y, mouseState.ScrollWheelValue, mouseState.LeftButton, mouseState.MiddleButton, mouseState.RightButton, mouseState.XButton1, mouseState.XButton2);
         }
 
         /// <summary>
