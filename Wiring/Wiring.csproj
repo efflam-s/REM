@@ -47,6 +47,7 @@
     <Compile Include="Components\BlackBox.cs" />
     <Compile Include="Buttons\Button.cs" />
     <Compile Include="Components\Component.cs" />
+    <Compile Include="Components\Component1.cs" />
     <Compile Include="Components\Diode.cs" />
     <Compile Include="Editor.cs" />
     <Compile Include="Game1.cs" />
