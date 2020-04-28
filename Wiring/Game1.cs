@@ -271,7 +271,7 @@ namespace Wiring
             // Boutons de création de composants
             for (int i = 0; i < AddButtons.Length; i++)
             {
-                if (AddButtons[i].toggle && (declic || editor.tool != Editor.Tool.Move) && i != 0)
+                if (AddButtons[i].toggle && (declic || editor.tool != Editor.Tool.Move))
                 {
                     // Détoggle dans le cas où on clique n'importe où ou si l'outil n'est pas le déplacement
                     AddButtons[i].toggle = false;
@@ -427,7 +427,7 @@ namespace Wiring
             // Reload plugs, selection and wires
             foreach (Component c in editor.mainSchem.components)
                 if (c is BlackBox bb)
-                    bb.ReloadPlugsFromInOut(true);
+                    bb.ReloadPlugsFromSchematic(true);
             editor.clearSelection();
             editor.mainSchem.ReloadWiresFromComponents();
         }

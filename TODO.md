@@ -47,6 +47,7 @@
 * Changer le système de delay : séparer diode/delay ? délais micro (tick) et macro (seconde) ?
 
 #### Eventuellement, si j'ai le courage :
+* Personnalisation des BlackBox : image
 * Fichier de settings (settings d'enregistrement + couleurs de texte, tooltip...)
 * Angle des composants
 * Menu de simulation (pas d'édition possible, possibilité de cacher des composants/fils, performances accrues ?)
@@ -59,7 +60,7 @@
 * Historique des modifications => Annuler, Refaire...
 * Menu clic droit
 * Selection au lasso
-* "Librarie" de blackboxes utiles (and, add, mux...) ![Red](Wiring/Content/WireNodeOn.png)
+* "Librarie standard" de blackboxes utiles (and, add, mux...) ![Red](Wiring/Content/WireNodeOn.png)
 * Pouvoir transformer les blackbox en bitmap pour gagner en efficacité
 * Ou alors : Composant `Bitmap`
 * Fichier de langue => traduction ![Red](Wiring/Content/WireNodeOn.png)

@@ -15,8 +15,8 @@ namespace Wiring
         public static Texture2D texOn, texOff;
         public Not(Wire input, Wire output, Vector2 position) : base(position)
         {
-            base.wires.Add(input);
-            base.wires.Add(output);
+            wires.Add(input);
+            wires.Add(output);
             plugWires();
         }
         public static new void LoadContent(ContentManager Content)

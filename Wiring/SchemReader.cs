@@ -546,17 +546,21 @@ namespace Wiring
                         comp = dio;
                         break;
                     case "BlackBox":
-                        BlackBox bb = new BlackBox(new Schematic("undefined"), new Vector2(X, Y));
-                        foreach(int i in wiresId)
-                        {
-                            bb.wires.Add(SchemWires[i]);
-                        }
+                        // Création d'un nouveau Schematic, et lecture depuis un path ou un attribut schematic
+                        Schematic newSchem = new Schematic("undefined");
                         if (tree.ContainsKey("Data") && tree["Data"] is Dictionary<string, object> data2)
                             if (data2.ContainsKey("schematic") && data2["schematic"] is Dictionary<string, object> schematic)
-                                bb.schem = TreeToSchem(schematic, folderPath, ignoreWarnings);
+                                newSchem = TreeToSchem(schematic, folderPath, ignoreWarnings);
                             else if (data2.ContainsKey("path") && data2["path"] is string path)
-                                bb.schem = Read(folderPath + '\\' + path, ignoreWarnings);
-                        comp = bb;
+                                newSchem = Read(folderPath + '\\' + path, ignoreWarnings);
+
+                        comp = new BlackBox(newSchem, new Vector2(X, Y));
+                        // la création d'une blackbox fabrique automatiquement des fils, que l'on veut remplacer
+                        comp.wires.Clear();
+                        foreach (int i in wiresId)
+                        {
+                            comp.wires.Add(SchemWires[i]);
+                        }
                         break;
                     default:
                         throw new InvalidValueException("Type", type, "Component");

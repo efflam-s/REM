@@ -539,20 +539,20 @@ namespace Wiring
             if (tool == Tool.Wire && (hover(Inpm.mousePositionOnClic) != null || hoverWire(Inpm.mousePositionOnClic) != null) && Inpm.leftClic == InputManager.ClicState.Down)
             {
                 // Ajout d'un fil
-                Component hoveredClic = hover(Inpm.mousePositionOnClic);
-                Wire hoveredWireClic = hoverWire(Inpm.mousePositionOnClic);
                 Vector2 start, end;
 
+                Component hoveredClic = hover(Inpm.mousePositionOnClic); // au début du clic
+                Wire hoveredWireClic = hoverWire(Inpm.mousePositionOnClic);
                 if (hoveredClic != null)
-                {
                     start = hoveredClic.plugPosition(hoveredClic.nearestPlugWire(Inpm.mousePositionOnClic));
-                }
-                else
+                else if (hoveredWireClic != null)
                     start = hoveredWireClic.Node();
+                else
+                    throw new InvalidOperationException("pas de fil ou de composant sélectionné pour le début de la création du fil");
 
                 Component hovered = hover(Inpm.MsState.Position.ToVector2());
                 Wire hoveredWire = hoverWire(Inpm.MsState.Position.ToVector2());
-                if (hovered != null)
+                if (hovered != null && hovered.nearestPlugWire(Inpm.MsState.Position.ToVector2()) != null)
                     end = hovered.plugPosition(hovered.nearestPlugWire(Inpm.MsState.Position.ToVector2()));
                 else if (hoveredWire != null)
                     end = hoveredWire.Node();

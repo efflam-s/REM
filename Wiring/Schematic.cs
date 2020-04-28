@@ -16,15 +16,11 @@ namespace Wiring
         public string Name;
         public List<Wire> wires;
         public List<Component> components;
-        public List<Input> inputs;
-        public List<Output> outputs;
         public Schematic(string Name)
         {
             this.Name = Name;
             wires = new List<Wire>();
             components = new List<Component>();
-            inputs = new List<Input>();
-            outputs = new List<Output>();
         }
         public static void LoadContent(ContentManager Content)
         {
@@ -32,20 +28,12 @@ namespace Wiring
         }
         public void AddComponent(Component c, bool reloadWires = true)
         {
-            if (c is Input i)
-            {
-                inputs.Add(i);
-            }
-            if (c is Output o)
-            {
-                outputs.Add(o);
-            }
             components.Add(c);
-            /*foreach (Wire w in c.wires)
+            foreach (Wire w in c.wires)
             {
                 if (!wires.Contains(w))
                     wires.Add(w);
-            }*/
+            }
             if (reloadWires)
                 ReloadWiresFromComponents();
         }
@@ -58,14 +46,6 @@ namespace Wiring
                     w.components.Remove(c);
                 }*/
                 components.Remove(c);
-                if (c is Input ip)
-                {
-                    inputs.Remove(ip);
-                }
-                if (c is Output op)
-                {
-                    outputs.Remove(op);
-                }
             }
             if (reloadWires)
                 ReloadWiresFromComponents();
@@ -114,10 +94,6 @@ namespace Wiring
         {
             foreach (Component c in components)
             {
-                if (c is Input i && !inputs.Contains(i))
-                    inputs.Add(i);
-                if (c is Output o && !outputs.Contains(o))
-                    outputs.Add(o);
                 if (c is BlackBox bb && recursive)
                 {
                     bb.schem.Initialize(true);
@@ -174,6 +150,15 @@ namespace Wiring
             }
             newSchem.Initialize();
             return newSchem;
+        }
+        public void AddSchematic(Schematic other)
+        {
+            // TODO
+        }
+        public static Schematic operator +(Schematic a, Schematic b) {
+            Schematic c = a.Copy();
+            c.AddSchematic(b);
+            return c;
         }
     }
 }

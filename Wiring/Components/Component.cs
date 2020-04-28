@@ -37,26 +37,43 @@ namespace Wiring
             square = Content.Load<Texture2D>("Component/component");
             select = Content.Load<Texture2D>("selectComp");
         }
+        /// <summary>
+        /// Fonction à executer après chaque constructeur pour que les wires reconnaissent le composant
+        /// </summary>
         protected void plugWires()
         {
-            /* Fonction à executer après chaque constructeur pour que les wires reconnaissent le composant */
             foreach (Wire w in wires)
             {
-                w.components.Add(this);
+                if (!w.components.Contains(this))
+                    w.components.Add(this);
             }
         }
+        /// <summary>
+        /// <i>Override</i> : Permet de récupérer la valeur d'un fil, renvoie faux si le fil n'est pas dans les sorties
+        /// </summary>
+        /// <param name="wire">Fil dont on veut connaître la valeur</param>
         public virtual bool GetOutput(Wire wire)
         {
             return false;
         }
+        /// <summary>
+        /// <i>Override</i> : Doit mettre à jour chaque fil de sortie qui a changé
+        /// </summary>
         public virtual void Update()
         {
             MustUpdate = false;
         }
+        /// <summary>
+        /// <i>Override</i> : Donne la position d'une prise du composant reliée à fil donné, renvoie la position du centre par défaut
+        /// </summary>
+        /// <param name="wire">Fil dont on veut connaître la position de la prise</param>
         public virtual Vector2 plugPosition(Wire wire)
         {
             return position;
         }
+        /// <summary>
+        /// Renvoie le fil dont la prise sur le composant est la plus proche de la position donnée
+        /// </summary>
         public Wire nearestPlugWire(Vector2 position)
         {
             if (wires.Count() == 0)
@@ -69,6 +86,10 @@ namespace Wiring
             }
             return minWire;
         }
+        /// <summary>
+        /// Dessine la base du composant. <br/>
+        /// <i>Override</i> : Dessine la partie spécifique du composant
+        /// </summary>
         public virtual void Draw(SpriteBatch spriteBatch)
         {
             foreach(Wire w in wires)
@@ -78,6 +99,10 @@ namespace Wiring
             }
             spriteBatch.Draw(square, position - new Vector2(square.Width, square.Height) / 2, Color.White);
         }
+        /// <summary>
+        /// Dessine le retangle montrant le composant sélectionné
+        /// </summary>
+        /// <param name="spriteBatch"></param>
         public virtual void DrawSelected(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(select, position - new Vector2(select.Width, select.Height) / 2, Color.White);
@@ -86,6 +111,9 @@ namespace Wiring
         {
             spriteBatch.Draw(square, position - new Vector2(square.Width, square.Height) / 2, Color.White);
         }*/
+        /// <summary>
+        /// <i>Override</i> : Crée une copie d'un composant avec des nouveaux fils, la même position, et les autres paramètres identiques
+        /// </summary>
         public abstract Component Copy();
     }
 }

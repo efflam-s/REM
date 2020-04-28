@@ -21,8 +21,8 @@ namespace Wiring
 
         public Diode(Wire input, Wire output, Vector2 position) : base(position)
         {
-            base.wires.Add(input);
-            base.wires.Add(output);
+            wires.Add(input);
+            wires.Add(output);
             plugWires();
             delay = TimeSpan.Zero;
             state = State.Down;

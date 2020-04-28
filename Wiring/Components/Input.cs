@@ -29,7 +29,7 @@ namespace Wiring
         public Input(Wire output, Vector2 position) : base(position)
         {
             value = false;
-            base.wires.Add(output);
+            wires.Add(output);
             plugWires();
         }
         public static new void LoadContent(ContentManager Content)
