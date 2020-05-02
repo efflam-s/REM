@@ -442,7 +442,17 @@ namespace Wiring
                 schematicNav(editor.schemPile.Count - 2);
             else
             {
-                // TODO : demander la création d'un schematic parent
+                // Demander la création d'un schematic parent
+                string[] buttons = { "Ok", "Annuler" };
+                int? result = MessageBox.Show("Créer une boîte noire ?", "Voulez-vous encapsuler le schematic actuel ?", buttons).Result;
+                if (result == 0)
+                {
+                    Console.WriteLine("Création d'un nouveau schematic...");
+                    Schematic old = editor.mainSchem;
+                    editor.mainSchem = new Schematic("Schematic");
+                    editor.mainSchem.AddComponent(new BlackBox(old, new Vector2(50, 50)));
+                    SchematicPath[0].setText(editor.mainSchem.Name);
+                }
             }
         }
         /// <summary>
@@ -516,7 +526,8 @@ namespace Wiring
                 }
                 catch (SchemReader.SyntaxException sy)
                 {
-                    System.Windows.Forms.MessageBox.Show(sy.Message, "Erreur : Syntaxe invalide");
+                    string[] buttons = { "Ok" };
+                    /*System.Windows.Forms.*/MessageBox.Show("Erreur : Syntaxe invalide", sy.Message, buttons);
                 }
                 catch (SchemReader.StructureException stc)
                 {

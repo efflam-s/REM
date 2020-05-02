@@ -556,11 +556,14 @@ namespace Wiring
 
                         comp = new BlackBox(newSchem, new Vector2(X, Y));
                         // la création d'une blackbox fabrique automatiquement des fils, que l'on veut remplacer
+                        int askedWires = comp.wires.Count;
                         comp.wires.Clear();
                         foreach (int i in wiresId)
                         {
                             comp.wires.Add(SchemWires[i]);
                         }
+                        if (askedWires != comp.wires.Count && !ignoreWarnings)
+                            throw new InvalidListSizeWarning(askedWires, comp.wires.Count, "Wires of " + type);
                         break;
                     default:
                         throw new InvalidValueException("Type", type, "Component");

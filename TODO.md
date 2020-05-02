@@ -24,10 +24,8 @@
 * Les différents composants
 
 #### A faire maintenant :
-* Warning : Inapropriate number of wires pour les blackbox
 * BlackBox : trier des input/output par hauteur
 * BlackBox : agrandir quand il y a trop de fils
-* Créer une blackbox à partir du schematic courant / de la selection
 * Bug : entrée-sorties (fixé ?)
 * Panoramique à fix ?
 * Afficher des infos sur le composant hovered ?
@@ -38,6 +36,7 @@
 * Outil déplacement : flèches directionelles
 * Sauvegarde des schematics : save les blackbox dans un autre fichier
 * Création de fil : pouvoir créer à partir du petit morceau de fil qui dépasse
+* Créer une blackbox à partir de la selection ?
 * Composant : `Comment`
 * Texture de fond de l'éditeur
 * Duplication d'une séléction multiple
