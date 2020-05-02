@@ -38,13 +38,12 @@ namespace Wiring
 
         public override bool GetOutput(Wire wire)
         {
-            for (int i = 0; i < outputs.Count; i++)
+            int i = wires.IndexOf(wire);
+            if (i >= inputs.Count && i < wires.Count)
             {
-                if (wire == wires[inputs.Count + i])
-                {
-                    return outputs[i].GetValue();
-                }
+                return outputs[i - inputs.Count].GetValue();
             }
+
             return base.GetOutput(wire);
         }
         public override void Update()

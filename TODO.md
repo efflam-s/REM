@@ -3,7 +3,6 @@
 
 ### Relecture et Nettoyage du projet :
 * Editor
-* Editor : fix panoramique
 * Schematic
 * Wire
 * Component
@@ -29,7 +28,6 @@
 * Bug : entrée-sorties (fixé ?)
 * Système de delay : vérifier les bugs / rendre plus propre ?
 * Panoramique à fix ?
-* Petit bug : les fils ne sont pas toujours update dans les blackbox (mais pas de problème global détécté pour l'instant) ?
 * Sauvegarde des schematics : save les blackbox dans un autre fichier
 * Création de fil : pouvoir créer à partir du petit morceau de fil qui dépasse
 

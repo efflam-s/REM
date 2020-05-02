@@ -37,7 +37,7 @@ namespace Wiring
             Content.RootDirectory = "Content";
             Window.AllowUserResizing = true;
             IsMouseVisible = true;
-            //TargetElapsedTime = TimeSpan.FromSeconds(0.5);
+            //TargetElapsedTime = TimeSpan.FromSeconds(0.25);
         }
 
         /// <summary>
@@ -421,14 +421,18 @@ namespace Wiring
         {
             savePath = ""; // reset
             // Supprime le dernier element de editor.schemPile et SchematicPath
+            string lastBlackBoxName = editor.schemPile[id + 1].Name;
             editor.schemPile.RemoveRange(id + 1, editor.schemPile.Count - id - 1);
             SchematicPath.RemoveRange(id + 1, SchematicPath.Count - id - 1);
             // Set tooltips
             SchematicPath[SchematicPath.Count - 1].ToolTip = "Renommer";
             // Reload plugs, selection and wires
             foreach (Component c in editor.mainSchem.components)
-                if (c is BlackBox bb)
+                if (c is BlackBox bb && bb.schem.Name == lastBlackBoxName)
+                {
                     bb.ReloadPlugsFromSchematic(true);
+                    bb.Update();
+                }
             editor.clearSelection();
             editor.mainSchem.ReloadWiresFromComponents();
         }

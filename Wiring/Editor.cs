@@ -464,11 +464,11 @@ namespace Wiring
             }
 
             // debug
-            foreach (Component c in selected)
+            /*foreach (Component c in selected)
             {
                 if (c is Output o)
                     Console.WriteLine(gameTime.TotalGameTime.Milliseconds + " " + o.GetValue());
-            }
+            }*/
         }
         /// <summary>
         /// Transforme le position de la souris en fonction de la camra et des bordures de l'éditeur
