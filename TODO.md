@@ -24,8 +24,6 @@
 * Les différents composants
 
 #### A faire maintenant :
-* BlackBox : trier des input/output par hauteur
-* BlackBox : agrandir quand il y a trop de fils
 * Bug : entrée-sorties (fixé ?)
 * Panoramique à fix ?
 * Afficher des infos sur le composant hovered ?

@@ -66,6 +66,9 @@ namespace Wiring
             }
             base.Update();
         }
+        /// <summary>
+        /// S'execute une et une seule fois à chaque update du jeu
+        /// </summary>
         public void UpdateTime(GameTime gameTime)
         {
             foreach (Component c in schem.components)
@@ -107,6 +110,10 @@ namespace Wiring
             spriteBatch.Draw(texture, position - new Vector2(texture.Width, texture.Height) / 2, Color.White);
             //schem.BasicDraw(spriteBatch);
         }
+        /// <summary>
+        /// ReloadInOutFromSchematic + ReloadPlugsFromInOut
+        /// </summary>
+        /// <param name="recursive"></param>
         public void ReloadPlugsFromSchematic(bool recursive)
         {
             if (inputs.Count + outputs.Count != wires.Count)
@@ -118,7 +125,7 @@ namespace Wiring
             if (inputs.Count > prevInCount)
                 // il manque des fils d'input
                 for (int i = prevInCount; i < inputs.Count; i++)
-                    wires.Add(new Wire());
+                    wires.Insert(prevInCount, new Wire());
             else if (inputs.Count < prevInCount)
                 // il y a des fils en trop
                 wires.RemoveRange(inputs.Count, prevInCount - inputs.Count);
@@ -173,6 +180,9 @@ namespace Wiring
                     outputs.Add(o);
                 }
             }
+            // trie les Input et Output par hauteur
+            inputs.Sort((x, y) => x.position.Y <= y.position.Y ? x.position.Y == y.position.Y ? 0 : -1 : 1);
+            outputs.Sort((x, y) => x.position.Y <= y.position.Y ? x.position.Y == y.position.Y ? 0 : -1 : 1);
         }
     }
 }
