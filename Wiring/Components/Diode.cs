@@ -14,7 +14,10 @@ namespace Wiring
     public class Diode : Component
     {
         public static Texture2D[] texOn, texOff;
-        public TimeSpan delay;
+        public enum Delay { Zero, Tick, Second }
+        private const int DelayTypeNumber = 3;
+        public Delay delay;
+        //public TimeSpan delayTime;
         private TimeSpan time;
         private enum State { Down, Rise, Up, Fall }
         State state;
@@ -24,23 +27,24 @@ namespace Wiring
             wires.Add(input);
             wires.Add(output);
             plugWires();
-            delay = TimeSpan.Zero;
+            delay = Delay.Zero;
             state = State.Down;
         }
         public static new void LoadContent(ContentManager Content)
         {
-            texOn = new Texture2D[2];
-            texOff = new Texture2D[2];
-            texOn[0] = Content.Load<Texture2D>("Component/diode0On");
-            texOff[0] = Content.Load<Texture2D>("Component/diode0Off");
-            texOn[1] = Content.Load<Texture2D>("Component/diode1On");
-            texOff[1] = Content.Load<Texture2D>("Component/diode1Off");
+            texOn = new Texture2D[DelayTypeNumber];
+            texOff = new Texture2D[DelayTypeNumber];
+            for (int i = 0; i < DelayTypeNumber; i++)
+            {
+                texOn[i] = Content.Load<Texture2D>("Component/diode" + i + "On");
+                texOff[i] = Content.Load<Texture2D>("Component/diode" + i + "Off");
+            }
         }
         public override bool GetOutput(Wire wire)
         {
             if (wire == wires[1])
             {
-                if (delay == TimeSpan.Zero)
+                if (delay == Delay.Zero)
                     return wires[0].value;
                 else
                     return state == State.Fall || state == State.Up;
@@ -49,45 +53,61 @@ namespace Wiring
         }
         public override void Update()
         {
-            if (state == State.Down)
+            if (delay == Delay.Second || delay == Delay.Tick)
             {
-                if (wires[0].value)
+                if (state == State.Down)
                 {
-                    state = State.Rise;
-                    time = TimeSpan.Zero;
+                    if (wires[0].value)
+                    {
+                        state = State.Rise;
+                        time = TimeSpan.Zero;
+                    }
+                }
+                else if (state == State.Rise)
+                {
+                    if (time >= TimeSpan.FromSeconds(1) || (delay == Delay.Tick && time > TimeSpan.Zero))
+                    {
+                        time = TimeSpan.Zero;
+                        state = State.Up;
+                    }
+                }
+                else if (state == State.Up)
+                {
+                    if (!wires[0].value)
+                    {
+                        state = State.Fall;
+                        time = TimeSpan.Zero;
+                    }
+                }
+                else if (state == State.Fall)
+                {
+                    if (wires[0].value)
+                    {
+                        state = State.Up;
+                    }
+                    if (time >= TimeSpan.FromSeconds(1) || (delay == Delay.Tick && time > TimeSpan.Zero))
+                    {
+                        time = TimeSpan.Zero;
+                        state = State.Down;
+                    }
                 }
             }
-            else if (state == State.Rise)
-            {
-                if (time >= delay)
-                {
-                    time = TimeSpan.Zero;
-                    state = State.Up;
-                }
-            }
-            else if (state == State.Up)
-            {
-                if (!wires[0].value) {
-                    state = State.Fall;
-                    time = TimeSpan.Zero;
-                }
-            }
-            else if (state == State.Fall)
-            {
-                if(wires[0].value)
-                {
-                    state = State.Up;
-                }
-                if (time >= delay)
-                {
-                    time = TimeSpan.Zero;
-                    state = State.Down;
-                }
-            }
+
             if (wires[1].value != GetOutput(wires[1]))
                 wires[1].Update();
             base.Update();
         }
+        /// <summary>
+        /// S'execute une et une seule fois à chaque update du jeu
+        /// </summary>
+        public void UpdateTime(GameTime gameTime)
+        {
+            if (state == State.Rise || state == State.Fall)
+                time += gameTime.ElapsedGameTime;
+            if (((delay == Delay.Tick && time > TimeSpan.Zero) || (delay == Delay.Second && time >= TimeSpan.FromSeconds(1))) && time != TimeSpan.Zero)
+                MustUpdate = true;
+        }
+
         public override Vector2 plugPosition(Wire wire)
         {
             if (wire == wires[0])
@@ -99,33 +119,15 @@ namespace Wiring
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);
-            int i = (int)delay.TotalSeconds;
-            if (i > texOn.Length) i = 0;
+            int i = (int)delay;
             Texture2D texture = GetOutput(wires[1]) ? texOn[i] : texOff[i];
             spriteBatch.Draw(texture, position - new Vector2(texture.Width, texture.Height) / 2, Color.White);
         }
 
-        /// <summary>
-        /// S'execute une et une seule fois à chaque update du jeu
-        /// </summary>
-        /// <returns>Si il y a eu un changement</returns>
-        public void UpdateTime(GameTime gameTime)
-        {
-            if (state == State.Rise || state == State.Fall)
-                time += gameTime.ElapsedGameTime;
-            if (time >= delay && time != TimeSpan.Zero)
-                MustUpdate = true;
-        }
         public void changeDelay()
         {
-            if (delay == TimeSpan.Zero)
-            {
-                delay = TimeSpan.FromSeconds(1.0);
-            }
-            else
-            {
-                delay = TimeSpan.Zero;
-            }
+            delay = (Delay)(((int)delay + 1) % DelayTypeNumber);
+            MustUpdate = true;
         }
         public override Component Copy()
         {

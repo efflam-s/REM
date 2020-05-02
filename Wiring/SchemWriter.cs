@@ -126,7 +126,7 @@ namespace Wiring
                     code.Append("delay : ");
                 else
                     code.Append("delay:");
-                code.Append(d.delay == TimeSpan.Zero ? 0 : 1);
+                code.Append((int)d.delay);
             }
             else if (comp is BlackBox bb)
             {
