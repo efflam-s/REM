@@ -19,29 +19,32 @@
 
 ### Documentation :
 * Les outils : S, H/Z
-* Les raccourcis claviers (suppr, ctrl+A, ctrl+R...)
 * Les fils (C)
 * Les différents composants
 
 #### A faire maintenant :
+* Bug : SchemPath passe devant les tooltips des boutons
+* Bug : test du deplacement de la souris pour la création d'un fil
+* Bug : Hover d'un composant non pixel-perfect
 * Bug : entrée-sorties (fixé ?)
+* Système de delay : vérifier les bugs / rendre plus propre ?
 * Panoramique à fix ?
-* Afficher des infos sur le composant hovered ?
 * Petit bug : les fils ne sont pas toujours update dans les blackbox (mais pas de problème global détécté pour l'instant) ?
-* **LA DOOOOC !!** ![Red](Wiring/Content/WireNodeOn.png)
-
-#### A faire plus tard :
-* Outil déplacement : flèches directionelles
 * Sauvegarde des schematics : save les blackbox dans un autre fichier
 * Création de fil : pouvoir créer à partir du petit morceau de fil qui dépasse
-* Créer une blackbox à partir de la selection ?
+
+#### A faire plus tard :
 * Composant : `Comment`
 * Texture de fond de l'éditeur
 * Duplication d'une séléction multiple
+* BlackBox : agrandir quand il y a trop de fils
+* **LA DOOOOC !!** ![Red](Wiring/Content/WireNodeOn.png)
+* Afficher des infos sur le composant hovered ?
+* Outil déplacement : flèches directionelles
+* Créer une blackbox à partir de la selection ?
 * Raccourcis pour les créations de composants (chiffres ?)
 * Curseur : changer les ciseaux ![Red](Wiring/Content/WireNodeOn.png)
 * Ajustement auto de la Camera
-* Changer le système de delay : séparer diode/delay ? délais micro (tick) et macro (seconde) ?
 
 #### Eventuellement, si j'ai le courage :
 * Personnalisation des BlackBox : image

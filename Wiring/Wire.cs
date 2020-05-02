@@ -62,6 +62,7 @@ namespace Wiring
                 foreach (Component c in components)
                     center += c.plugPosition(this);
                 center /= components.Count;
+                center.X = (int)center.X; center.Y = (int)center.Y;
                 foreach (Component c in components)
                     drawLine(spriteBatch, center, c.plugPosition(this), value);
                 spriteBatch.Draw(value ? nodeOn : nodeOff, center - new Vector2(nodeOn.Width, nodeOn.Height)/2, Color.White);

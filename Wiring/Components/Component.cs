@@ -16,7 +16,7 @@ namespace Wiring
     {
         public static Texture2D square;
         public static Texture2D select;
-        public static float size { get => 16; }
+        public static float size { get => 16; } // const et static incompatibles
         public List<Wire> wires;
         public Vector2 position;
         public bool MustUpdate;

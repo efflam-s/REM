@@ -482,7 +482,7 @@ namespace Wiring
             foreach (Component c in mainSchem.components)
             {
                 Vector2 v = c.position - position;
-                if (Math.Max(Math.Abs(v.X), Math.Abs(v.Y)) <= Component.size/2)
+                if (Math.Min(v.X, v.Y) > -Component.size/2 && Math.Max(v.X, v.Y) <= Component.size / 2)
                 {
                     return c;
                 }
@@ -550,14 +550,14 @@ namespace Wiring
                 else
                     throw new InvalidOperationException("pas de fil ou de composant sélectionné pour le début de la création du fil");
 
-                Component hovered = hover(Inpm.MsState.Position.ToVector2());
-                Wire hoveredWire = hoverWire(Inpm.MsState.Position.ToVector2());
-                if (hovered != null && hovered.nearestPlugWire(Inpm.MsState.Position.ToVector2()) != null)
-                    end = hovered.plugPosition(hovered.nearestPlugWire(Inpm.MsState.Position.ToVector2()));
+                Component hovered = hover(Inpm.MsPosition());
+                Wire hoveredWire = hoverWire(Inpm.MsPosition());
+                if (hovered != null && hovered.nearestPlugWire(Inpm.MsPosition()) != null)
+                    end = hovered.plugPosition(hovered.nearestPlugWire(Inpm.MsPosition()));
                 else if (hoveredWire != null)
                     end = hoveredWire.Node();
                 else
-                    end = Inpm.MsState.Position.ToVector2();
+                    end = Inpm.MsPosition();
 
                 Wire.drawLine(spriteBatch, start, end, hovered != null || hoveredWire != null);
             }

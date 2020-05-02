@@ -37,6 +37,7 @@ namespace Wiring
             Content.RootDirectory = "Content";
             Window.AllowUserResizing = true;
             IsMouseVisible = true;
+            //TargetElapsedTime = TimeSpan.FromSeconds(0.5);
         }
 
         /// <summary>
