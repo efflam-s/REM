@@ -214,7 +214,7 @@ namespace Wiring
                                 Vector2 node = hoveredWire.Node();
                                 foreach (Component c in hoveredWire.components)
                                 {
-                                    if (Wire.touchWire(Inpm.MsPosition(), node, c.plugPosition(hoveredWire)))
+                                    if (Wire.touchLine(Inpm.MsPosition(), node, c.plugPosition(hoveredWire)))
                                         c.wires[c.wires.IndexOf(hoveredWire)] = new Wire();
                                 }
                                 mainSchem.ReloadWiresFromComponents();
@@ -478,7 +478,7 @@ namespace Wiring
             MouseState mouseState = Mouse.GetState();
             Vector2 virtualMousePosition = new Vector2(minMax(mouseState.X, Window.X, Window.X + Window.Width), minMax(mouseState.Y, Window.Y, Window.Y + Window.Height));
             virtualMousePosition = Vector2.Transform(virtualMousePosition, Matrix.Invert(Camera));
-            return new MouseState((int)virtualMousePosition.X, (int)virtualMousePosition.Y, mouseState.ScrollWheelValue, mouseState.LeftButton, mouseState.MiddleButton, mouseState.RightButton, mouseState.XButton1, mouseState.XButton2);
+            return new MouseState((int)Math.Floor(virtualMousePosition.X), (int)Math.Floor(virtualMousePosition.Y), mouseState.ScrollWheelValue, mouseState.LeftButton, mouseState.MiddleButton, mouseState.RightButton, mouseState.XButton1, mouseState.XButton2);
         }
 
         /// <summary>
@@ -488,11 +488,8 @@ namespace Wiring
         {
             foreach (Component c in mainSchem.components)
             {
-                Vector2 v = c.position - position;
-                if (Math.Min(v.X, v.Y) > -Component.size/2 && Math.Max(v.X, v.Y) <= Component.size / 2)
-                {
+                if (c.touch(position))
                     return c;
-                }
             }
             return null;
         }

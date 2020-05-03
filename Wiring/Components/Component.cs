@@ -86,6 +86,21 @@ namespace Wiring
             }
             return minWire;
         }
+        public bool touch(Vector2 position, bool includePlugs = false)
+        {
+            Vector2 v = this.position - position;
+            return Math.Min(v.X, v.Y) > -size / 2 && Math.Max(v.X, v.Y) <= size / 2;
+        }
+        public bool touchPlug(Vector2 position)
+        {
+            foreach (Wire w in wires)
+            {
+                // bouts de fils au niveau des prises
+                if (Wire.touchLine(position, plugPosition(w), new Vector2(this.position.X, plugPosition(w).Y)))
+                    return true;
+            }
+            return false;
+        }
         /// <summary>
         /// Dessine la base du composant. <br/>
         /// <i>Override</i> : Dessine la partie spécifique du composant

@@ -15,7 +15,7 @@ namespace Wiring
     {
         public static Texture2D wOn, wOff, nodeOn, nodeOff;
         public bool value { get; private set; }
-        public List<Component> components;
+        public List<Component> components; // List of connected components
         public Wire()
         {
             components = new List<Component>();
@@ -32,18 +32,14 @@ namespace Wiring
         public bool Update()
         {
             bool oldValue = value;
-            value = false;
-            foreach (Component c in components)
-            {
-                if (c.GetOutput(this))
-                    value = true;
-            }
+            // On récupère la valeur : porte "ou"
+            value = components.Any(x => x.GetOutput(this));
+
             if (oldValue != value)
             {
+                // Si la valeur a changé, on update tout les composants connectés
                 foreach (Component c in components)
-                {
                     c.Update();
-                }
                 return true;
             }
             return false;
@@ -58,15 +54,31 @@ namespace Wiring
             else if (components.Count() > 2)
             {
                 // fil avec noeud
-                Vector2 center = Vector2.Zero;
+                Vector2 node = Node();
                 foreach (Component c in components)
-                    center += c.plugPosition(this);
-                center /= components.Count;
-                center.X = (int)center.X; center.Y = (int)center.Y;
-                foreach (Component c in components)
-                    drawLine(spriteBatch, center, c.plugPosition(this), value);
-                spriteBatch.Draw(value ? nodeOn : nodeOff, center - new Vector2(nodeOn.Width, nodeOn.Height)/2, Color.White);
+                    drawLine(spriteBatch, node, c.plugPosition(this), value);
+                spriteBatch.Draw(value ? nodeOn : nodeOff, node - new Vector2(nodeOn.Width, nodeOn.Height)/2, Color.White);
             }
+        }
+        public bool touchWire(Vector2 position)
+        {
+            if (components.Count() == 2)
+            {
+                // fil simple
+                if (touchLine(position, components[1].plugPosition(this), components[0].plugPosition(this)))
+                    return true;
+            }
+            else if (components.Count() > 2)
+            {
+                // fil avec noeud
+                Vector2 node = Node();
+                foreach (Component c in components)
+                {
+                    if (touchLine(position, node, c.plugPosition(this)))
+                        return true;
+                }
+            }
+            return false;
         }
         public static void drawLine(SpriteBatch spriteBatch, Vector2 A, Vector2 B, bool value)
         {
@@ -77,38 +89,29 @@ namespace Wiring
                 new Rectangle((int)A.X, (int)A.Y, (int)ab.Length(), strokeWeight),
                 null, Color.White, angle, new Vector2(0, 0.5f), SpriteEffects.None, 0);
         }
-        public bool touchWire(Vector2 position)
+        /// <summary>
+        /// Détermine si une position touche une ligne d'épaisseur 2 et définie par les points A et B
+        /// </summary>
+        public static bool touchLine(Vector2 position, Vector2 A, Vector2 B)
         {
-            if (components.Count() == 2)
-            {
-                return touchWire(position, components[1].plugPosition(this), components[0].plugPosition(this));
-            }
-            else if (components.Count() > 2)
-            {
-                Vector2 node = Node();
-                foreach (Component c in components)
-                {
-                    if (touchWire(position, node, c.plugPosition(this)))
-                        return true;
-                }
-                return false;
-            }
-            return false;
+            int strokeWeight = 2;
+            Vector2 ab = B - A;
+            float angle = (float)Math.Atan2(ab.Y, ab.X);
+            Vector2 relativ = position - A;
+            relativ = new Vector2(relativ.X * (float)Math.Cos(angle) + relativ.Y * (float)Math.Sin(angle), relativ.Y * (float)Math.Cos(angle) - relativ.X * (float)Math.Sin(angle));
+            return -strokeWeight/2 <= relativ.Y && relativ.Y < strokeWeight/2 && 0 < relativ.X && relativ.X <= ab.Length();
         }
-        public static bool touchWire(Vector2 position, Vector2 plugA, Vector2 plugB)
-        {
-            Vector2 vectAB = plugB - plugA;
-            Vector2 normal = Vector2.Normalize(vectAB);
-            Vector2 center = (plugB + plugA) / 2;
-            Vector2 relativ = position - center;
-            return Math.Abs(Vector2.Dot(relativ, normal)) <= vectAB.Length() / 2 && Math.Abs(Vector2.Dot(relativ, new Vector2(normal.Y, -normal.X))) <= 1;
-        }
+        /// <summary>
+        /// Renvoie le point moyen des plugs associés au fil
+        /// </summary>
         public Vector2 Node()
         {
             Vector2 node = Vector2.Zero;
             foreach (Component c in components)
                 node += c.plugPosition(this);
-            return node /= components.Count;
+            node /= components.Count;
+            node.X = (int)node.X; node.Y = (int)node.Y;
+            return node;
         }
     }
 }
