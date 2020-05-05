@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Wiring
+namespace Wiring.Wiring
 {
     /// <summary>
     /// Composant permettant d'implémenter une diode produisant ou non un délai

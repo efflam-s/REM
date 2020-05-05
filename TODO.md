@@ -2,8 +2,8 @@
 
 
 #### Relecture et Nettoyage du projet :
+* Schematic <-
 * Editor
-* Schematic
 * InputManager
 * SchemReader
 * SchemWriter
@@ -21,7 +21,6 @@
 * Bug : SchemPath passe devant les tooltips des boutons
 * Système de delay : vérifier les bugs / rendre plus propre ?
 * Sauvegarde des schematics : save les blackbox dans un autre fichier
-* Open schematics : ouvrir dans une nouvelle blackbox
 * Diode : savegarder leur état
 
 #### A faire plus tard :

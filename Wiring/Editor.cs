@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Wiring.Wiring;
 
 namespace Wiring
 {
@@ -444,20 +445,12 @@ namespace Wiring
                     Camera = Matrix.CreateTranslation(new Vector3(-Inpm.MsState.X, -Inpm.MsState.Y, 0)) * Matrix.CreateScale(scale * Zoom) * Matrix.CreateTranslation(CameraPosition + new Vector3(Inpm.MsState.X, Inpm.MsState.Y, 0) * Zoom);
                 }
             }
-            
+
             //prevKbState = KbState;
             //prevMsState = MsState;
 
             //if ((gameTime.TotalGameTime - gameTime.ElapsedGameTime).TotalMilliseconds % 2000 > gameTime.TotalGameTime.TotalMilliseconds % 2000)
-            foreach (Component c in mainSchem.components)
-            {
-                if (c.MustUpdate)
-                    c.Update();
-                if (c is Diode d)
-                    d.UpdateTime(gameTime);
-                if (c is BlackBox bb)
-                    bb.UpdateTime(gameTime);
-            }
+            mainSchem.Update(gameTime);
 
             // debug
             /*foreach (Component c in selected)

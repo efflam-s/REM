@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Wiring
+namespace Wiring.Wiring
 {
     /// <summary>
     /// Les fils relient les composant entre eux selon une logique de porte "ou"

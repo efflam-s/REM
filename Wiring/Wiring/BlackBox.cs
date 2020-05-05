@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Wiring
+namespace Wiring.Wiring
 {
     /// <summary>
     /// Composant permettant de simuler une boîte noire, c'est à dire de mettre un schematic dans un composant pour pouvoir le réutiliser

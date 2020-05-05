@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Wiring
+namespace Wiring.Wiring
 {
     /// <summary>
     /// Unité de logique permettant de modifier des valeurs de fils en fonction d'autres valeurs.
@@ -14,12 +14,12 @@ namespace Wiring
     /// </summary>
     public abstract class Component
     {
-        public static Texture2D square;
-        public static Texture2D select;
+        protected static Texture2D square;
+        protected static Texture2D select;
         public static float size { get => 16; } // const et static incompatibles
         public List<Wire> wires;
         public Vector2 position;
-        public bool MustUpdate;
+        internal bool MustUpdate;
         //public bool updated;
         public Component(Vector2 position)
         {

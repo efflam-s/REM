@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Wiring
+namespace Wiring.Wiring
 {
     /// <summary>
     /// Composant permettant de connaître des valeurs de fil ou d'implémenter des sorties

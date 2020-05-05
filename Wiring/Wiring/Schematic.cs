@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Wiring
+namespace Wiring.Wiring
 {
     /// <summary>
     /// Système de composants reliés par des fils
@@ -103,6 +103,19 @@ namespace Wiring
             foreach (Wire w in wires)
             {
                 w.Update();
+            }
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            foreach (Component c in components)
+            {
+                if (c.MustUpdate)
+                    c.Update();
+                if (c is Diode d)
+                    d.UpdateTime(gameTime);
+                if (c is BlackBox bb)
+                    bb.UpdateTime(gameTime);
             }
         }
 
