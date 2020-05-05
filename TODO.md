@@ -2,7 +2,6 @@
 
 
 #### Relecture et Nettoyage du projet :
-* Schematic <-
 * Editor
 * InputManager
 * SchemReader
@@ -19,6 +18,7 @@
 
 #### A faire maintenant :
 * Bug : SchemPath passe devant les tooltips des boutons
+* Bug : affichage du fil allumé pdt la création pour une blackbox sans plugs
 * Système de delay : vérifier les bugs / rendre plus propre ?
 * Sauvegarde des schematics : save les blackbox dans un autre fichier
 * Diode : savegarder leur état
@@ -39,8 +39,10 @@
 * Raccourcis pour les créations de composants (chiffres ?)
 * Curseur : changer les ciseaux ![Red](Wiring/Content/WireNodeOn.png)
 * Fichier de settings (settings d'enregistrement + couleurs de texte, tooltip...)
+* Settings : afficher les aides en tooltip
 
 #### Eventuellement, si j'ai le courage :
+* Bug : le double-clic à l'ouverture fait aussi un clic sur l'application
 * Ajustement auto de la Camera
 * Personnalisation des BlackBox : image
 * Angle des composants
@@ -66,13 +68,14 @@
 #### Ouverture
 
 [ ] Ignorer les avertissements<br/>
-/!\ Améliore les performances de chargement, déconseillé si vous éditez le code de vos schematics
+(?) Améliore les performances durant l'ouverture, déconseillé si vous éditez le code de vos schematics
 
 [ ] Ouvrir dans une nouvelle boîte noire
 
 #### Enregistrement
 
 [ ] Enregistrer les boîtes noires dans des fichiers séparés <br/>
-/!\ les boîtes noires de même nom doivent être similaires
+(?) les boîtes noires de même nom doivent être similaires
 
-[ ] Optimiser la taille du fichier (lisibilité réduite du code)
+[ ] Optimiser la taille du fichier<br/>
+(?) La lisibilité du code en sera réduite

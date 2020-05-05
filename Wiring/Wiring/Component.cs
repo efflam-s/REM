@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -122,10 +121,6 @@ namespace Wiring.Wiring
         {
             spriteBatch.Draw(select, position - new Vector2(select.Width, select.Height) / 2, Color.White);
         }
-        /*public void BasicDraw(SpriteBatch spriteBatch)
-        {
-            spriteBatch.Draw(square, position - new Vector2(square.Width, square.Height) / 2, Color.White);
-        }*/
         /// <summary>
         /// <i>Override</i> : Crée une copie d'un composant avec des nouveaux fils, la même position, et les autres paramètres identiques
         /// </summary>

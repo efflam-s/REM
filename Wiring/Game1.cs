@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Wiring.Wiring;
 
@@ -524,7 +525,7 @@ namespace Wiring
                     if (Settings.OpenInNewBlackBox)
                     {
                         BlackBox newBB = new BlackBox(newSchem, Vector2.Zero);
-                        editor.mainSchem.AddComponent(newBB);
+                        editor.AddComponent(newBB);
                     }
                     else
                     {

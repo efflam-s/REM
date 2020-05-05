@@ -207,7 +207,7 @@ namespace Wiring
                         }
                         else if (hoveredWire != null)
                         {
-                            // Suppression d'un fil (ou d'une partie de fil)
+                            // Suppression d'un fil (ou d'une partie de fil) (à mettre dans une fonction ?)
                             if (hoveredWire.components.Count() <= 2 || (Inpm.MsPosition() - hoveredWire.Node()).Length() < 5)
                                 mainSchem.DeleteWire(hoveredWire);
                             else

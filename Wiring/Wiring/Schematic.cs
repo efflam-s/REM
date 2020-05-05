@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Wiring.Wiring
 {
     /// <summary>
-    /// Système de composants reliés par des fils
+    /// Système de composants reliés par des fils. Sa modification se fait par ajout et suppression de composants
     /// </summary>
     public class Schematic
     {
@@ -26,30 +26,39 @@ namespace Wiring.Wiring
         {
 
         }
-        public void AddComponent(Component c, bool reloadWires = true)
+        /// <summary>
+        /// Ajoute un composant dans le schematic. Il sera relié aux autres composants si les fils leur sont identiques
+        /// </summary>
+        public void AddComponent(Component c)
         {
             components.Add(c);
+            // ajoute les fils non encore existants au schematic
             foreach (Wire w in c.wires)
             {
                 if (!wires.Contains(w))
                     wires.Add(w);
             }
-            if (reloadWires)
-                ReloadWiresFromComponents();
         }
-        public void DeleteComponent(Component c, bool reloadWires = true)
+        /// <summary>
+        /// Supprime un composant du schematic. Les connections avec ce composant seront supprimées
+        /// </summary>
+        public void DeleteComponent(Component c)
         {
             if (components.Contains(c))
             {
-                /*foreach (Wire w in c.wires)
+                foreach (Wire w in c.wires)
                 {
                     w.components.Remove(c);
-                }*/
+                    if (w.components.Count == 0)
+                        wires.Remove(w);
+                }
                 components.Remove(c);
             }
-            if (reloadWires)
-                ReloadWiresFromComponents();
+            //ReloadWiresFromComponents();
         }
+        /// <summary>
+        /// Suprime un fil, et donc une connection entre plusieurs composants. 
+        /// </summary>
         public void DeleteWire(Wire w)
         {
             int i;
@@ -66,14 +75,12 @@ namespace Wiring.Wiring
             }
         }
 
+        /// <summary>
+        /// Supprime toute les informations que contiennent les fils (sauf leur valeur),
+        /// et les recrée à partir des informations que contiennent les composants.
+        /// </summary>
         public void ReloadWiresFromComponents()
         {
-            // Supprime toute les informations que contiennent les fils (sauf leur valeur),
-            // et les recrée à partir des informations que contiennent les composants
-            foreach (Wire w in wires)
-            {
-                w.components.Clear();
-            }
             wires.Clear();
             foreach (Component c in components)
             {
@@ -81,22 +88,27 @@ namespace Wiring.Wiring
                 {
                     if (!wires.Contains(w))
                     {
+                        // Si on ne l'a pas encore ajouté, on l'ajoute et on supprime ses anciennes connections
                         wires.Add(w);
                         w.components.Clear();
                     }
+                    // On ajoute ensuite tout les connexions que l'on avait pas déjà
                     if (!w.components.Contains(c))
                         w.components.Add(c);
                 }
             }
-            //wires.RemoveAll(w => w.components.Count() == 0);
         }
+        /// <summary>
+        /// ReloadWiresFromComponents + Update chaque fil (donc tout le schematic)
+        /// </summary>
+        /// <param name="recursive">si true : Commence par initialiser les schematics de chaque BlackBox</param>
         public void Initialize(bool recursive = false)
         {
-            foreach (Component c in components)
-            {
-                if (c is BlackBox bb && recursive)
+            if (recursive) {
+                foreach (Component c in components)
                 {
-                    bb.schem.Initialize(true);
+                    if (c is BlackBox bb)
+                        bb.schem.Initialize(true);
                 }
             }
             ReloadWiresFromComponents();
@@ -106,6 +118,9 @@ namespace Wiring.Wiring
             }
         }
 
+        /// <summary>
+        /// Met à jour les composants qui en ont besoin, y compris ceux dépendant du temps (diodes)
+        /// </summary>
         public void Update(GameTime gameTime)
         {
             foreach (Component c in components)
@@ -119,6 +134,10 @@ namespace Wiring.Wiring
             }
         }
 
+        /// <summary>
+        /// Dessine chaque fil, puis chaque composant du schematic
+        /// </summary>
+        /// <param name="spriteBatch"></param>
         public void Draw(SpriteBatch spriteBatch)
         {
             foreach (Wire w in wires)
@@ -130,20 +149,11 @@ namespace Wiring.Wiring
                 c.Draw(spriteBatch);
             }
         }
-        /*public void BasicDraw(SpriteBatch spriteBatch)
-        {
-            foreach (Wire w in wires)
-            {
-                w.Draw(spriteBatch);
-            }
-            foreach (Component c in components)
-            {
-                c.BasicDraw(spriteBatch);
-            }
-        }*/
+        /// <summary>
+        /// Retourne une copie du schematic (recopie chaque composant)
+        /// </summary>
         public Schematic Copy()
         {
-            // Retourne une copie du schematic
             Schematic newSchem = new Schematic(Name);
             foreach (Component c in components)
             {
@@ -164,14 +174,9 @@ namespace Wiring.Wiring
             newSchem.Initialize();
             return newSchem;
         }
-        public void AddSchematic(Schematic other)
+        /*public void AddSchematic(Schematic other)
         {
-            // TODO
-        }
-        public static Schematic operator +(Schematic a, Schematic b) {
-            Schematic c = a.Copy();
-            c.AddSchematic(b);
-            return c;
-        }
+            // TODO : ajoute un schematic (par exemple en presse-papier) à un autre
+        }*/
     }
 }

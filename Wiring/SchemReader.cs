@@ -488,7 +488,7 @@ namespace Wiring
                     {
                         if (c is Dictionary<string, object> comp)
                         {
-                            schem.AddComponent(TreeToComp(comp, folderPath, schem.wires, ignoreWarnings), false);
+                            schem.AddComponent(TreeToComp(comp, folderPath, schem.wires, ignoreWarnings));
                         }
                     }
                 }
