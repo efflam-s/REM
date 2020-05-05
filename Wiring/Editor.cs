@@ -342,11 +342,6 @@ namespace Wiring
             {
                 if (Inpm.leftClic == InputManager.ClicState.Clic)
                 {
-                    if (hoveredComponent != null)
-                    {
-                        // Preparation liaison avec un autre composant
-                        //MovingComp = hoveredComponent;
-                    }
                     // stockage des infos importantes du clic (position + temps)
                     Inpm.SaveClic(gameTime);
                 }
@@ -370,16 +365,17 @@ namespace Wiring
                             clearSelection();
                         }
                     }
-                    if ((hoveredComponent != null || hoveredWire != null) && (hover(Inpm.mousePositionOnClic) != null || hoverWire(Inpm.mousePositionOnClic) != null))
+                    else if ((hover(Inpm.MsPosition(), true) != null || hoveredWire != null) && (hover(Inpm.mousePositionOnClic, true) != null || hoverWire(Inpm.mousePositionOnClic) != null))
                     {
                         // Ajout d'un fil
-                        Wire start = (hover(Inpm.mousePositionOnClic) != null) ?
-                            hover(Inpm.mousePositionOnClic).nearestPlugWire(Inpm.mousePositionOnClic) :
+                        Wire start = (hover(Inpm.mousePositionOnClic, true) != null) ?
+                            hover(Inpm.mousePositionOnClic, true).nearestPlugWire(Inpm.mousePositionOnClic) :
                             hoverWire(Inpm.mousePositionOnClic);
-                        Wire end = (hoveredComponent != null) ?
-                            hoveredComponent.nearestPlugWire(Inpm.MsPosition()) :
+                        Wire end = (hover(Inpm.MsPosition(), true) != null) ?
+                            hover(Inpm.MsPosition(), true).nearestPlugWire(Inpm.MsPosition()) :
                             hoveredWire;
-                        if (start != end && start != null && end != null)// && hoveredComponent != hover(Inpm.mousePositionOnClic))
+
+                        if (start != end && start != null && end != null)
                         {
                             bool OK = true;
                             foreach (Component c1 in end.components)
@@ -484,11 +480,11 @@ namespace Wiring
         /// <summary>
         /// Détermine le composant sur lequel est positionné la souris. Retourne null si pas de composant trouvé
         /// </summary>
-        public Component hover(Vector2 position)
+        public Component hover(Vector2 position, bool includePlugs = false)
         {
             foreach (Component c in mainSchem.components)
             {
-                if (c.touch(position))
+                if (c.touch(position, includePlugs))
                     return c;
             }
             return null;
@@ -540,12 +536,12 @@ namespace Wiring
             }
             mainSchem.Draw(spriteBatch);
 
-            if (tool == Tool.Wire && (hover(Inpm.mousePositionOnClic) != null || hoverWire(Inpm.mousePositionOnClic) != null) && Inpm.leftClic == InputManager.ClicState.Down)
+            if (tool == Tool.Wire && (hover(Inpm.mousePositionOnClic, true) != null || hoverWire(Inpm.mousePositionOnClic) != null) && Inpm.leftClic == InputManager.ClicState.Down)
             {
                 // Ajout d'un fil
                 Vector2 start, end;
 
-                Component hoveredClic = hover(Inpm.mousePositionOnClic); // au début du clic
+                Component hoveredClic = hover(Inpm.mousePositionOnClic, true); // au début du clic
                 Wire hoveredWireClic = hoverWire(Inpm.mousePositionOnClic);
                 if (hoveredClic != null)
                     start = hoveredClic.plugPosition(hoveredClic.nearestPlugWire(Inpm.mousePositionOnClic));
@@ -554,7 +550,7 @@ namespace Wiring
                 else
                     throw new InvalidOperationException("pas de fil ou de composant sélectionné pour le début de la création du fil");
 
-                Component hovered = hover(Inpm.MsPosition());
+                Component hovered = hover(Inpm.MsPosition(), true);
                 Wire hoveredWire = hoverWire(Inpm.MsPosition());
                 if (hovered != null && hovered.nearestPlugWire(Inpm.MsPosition()) != null)
                     end = hovered.plugPosition(hovered.nearestPlugWire(Inpm.MsPosition()));

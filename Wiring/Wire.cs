@@ -99,7 +99,7 @@ namespace Wiring
             float angle = (float)Math.Atan2(ab.Y, ab.X);
             Vector2 relativ = position - A;
             relativ = new Vector2(relativ.X * (float)Math.Cos(angle) + relativ.Y * (float)Math.Sin(angle), relativ.Y * (float)Math.Cos(angle) - relativ.X * (float)Math.Sin(angle));
-            return -strokeWeight/2 <= relativ.Y && relativ.Y < strokeWeight/2 && 0 < relativ.X && relativ.X <= ab.Length();
+            return -strokeWeight/2 <= relativ.Y && relativ.Y <= strokeWeight/2 && 0 <= relativ.X && relativ.X <= ab.Length();
         }
         /// <summary>
         /// Renvoie le point moyen des plugs associés au fil

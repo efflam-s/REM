@@ -89,7 +89,7 @@ namespace Wiring
         public bool touch(Vector2 position, bool includePlugs = false)
         {
             Vector2 v = this.position - position;
-            return Math.Min(v.X, v.Y) > -size / 2 && Math.Max(v.X, v.Y) <= size / 2;
+            return Math.Min(v.X, v.Y) > -size / 2 && Math.Max(v.X, v.Y) <= size / 2 || (includePlugs && touchPlug(position));
         }
         public bool touchPlug(Vector2 position)
         {
