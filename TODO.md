@@ -20,11 +20,15 @@
 #### A faire maintenant :
 * Bug : SchemPath passe devant les tooltips des boutons
 * Système de delay : vérifier les bugs / rendre plus propre ?
-* Panoramique à fix ?
 * Sauvegarde des schematics : save les blackbox dans un autre fichier
-* Bouts de fil aux plugs : gérer dans les composants ou dans les fils ?
+* Open schematics : ouvrir dans une nouvelle blackbox
+* Diode : savegarder leur état
 
 #### A faire plus tard :
+* Pouvoir connecter un même fil plusieurs fois sur un composant
+* Gros refactoring : séparer les fils d'input et d'output dans les composants ?
+* Revoir de système de tools : boutons pour chaque, boolean toogle, tool Wire à partir d'un plug
+* Cursor création de fil
 * Composant : `Comment`
 * Texture de fond de l'éditeur
 * Duplication d'une séléction multiple
@@ -35,11 +39,11 @@
 * Créer une blackbox à partir de la selection ?
 * Raccourcis pour les créations de composants (chiffres ?)
 * Curseur : changer les ciseaux ![Red](Wiring/Content/WireNodeOn.png)
-* Ajustement auto de la Camera
+* Fichier de settings (settings d'enregistrement + couleurs de texte, tooltip...)
 
 #### Eventuellement, si j'ai le courage :
+* Ajustement auto de la Camera
 * Personnalisation des BlackBox : image
-* Fichier de settings (settings d'enregistrement + couleurs de texte, tooltip...)
 * Angle des composants
 * Menu de simulation (pas d'édition possible, possibilité de cacher des composants/fils, performances accrues ?)
 * Faire des fils personnalisés : nodes où on veut

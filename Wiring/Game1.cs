@@ -506,57 +506,66 @@ namespace Wiring
             System.Windows.Forms.OpenFileDialog openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             openFileDialog1.Filter = "Fichier Schematic|*.schem"; // Extensions acceptées
             openFileDialog1.Title = "Ouvrir un Schematic";
-            openFileDialog1.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory + "Schematics"; // positionner au chemin de l'appication + "Schematics"
+            openFileDialog1.InitialDirectory = savePath == "" ? AppDomain.CurrentDomain.BaseDirectory + "Schematics" : savePath; // positionner au chemin de l'appication + "Schematics"
             openFileDialog1.ShowDialog();
 
             // If the file name is not an empty string open it for saving.
             if (openFileDialog1.FileName != "")
             {
+                // Bouton utilisé pour les messages d'erreur
+                string[] buttons = { "Ok" };
                 // Open the File via a FileStream created by the OpenFile method.
                 System.IO.FileStream fs = (System.IO.FileStream)openFileDialog1.OpenFile();
                 try
                 {
                     Schematic newSchem = SchemReader.Read(fs, Settings.IgnoreWarnings);
-                    editor.mainSchem.Name = newSchem.Name;
-                    Console.WriteLine("opened " + editor.mainSchem.Name);
-                    editor.mainSchem.components = newSchem.components;
-                    editor.mainSchem.Initialize(true);
-                    SchematicPath[SchematicPath.Count - 1].setText(editor.mainSchem.Name);
+                    newSchem.Initialize(true);
+                    if (Settings.OpenInNewBlackBox)
+                    {
+                        BlackBox newBB = new BlackBox(newSchem, Vector2.Zero);
+                        editor.mainSchem.AddComponent(newBB);
+                    }
+                    else
+                    {
+                        editor.mainSchem.Name = newSchem.Name;
+                        editor.mainSchem.components = newSchem.components;
+                        editor.mainSchem.Initialize(true);
+                        SchematicPath[SchematicPath.Count - 1].setText(editor.mainSchem.Name);
+                    }
                     savePath = fs.Name;
                 }
                 // Si on trouve une exception, on affiche une fenêtre d'erreur avec Windows.Forms
                 catch (System.IO.FileNotFoundException fnf)
                 {
-                    System.Windows.Forms.MessageBox.Show(fnf.Message, "Erreur : Fichier non trouvé");
+                    MessageBox.Show("Erreur : Fichier non trouvé", fnf.Message, buttons);
                 }
                 catch (SchemReader.SyntaxException sy)
                 {
-                    string[] buttons = { "Ok" };
-                    /*System.Windows.Forms.*/MessageBox.Show("Erreur : Syntaxe invalide", sy.Message, buttons);
+                    MessageBox.Show("Erreur : Syntaxe invalide", sy.Message, buttons);
                 }
                 catch (SchemReader.StructureException stc)
                 {
-                    System.Windows.Forms.MessageBox.Show(stc.Message, "Erreur : structure de schematic invalide");
+                    MessageBox.Show("Erreur : structure de schematic invalide", stc.Message, buttons);
                 }
                 catch (SchemReader.MissingFieldException mf)
                 {
-                    System.Windows.Forms.MessageBox.Show(mf.Message, "Erreur : Champ manquant");
+                    MessageBox.Show("Erreur : Champ manquant", mf.Message, buttons);
                 }
                 catch (SchemReader.InvalidValueException iv)
                 {
-                    System.Windows.Forms.MessageBox.Show(iv.Message, "Erreur : Valeur invalide");
+                    MessageBox.Show("Erreur : Valeur invalide", iv.Message, buttons);
                 }
                 catch (SchemReader.UndefinedWordWarning uw)
                 {
-                    System.Windows.Forms.MessageBox.Show(uw.Message, "Avertissement : Mot-clé non défini");
+                    MessageBox.Show("Avertissement : Mot-clé non défini", uw.Message, buttons);
                 }
                 catch (SchemReader.InvalidTypeWarning it)
                 {
-                    System.Windows.Forms.MessageBox.Show(it.Message, "Avertissement : Type invalide");
+                    MessageBox.Show("Avertissement : Type invalide", it.Message, buttons);
                 }
                 catch (SchemReader.InvalidListSizeWarning ils)
                 {
-                    System.Windows.Forms.MessageBox.Show(ils.Message, "Avertissement : Taille de liste invalide");
+                    MessageBox.Show("Avertissement : Taille de liste invalide", ils.Message, buttons);
                 }
 
                 fs.Close();
