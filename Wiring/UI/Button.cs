@@ -12,8 +12,7 @@ namespace Wiring.UI
     public class Button : UIObject
     {
         public static Texture2D hoverTex, toggleTex;
-        public bool toggle;
-        public bool drawHover;
+        public bool toggle, drawHover;
         public ToolTip toolTip;
 
         public Button(Rectangle? Bounds, string toolTip = "", bool drawHover = true) : base(Bounds)

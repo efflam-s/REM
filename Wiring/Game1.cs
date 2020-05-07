@@ -476,7 +476,7 @@ namespace Wiring
             else
             {
                 Console.WriteLine("saving at path : " + savePath);
-                SchemWriter.write(savePath, editor.mainSchem, !Settings.OptimizeFileSize);
+                SchemWriter.write(savePath, editor.mainSchem, !Settings.OptimizeFileSize, Settings.DontSaveBlackBoxContent);
             }
         }
         /// <summary>
@@ -497,7 +497,7 @@ namespace Wiring
             {
                 // Saves the File via a FileStream created by the OpenFile method.
                 System.IO.FileStream fs = (System.IO.FileStream)saveFileDialog1.OpenFile();
-                SchemWriter.write(fs, editor.mainSchem, !Settings.OptimizeFileSize);
+                SchemWriter.write(fs, editor.mainSchem, !Settings.OptimizeFileSize, Settings.DontSaveBlackBoxContent);
                 savePath = fs.Name;
                 fs.Close();
             }

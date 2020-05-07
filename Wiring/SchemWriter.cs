@@ -12,7 +12,7 @@ namespace Wiring
         /// <summary>
         /// Ecrire à partir d'un chemin vers un fichier (ouvre un filestream)
         /// </summary>
-        public static void write(string path, Schematic schem, bool indent)
+        public static void write(string path, Schematic schem, bool indent, bool dontWriteBlackbox)
         {
             if (!File.Exists(path))
             {
@@ -23,28 +23,28 @@ namespace Wiring
                 Console.WriteLine("overwrite existant file : " + path);
             }
             FileStream fs = new FileStream(path, FileMode.OpenOrCreate);
-            write(fs, schem, indent);
+            write(fs, schem, indent, dontWriteBlackbox);
             fs.Close();
         }
         /// <summary>
         /// Ecrire à partir d'un FileStream
         /// </summary>
-        public static void write(FileStream fs, Schematic schem, bool indent)
+        public static void write(FileStream fs, Schematic schem, bool indent, bool dontWriteBlackbox)
         {
             string code; // code représentant le schematic
             if (indent)
             {
-                code = "Schematic : {\r\n" + schemToString(schem, indent, 1) + "\r\n}\r\n";
+                code = "Schematic : {\r\n" + schemToString(schem, indent, dontWriteBlackbox, 1) + "\r\n}\r\n";
             }
             else
             {
-                code = schemToString(schem, indent);
+                code = schemToString(schem, indent, dontWriteBlackbox);
             }
             fs.SetLength(0);
             fs.Write(Encoding.UTF8.GetBytes(code), 0, Encoding.UTF8.GetByteCount(code));
         }
 
-        private static string schemToString(Schematic schem, bool indent, int tabulation = 0)
+        private static string schemToString(Schematic schem, bool indent, bool dontWriteBlackbox, int tabulation = 0)
         {
             StringBuilder code = new StringBuilder();
             if (indent)
@@ -64,7 +64,7 @@ namespace Wiring
                     code.Append("\r\n" + tab(tabulation+1) + "{\r\n");
                 else
                     code.Append("{");
-                code.Append(compToString(c, schem.wires, indent, tabulation + 2));
+                code.Append(compToString(c, schem.wires, indent, dontWriteBlackbox, tabulation + 2));
                 if (indent)
                     code.Append("\r\n" + tab(tabulation + 1) + "}");
                 else
@@ -76,7 +76,7 @@ namespace Wiring
 
             return code.ToString();
         }
-        private static string compToString(Component comp, List<Wire> wireList, bool indent, int tabulation = 0)
+        private static string compToString(Component comp, List<Wire> wireList, bool indent, bool dontWriteBlackbox, int tabulation = 0)
         {
             StringBuilder code = new StringBuilder();
 
@@ -131,15 +131,27 @@ namespace Wiring
             }
             else if (comp is BlackBox bb)
             {
-                if (indent)
-                    code.Append("schematic : {\r\n");
+                if (dontWriteBlackbox)
+                {
+                    if (indent)
+                        code.Append("path : \"");
+                    else
+                        code.Append("path:\"");
+                    code.Append(bb.schem.Name);
+                    code.Append(".schem\"");
+                }
                 else
-                    code.Append("schematic:{");
-                code.Append(schemToString(bb.schem, indent, tabulation + 2));
-                if (indent)
-                    code.Append("\r\n" + tab(tabulation + 1) + "}");
-                else
-                    code.Append("}");
+                {
+                    if (indent)
+                        code.Append("schematic : {\r\n");
+                    else
+                        code.Append("schematic:{");
+                    code.Append(schemToString(bb.schem, indent, false, tabulation + 2));
+                    if (indent)
+                        code.Append("\r\n" + tab(tabulation + 1) + "}");
+                    else
+                        code.Append("}");
+                }
             }
             if (typeName == "Input" || typeName == "Diode" || typeName == "BlackBox")
             {
