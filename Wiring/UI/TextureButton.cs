@@ -4,24 +4,30 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Wiring
+namespace Wiring.UI
 {
+    /// <summary>
+    /// Comme un bouton, mais avec une texture
+    /// </summary>
     public class TextureButton : Button
     {
         private Texture2D texture;
-        public TextureButton(Vector2 position, String ToolTip = "") : base (Rectangle.Empty, ToolTip)
+        public TextureButton(Point? position, string ToolTip = "") : base (position, ToolTip)
         {
-            Bounds.Location = position.ToPoint();
         }
-        public TextureButton(Vector2 position, Texture2D texture, String ToolTip = "") : base(Rectangle.Empty, ToolTip)
+        public TextureButton(Point? position, Texture2D texture, string ToolTip = "") : base(position, ToolTip)
         {
-            Bounds.Location = position.ToPoint();
-            setTexture(texture);
+            SetTexture(texture);
         }
-        public void setTexture(Texture2D texture)
+        public void SetTexture(Texture2D texture)
         {
             this.texture = texture;
+            SetSize();
+        }
+        public override void SetSize()
+        {
             Bounds.Size = texture.Bounds.Size;
+            base.SetSize();
         }
         public override void Draw(SpriteBatch spriteBatch)
         {

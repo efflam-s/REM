@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Wiring.Wiring;
+using Wiring.UI;
 
 namespace Wiring
 {
@@ -20,15 +21,18 @@ namespace Wiring
         Editor editor;
         Matrix editorCamera; // transformations (panoramique et zoom) de la fenêtre de l'éditeur
         InputManager Inpm;
-        ButtonsBar firstBar, secondBar;
+        UIList<UIList<Button>> firstBar, secondBar;
         TextureButton[] MiscButtons; // boutons qu'on ne peut pas mettre sur les barres (pour l'instant seulement paramètres)
-        List<StringButton> SchematicPath; // chemin vers le schematic courant (boutons vers tout les schematics)
 
-        Texture2D buttonsBar, /*separator,*/ pathSeparator; // textures pour les boutons et barres de boutons => à suppr ?
+        Texture2D buttonsBar; // textures pour les barres de boutons
         SpriteFont font;
         StringBuilder builder; // Permet de construire des strings à partir de l'input de l'utilisateur (voir Window_TextInput)
         bool isListeningToInputText;
         string savePath; // Chemin sur le disque dans lequel on enregistre le schematic courant
+
+        // "alias" pour accéder aux groupes de boutons plus facilement
+        UIList<Button> SchematicPath => secondBar[2];
+        StringButton LastSchemPathButton => (StringButton)SchematicPath[SchematicPath.Count - 1];
 
         public Game1()
         {
@@ -54,10 +58,8 @@ namespace Wiring
             editor.Initialize();
             editorCamera = Matrix.CreateScale(4) * Matrix.CreateTranslation(0, 36 * 2, 0);
             Inpm = new InputManager();
-            // Les buttonsBar sont initialisées dans LoadContent
-            SchematicPath = new List<StringButton>();
             MiscButtons = new TextureButton[1];
-            MiscButtons[0] = new TextureButton(new Vector2(0, 38)); // paramètres
+            MiscButtons[0] = new TextureButton(new Point(0, 38)); // paramètres
 
             builder = new StringBuilder();
             isListeningToInputText = false;
@@ -77,17 +79,13 @@ namespace Wiring
             Component.LoadContent(Content);
             Schematic.LoadContent(Content);
             Editor.LoadContent(Content);
-            Button.LoadContent(Content);
+            UIObject.LoadContent(Content);
             Settings.LoadContent(Content);
-            ButtonsBar.LoadContent(Content);
 
             buttonsBar = Content.Load<Texture2D>("Button/buttonsBar");
-            //separator = Content.Load<Texture2D>("Button/separator");
-            pathSeparator = Content.Load<Texture2D>("Button/pathSeparator");
-            firstBar = ButtonsBar.firstBar(Content);
-            secondBar = ButtonsBar.secondBar(Content);
-            MiscButtons[0].setTexture(Content.Load<Texture2D>("Button/Settings"));
-            SchematicPath.Add(new StringButton(new Vector2(10 + 36 * 4, 41), editor.mainSchem.Name, "Renommer")); // A besoin de Button.LoadContent pour mesurer la taille du string
+            firstBar = getFirstBar(Content);
+            secondBar = getSecondBar(Content);
+            MiscButtons[0].SetTexture(Content.Load<Texture2D>("Button/Settings"));
 
             font = Content.Load<SpriteFont>("Arial");
 
@@ -132,9 +130,10 @@ namespace Wiring
             if (editor.schemPile.Count > SchematicPath.Count)
             {
                 // On est entré dans une blackbox à partir de l'éditeur : il faut donc rajouter un bouton dans SchematicPath
-                Vector2 newPosition = new Vector2(SchematicPath[SchematicPath.Count - 1].Bounds.Right, SchematicPath[SchematicPath.Count - 1].Bounds.Top) + new Vector2(8, 0);
-                SchematicPath[SchematicPath.Count - 1].ToolTip = "";
-                SchematicPath.Add(new StringButton(newPosition, editor.mainSchem.Name, "Renommer"));
+                Point newPosition = new Point(LastSchemPathButton.Bounds.Right, LastSchemPathButton.Bounds.Top) + new Point(8, 0);
+                LastSchemPathButton.toolTip.Text = "";
+                secondBar[2].Add(new StringButton(newPosition, editor.mainSchem.Name, "Renommer"));
+                secondBar[2].SetSize();
                 savePath = "";
             }
 
@@ -145,45 +144,14 @@ namespace Wiring
             }
 
             UpdateButtons();
-
-            // Gestion boutons de navigation => à mettre dans une fonction/une classe ?
-            for (int i = 0; i < SchematicPath.Count; i++)
-            {
-                if (SchematicPath[i].hover(Inpm.MsPosition()) && Inpm.leftClic == InputManager.ClicState.Declic)
-                {
-                    if (i == SchematicPath.Count - 1)
-                    {
-                        // Schematic courant => renommage
-                        isListeningToInputText = true;
-                        SchematicPath[i].toggle = true;
-                        builder = new StringBuilder(SchematicPath[i].text);
-                    }
-                    else
-                    {
-                        // Autre schematic => navigation
-                        schematicNav(i);
-                    }
-                }
-            }
-            if (isListeningToInputText && Inpm.leftClic == InputManager.ClicState.Clic)
-            {
-                // Fin de renommage
-                isListeningToInputText = false;
-                SchematicPath[SchematicPath.Count - 1].toggle = false;
-                if (SchematicPath[SchematicPath.Count - 1].text == "")
-                    // Chaîne vide => on garde le nom précedent
-                    SchematicPath[SchematicPath.Count - 1].setText(editor.mainSchem.Name);
-                else
-                    // Sinon on change le nom
-                    editor.mainSchem.Name = SchematicPath[SchematicPath.Count - 1].text;
-            }
+            
 
             if (Inpm.Control && !Inpm.Alt && !Inpm.Shift && Inpm.OnPressed(Keys.R))
             {
                 // Ctrl+R : renommer le schematic actuel
                 isListeningToInputText = true;
-                SchematicPath[SchematicPath.Count-1].toggle = true;
-                builder = new StringBuilder(SchematicPath[SchematicPath.Count - 1].text);
+                LastSchemPathButton.toggle = true;
+                builder = new StringBuilder(LastSchemPathButton.text);
             }
             if (Inpm.leftClic == InputManager.ClicState.Up && Inpm.Control && !Inpm.Alt && !Inpm.Shift && Inpm.OnPressed(Keys.S))
                 // Ctrl+S : sauvegarder sous le nom actuel
@@ -219,19 +187,14 @@ namespace Wiring
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
 
             // Dessin des barres de boutons
-            secondBar.Draw(spriteBatch, Window.ClientBounds.Width);
-            firstBar.Draw(spriteBatch, Window.ClientBounds.Width);
-            foreach (StringButton b in SchematicPath)
+            spriteBatch.Draw(buttonsBar, new Rectangle(0, 0, Window.ClientBounds.Width, buttonsBar.Height), Color.White);
+            spriteBatch.Draw(buttonsBar, new Rectangle(0, buttonsBar.Height, Window.ClientBounds.Width, buttonsBar.Height), Color.White);
+            secondBar.Draw(spriteBatch);
+            firstBar.Draw(spriteBatch);
+
+            if (isListeningToInputText)
             {
-                b.Draw(spriteBatch);
-                if (b != SchematicPath[SchematicPath.Count-1])
-                {
-                    spriteBatch.Draw(pathSeparator, new Vector2(b.Bounds.Right, b.Bounds.Top), Color.White);
-                }
-                else if (isListeningToInputText)
-                {
-                    b.DrawEditCursor(spriteBatch, gameTime);
-                }
+                LastSchemPathButton.DrawEditCursor(spriteBatch, gameTime);
             }
             // Barre d'informations et de debug
             spriteBatch.Draw(buttonsBar, new Rectangle(0, Window.ClientBounds.Height - buttonsBar.Height, Window.ClientBounds.Width, buttonsBar.Height), Color.White);
@@ -243,12 +206,20 @@ namespace Wiring
                 b.DrawToolTip(spriteBatch);
             }
 
+            // tooltip des barres
+            foreach (UIList<Button> l in firstBar.list)
+                foreach (Button b in l.list)
+                    b.DrawToolTip(spriteBatch);
+            foreach (UIList<Button> l in secondBar.list)
+                foreach (Button b in l.list)
+                    b.DrawToolTip(spriteBatch);
+
             // Blackbox tooltip
             if (editor.tool == Editor.Tool.Edit || editor.tool == Editor.Tool.Wire)
             {
                 if (editor.currentHoveredComponent() is BlackBox bb)
                 {
-                    Button.DrawToolTip(spriteBatch, bb.schem.Name, Inpm.MsPosition() + new Vector2(0, 25));
+                    ToolTip.DrawToolTip(spriteBatch, bb.schem.Name, Inpm.MsState.Position + new Point(0, 25));
                 }
             }
 
@@ -260,15 +231,15 @@ namespace Wiring
         }
 
         /// <summary>
-        /// Mise à jour les barres de boutons et les autres boutons (sauf SchematicPath !)
+        /// Mise à jour les barres de boutons et les autres boutons
         /// </summary>
         void UpdateButtons()
         {
             bool declic = Inpm.leftClic == InputManager.ClicState.Declic;
             // Organisation des boutons pour faciliter les boucles
-            Button[] AddButtons = { firstBar[1, 1], firstBar[1, 2], firstBar[1, 3], firstBar[1, 4], firstBar[1, 5] };
-            Button[] ToolButtons = { firstBar[0, 0], firstBar[1, 0], firstBar[2, 0], firstBar[2, 1] };
-            Button[] FileButtons = secondBar[0].ToArray();
+            Button[] AddButtons = { firstBar[1][1], firstBar[1][2], firstBar[1][3], firstBar[1][4], firstBar[1][5] };
+            Button[] ToolButtons = { firstBar[0][0], firstBar[1][0], firstBar[2][0], firstBar[2][1] };
+            Button[] FileButtons = secondBar[0].list.ToArray();
             Button Back = secondBar[1][0];
 
             // Boutons de création de composants
@@ -279,7 +250,7 @@ namespace Wiring
                     // Détoggle dans le cas où on clique n'importe où ou si l'outil n'est pas le déplacement
                     AddButtons[i].toggle = false;
                 }
-                if (AddButtons[i].hover(Inpm.MsPosition()) && declic && AddButtons[i].hover(Inpm.mousePositionOnClic))
+                if (AddButtons[i].Contains(Inpm.MsState.Position) && declic && AddButtons[i].Contains(Inpm.mousePositionOnClic.ToPoint()))
                 {
                     // Si ce bouton est cliqué
                     AddButtons[i].toggle = true;
@@ -308,7 +279,7 @@ namespace Wiring
             // Boutons de choix d'outils
             for (int i = 0; i < ToolButtons.Length; i++)
             {
-                if (ToolButtons[i].hover(Inpm.MsPosition()) && declic)
+                if (ToolButtons[i].Contains(Inpm.MsState.Position) && declic)
                 {
                     // Si ce bouton est cliqué
                     // Choix de l'outil
@@ -338,7 +309,7 @@ namespace Wiring
             // Boutons "fichier" : Enregistrement et Ouverture
             for (int i = 0; i < FileButtons.Length; i++)
             {
-                if (FileButtons[i].hover(Inpm.MsPosition()) && declic)
+                if (FileButtons[i].Contains(Inpm.MsState.Position) && declic)
                 {
                     // Si ce bouton est cliqué
                     switch (i) {
@@ -359,14 +330,46 @@ namespace Wiring
             }
 
             // Bouton retour vers le schematic parent
-            if (Back.hover(Inpm.MsPosition()) && declic)
+            if (Back.Contains(Inpm.MsState.Position) && declic)
             {
                 this.Back();
             }
 
+            // Gestion boutons de navigation
+            for (int i = 0; i < SchematicPath.Count; i++)
+            {
+                if (SchematicPath[i].Contains(Inpm.MsState.Position) && Inpm.leftClic == InputManager.ClicState.Declic)
+                {
+                    if (i == SchematicPath.Count - 1)
+                    {
+                        // Schematic courant => renommage
+                        isListeningToInputText = true;
+                        SchematicPath[i].toggle = true;
+                        builder = new StringBuilder(((StringButton)SchematicPath[i]).text);
+                    }
+                    else
+                    {
+                        // Autre schematic => navigation
+                        schematicNav(i);
+                    }
+                }
+            }
+            if (isListeningToInputText && Inpm.leftClic == InputManager.ClicState.Clic)
+            {
+                // Fin de renommage
+                isListeningToInputText = false;
+                LastSchemPathButton.toggle = false;
+                if (LastSchemPathButton.text == "")
+                    // Chaîne vide => on garde le nom précedent
+                    LastSchemPathButton.SetText(editor.mainSchem.Name);
+                else
+                    // Sinon on change le nom
+                    editor.mainSchem.Name = LastSchemPathButton.text;
+            }
+
             // Bouton paramètres
             if (declic)
-                if (MiscButtons[0].hover(Inpm.MsPosition()))
+                if (MiscButtons[0].Contains(Inpm.MsState.Position))
                     // Toggle si on clique dessus
                     MiscButtons[0].toggle = !MiscButtons[0].toggle;
                 else
@@ -388,10 +391,10 @@ namespace Wiring
                 {
                     // Enter : fin de renommage
                     isListeningToInputText = false;
-                    if (SchematicPath[SchematicPath.Count - 1].text.Length == 0)
-                        SchematicPath[SchematicPath.Count - 1].setText(editor.mainSchem.Name);
+                    if (LastSchemPathButton.text.Length == 0)
+                        LastSchemPathButton.SetText(editor.mainSchem.Name);
                     else
-                        editor.mainSchem.Name = SchematicPath[SchematicPath.Count - 1].text;
+                        editor.mainSchem.Name = LastSchemPathButton.text;
                     SchematicPath[SchematicPath.Count - 1].toggle = false;
                     return;
                 } else {
@@ -405,12 +408,12 @@ namespace Wiring
                         }
                         else
                             builder.Append(e.Character);
-                        SchematicPath[SchematicPath.Count - 1].setText(builder.ToString());
+                        LastSchemPathButton.SetText(builder.ToString());
                     } catch (ArgumentException) 
                     {
                         // caractère non valide : ctrl + qqch, echap...
                         builder.Remove(builder.Length - 1, 1);
-                        SchematicPath[SchematicPath.Count - 1].setText(builder.ToString());
+                        LastSchemPathButton.SetText(builder.ToString());
                     }
                 }
             }
@@ -425,9 +428,9 @@ namespace Wiring
             // Supprime le dernier element de editor.schemPile et SchematicPath
             string lastBlackBoxName = editor.schemPile[id + 1].Name;
             editor.schemPile.RemoveRange(id + 1, editor.schemPile.Count - id - 1);
-            SchematicPath.RemoveRange(id + 1, SchematicPath.Count - id - 1);
+            SchematicPath.list.RemoveRange(id + 1, SchematicPath.Count - id - 1);
             // Set tooltips
-            SchematicPath[SchematicPath.Count - 1].ToolTip = "Renommer";
+            LastSchemPathButton.toolTip.Text = "Renommer";
             // Reload plugs, selection and wires
             foreach (Component c in editor.mainSchem.components)
                 if (c is BlackBox bb && bb.schem.Name == lastBlackBoxName)
@@ -458,7 +461,7 @@ namespace Wiring
                     Schematic old = editor.mainSchem;
                     editor.mainSchem = new Schematic("Schematic");
                     editor.mainSchem.AddComponent(new BlackBox(old, new Vector2(50, 50)));
-                    SchematicPath[0].setText(editor.mainSchem.Name);
+                    LastSchemPathButton.SetText(editor.mainSchem.Name);
                 }
             }
         }
@@ -532,7 +535,7 @@ namespace Wiring
                         editor.mainSchem.Name = newSchem.Name;
                         editor.mainSchem.components = newSchem.components;
                         editor.mainSchem.Initialize(true);
-                        SchematicPath[SchematicPath.Count - 1].setText(editor.mainSchem.Name);
+                        LastSchemPathButton.SetText(editor.mainSchem.Name);
                     }
                     savePath = fs.Name;
                 }
@@ -572,6 +575,41 @@ namespace Wiring
 
                 fs.Close();
             }
+        }
+
+        public UIList<UIList<Button>> getFirstBar(Microsoft.Xna.Framework.Content.ContentManager Content)
+        {
+            UIList<UIList<Button>> bar = new UIList<UIList<Button>>(new Point(4, 2), Separator.Line);
+            bar.Add(new UIList<Button>());
+            bar[0].Add(new TextureButton(null, Content.Load<Texture2D>("Button/arrow"), "Sélectionner/Modifier (S)"));
+            bar.Add(new UIList<Button>());
+            bar[1].Add(new TextureButton(null, Content.Load<Texture2D>("Button/addWireButton"), "Ajouter une Connexion (C)"));
+            bar[1].Add(new TextureButton(null, Content.Load<Texture2D>("Button/addInputButton"), "Ajouter une Entrée"));
+            bar[1].Add(new TextureButton(null, Content.Load<Texture2D>("Button/addOutputButton"), "Ajouter une Sortie"));
+            bar[1].Add(new TextureButton(null, Content.Load<Texture2D>("Button/addNotButton"), "Ajouter un Inverseur"));
+            bar[1].Add(new TextureButton(null, Content.Load<Texture2D>("Button/addDiodeButton"), "Ajouter une Diode"));
+            bar[1].Add(new TextureButton(null, Content.Load<Texture2D>("Button/addBlackBoxButton"), "Ajouter une Boîte Noire"));
+            bar.Add(new UIList<Button>());
+            bar[2].Add(new TextureButton(null, Content.Load<Texture2D>("Button/hand"), "Panoramique (H)"));
+            bar[2].Add(new TextureButton(null, Content.Load<Texture2D>("Button/zoom"), "Zoom (Z)"));
+
+            bar.SetSize();
+            return bar;
+        }
+        public UIList<UIList<Button>> getSecondBar(Microsoft.Xna.Framework.Content.ContentManager Content)
+        {
+            UIList<UIList<Button>> bar = new UIList<UIList<Button>>(new Point(4, buttonsBar.Height + 2), Separator.Line);
+            bar.Add(new UIList<Button>());
+            bar[0].Add(new TextureButton(null, Content.Load<Texture2D>("Button/open"), "Ouvrir (Ctrl + O)"));
+            bar[0].Add(new TextureButton(null, Content.Load<Texture2D>("Button/save"), "Enregistrer (Ctrl + S)"));
+            bar[0].Add(new TextureButton(null, Content.Load<Texture2D>("Button/saveAs"), "Enregistrer Sous (Ctrl + Maj + S)"));
+            bar.Add(new UIList<Button>());
+            bar[1].Add(new TextureButton(null, Content.Load<Texture2D>("Button/arrowUp"), "Retour (Echap)"));
+            bar.Add(new UIList<Button>(null, Separator.Arrow));
+            bar[2].Add(new StringButton(null, editor.mainSchem.Name, "Renommer"));
+
+            bar.SetSize();
+            return bar;
         }
     }
 }

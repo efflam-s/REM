@@ -5,28 +5,36 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Wiring
+namespace Wiring.UI
 {
+    /// <summary>
+    /// Comme un bouton, mais avec un texte dessus
+    /// </summary>
     public class StringButton : Button
     {
         public static Texture2D editCursor;
         public static Color textColor;
-        public String text { get; private set; }
-        public StringButton(Vector2 position, String text, String ToolTip = "") : base(Rectangle.Empty, ToolTip)
+        public static SpriteFont font;
+
+        public string text { get; private set; }
+        public StringButton(Point? position, string text, string ToolTip = "") : base(position, ToolTip)
         {
-            Bounds.Location = position.ToPoint();
             this.text = text;
-            Bounds.Size = font.MeasureString(text).ToPoint() + new Point(12, 8);
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);
             spriteBatch.DrawString(font, text, Bounds.Location.ToVector2() + new Vector2(6, 4), textColor);
         }
-        public void setText(string newText)
+        public void SetText(string newText)
         {
             text = newText;
+            SetSize();
+        }
+        public override void SetSize()
+        {
             Bounds.Size = font.MeasureString(text).ToPoint() + new Point(16, 8);
+            base.SetSize();
         }
         public void DrawEditCursor(SpriteBatch spriteBatch, GameTime gameTime)
         {
