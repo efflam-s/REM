@@ -372,7 +372,7 @@ namespace Wiring
                 if (MiscButtons[0].Contains(Inpm.MsState.Position))
                     // Toggle si on clique dessus
                     MiscButtons[0].toggle = !MiscButtons[0].toggle;
-                else
+                else if (!Settings.Menu.Contains(Inpm.MsState.Position))
                     // Détoggle sinon
                     MiscButtons[0].toggle = false;
             // Position de bouton paramètres (à droite de la fenêtre)

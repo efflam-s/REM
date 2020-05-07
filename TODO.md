@@ -6,7 +6,6 @@
 * InputManager
 * SchemReader
 * SchemWriter
-* Settings
 
 #### Documentation :
 * Les outils : S, H/Z
@@ -16,10 +15,10 @@
 #### A faire maintenant :
 * Système de delay : vérifier les bugs / rendre plus propre ?
 * Diode : savegarder leur état
-* Settings : afficher les aides en tooltip
 
 #### A faire plus tard :
 * Bug : affichage du fil allumé pdt la création pour une blackbox sans plugs
+* Bug : annuler un enregistrement sauvegarde quand même un chemin
 * Pouvoir connecter un même fil plusieurs fois sur un composant
 * Gros refactoring : séparer les fils d'input et d'output dans les composants ?
 * Revoir de système de tools : boutons pour chaque, boolean toogle, tool Wire à partir d'un plug

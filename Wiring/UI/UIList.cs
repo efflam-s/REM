@@ -14,39 +14,68 @@ namespace Wiring.UI
         public int Count => list.Count;
         public void Add(T obj) => list.Add(obj);
         public T this[int i] => list[i];
+        bool vertical;
         Separator separator;
-        public UIList(Point? position = null, Separator separator = Separator.None) : base(position)
+        public UIList(Point? position = null) : base(position)
         {
             list = new List<T>();
+            vertical = false;
+            separator = Separator.None;
+        }
+        public UIList(Point? position, Separator separator) : base(position)
+        {
+            list = new List<T>();
+            vertical = false;
             this.separator = separator;
+        }
+        public UIList(Point? position, bool vertical) : base(position)
+        {
+            list = new List<T>();
+            this.vertical = vertical;
+            separator = Separator.None;
         }
 
         public override void SetSize()
         {
-            int separatorWidth = 4, separatorHeight = 0;
-            if (separator == Separator.Line) { separatorWidth = 7; separatorHeight = 32; }
-            if (separator == Separator.Arrow) { separatorWidth = 8; separatorHeight = 24; }
-            Bounds.Height = separatorHeight;
-            Bounds.Width = 0;
-            for (int i = 0; i < list.Count; i++)
+            if (vertical)
             {
-                T o = list[i];
-                o.SetSize();
-                if (Bounds.Height < o.Bounds.Height)
-                    Bounds.Height = o.Bounds.Height;
+                Bounds.Height = 0;
+                Bounds.Width = 0;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    T o = list[i];
+                    o.SetSize();
+                    if (Bounds.Width < o.Bounds.Width)
+                        Bounds.Width = o.Bounds.Width;
+                }
+                for (int i = 0; i < list.Count; i++)
+                {
+                    T o = list[i];
+                    o.SetPosition(new Point(Bounds.X, Bounds.Y + Bounds.Height));
+                    Bounds.Height += o.Bounds.Height;
+                }
             }
-            for (int i = 0; i < list.Count; i++)
+            else
             {
-                T o = list[i];
-                if (i != 0) Bounds.Width += separatorWidth;
-                o.SetPosition(new Point(Bounds.X + Bounds.Width, Bounds.Y + (Bounds.Height - o.Bounds.Height) / 2));
-
-                // recursion sur les sous-listes
-                /*if (o.GetType().IsGenericType && o.GetType().GetGenericTypeDefinition() == typeof(UIList<>)) {
-                    ((UIList<UIObject>)o).ResetChildsPosition();
-                }*/
-
-                Bounds.Width += o.Bounds.Width;
+                int separatorWidth = 4, separatorHeight = 0;
+                if (separator == Separator.Line) { separatorWidth = 7; separatorHeight = 32; }
+                if (separator == Separator.Arrow) { separatorWidth = 8; separatorHeight = 24; }
+                Bounds.Height = separatorHeight;
+                Bounds.Width = 0;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    T o = list[i];
+                    o.SetSize();
+                    if (Bounds.Height < o.Bounds.Height)
+                        Bounds.Height = o.Bounds.Height;
+                }
+                for (int i = 0; i < list.Count; i++)
+                {
+                    T o = list[i];
+                    if (i != 0) Bounds.Width += separatorWidth;
+                    o.SetPosition(new Point(Bounds.X + Bounds.Width, Bounds.Y + (Bounds.Height - o.Bounds.Height) / 2));
+                    Bounds.Width += o.Bounds.Width;
+                }
             }
         }
 

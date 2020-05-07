@@ -30,6 +30,12 @@ namespace Wiring.UI
             tipTextColor = Button.getFirstColor(tipBorder);
             font = Content.Load<SpriteFont>("Arial");
         }
+        public void AlignRight()
+        {
+            Vector2 tipSize = font.MeasureString(Text);
+            Position.X -= (int)tipSize.X - 13;
+        }
+
         public static void DrawToolTip(SpriteBatch spriteBatch, string text, Point position)
         {
             if (text != "")

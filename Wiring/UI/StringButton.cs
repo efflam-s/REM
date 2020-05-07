@@ -17,7 +17,7 @@ namespace Wiring.UI
         public static SpriteFont font;
 
         public string text { get; private set; }
-        public StringButton(Point? position, string text, string ToolTip = "") : base(position, ToolTip)
+        public StringButton(Point? position, string text, string ToolTip = "", bool drawHover = true) : base(position, ToolTip, drawHover)
         {
             this.text = text;
         }

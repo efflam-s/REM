@@ -12,10 +12,10 @@ namespace Wiring.UI
     public class TextureButton : Button
     {
         private Texture2D texture;
-        public TextureButton(Point? position, string ToolTip = "") : base (position, ToolTip)
+        public TextureButton(Point? position, string ToolTip = "", bool drawHover = true) : base (position, ToolTip, drawHover)
         {
         }
-        public TextureButton(Point? position, Texture2D texture, string ToolTip = "") : base(position, ToolTip)
+        public TextureButton(Point? position, Texture2D texture, string ToolTip = "", bool drawHover = true) : base(position, ToolTip, drawHover)
         {
             SetTexture(texture);
         }
