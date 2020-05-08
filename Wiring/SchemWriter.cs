@@ -7,6 +7,9 @@ using Wiring.Wiring;
 
 namespace Wiring
 {
+    /// <summary>
+    /// Permet de d'écrire le code d'un schematic dans un fichier .schem à partir de l'objet
+    /// </summary>
     static class SchemWriter
     {
         /// <summary>
@@ -44,6 +47,11 @@ namespace Wiring
             fs.Write(Encoding.UTF8.GetBytes(code), 0, Encoding.UTF8.GetByteCount(code));
         }
 
+        /// <summary>
+        /// Ecrit le code d'un Schematic dans un string
+        /// </summary>
+        /// <param name="indent">Si on doit retourner à la ligne et indenter le texte</param>
+        /// <param name="tabulation">Niveau d'indentation actuel</param>
         private static string schemToString(Schematic schem, bool indent, bool dontWriteBlackbox, int tabulation = 0)
         {
             StringBuilder code = new StringBuilder();
@@ -76,6 +84,12 @@ namespace Wiring
 
             return code.ToString();
         }
+        /// <summary>
+        /// Ecrit le code d'un Composant dans un string
+        /// </summary>
+        /// <param name="wireList">Liste des wires du Schematic. Permet de les transformer en leur id</param>
+        /// <param name="indent">Si on doit retourner à la ligne et indenter le texte</param>
+        /// <param name="tabulation">Niveau d'indentation actuel</param>
         private static string compToString(Component comp, List<Wire> wireList, bool indent, bool dontWriteBlackbox, int tabulation = 0)
         {
             StringBuilder code = new StringBuilder();
@@ -128,6 +142,11 @@ namespace Wiring
                 else
                     code.Append("delay:");
                 code.Append((int)d.delay);
+                if (indent)
+                    code.Append(",\r\n" + tab(tabulation) + "value : ");
+                else
+                    code.Append(",value:");
+                code.Append(d.GetOutput(d.wires[1]) ? "true" : "false");
             }
             else if (comp is BlackBox bb)
             {

@@ -15,8 +15,11 @@
 #### A faire maintenant :
 * Système de delay : vérifier les bugs / rendre plus propre ?
 * Diode : savegarder leur état
+* Changer le nom du projet
+* Mettre sur github et supprimer le repo gitlab
 
 #### A faire plus tard :
+* Modes de mise à jour : tout mettre à jour, normal, aléatoire
 * Bug : affichage du fil allumé pdt la création pour une blackbox sans plugs
 * Bug : annuler un enregistrement sauvegarde quand même un chemin
 * Pouvoir connecter un même fil plusieurs fois sur un composant

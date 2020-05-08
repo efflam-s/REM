@@ -126,6 +126,10 @@ namespace Wiring.Wiring
             delay = (Delay)(((int)delay + 1) % DelayTypeNumber);
             MustUpdate = true;
         }
+        public void changeValue(bool value)
+        {
+            state = value ? State.Up : State.Down;
+        }
         public override Component Copy()
         {
             Diode newDiode = new Diode(new Wire(), new Wire(), position);

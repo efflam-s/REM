@@ -7,6 +7,9 @@ using Wiring.Wiring;
 
 namespace Wiring
 {
+    /// <summary>
+    /// Permet de lire les fichiers .schem et de les transformer en Schematics
+    /// </summary>
     static class SchemReader
     {
         public class SyntaxException : Exception
@@ -45,6 +48,9 @@ namespace Wiring
             public InvalidListSizeWarning(int expected, int given, string parent) : base("expected size " + expected + " but got " + given.ToString() + " in " + parent) { }
         }
 
+        /// <summary>
+        /// Lit un fichier .schem pour le transormer en schematic à partir d'un chemin
+        /// </summary>
         public static Schematic Read(string path, bool ignoreWarnings = false)
         {
             FileStream fs = new FileStream(path, FileMode.Open);
@@ -52,52 +58,59 @@ namespace Wiring
             fs.Close();
             return newSchem;
         }
+        /// <summary>
+        /// Lit un fichier .schem pour le transormer en schematic à partir d'un filestream
+        /// </summary>
         public static Schematic Read(FileStream fs, bool ignoreWarnings = false)
         {
+            // sauvegarde du chemin actuel pour le chemin relatif des blackbox
             string path = fs.Name;
             string[] pathStrings = path.Split('/', '\\');
             string folderPath = string.Join("\\", pathStrings, 0, pathStrings.Length - 1);
-            
+
+            // Stockage du contenu du fichier dans un string
             string s;
             using (StreamReader reader = new StreamReader(fs))
             {
                 s = reader.ReadToEnd();
             }
-            //string s = File.ReadAllText(string.Join("\\", pathStrings));
 
+            // Séparation en "mots" (caractères, nombres...) et ignorance des commentaires
             string[] words = WordParser(s);
 
+            // Organisation des mots dans un arbre de dictionnaires et de listes
             int i = 0;
             Dictionary<string, object> tree = CreateTree(words, ref i);
 
-            // on laisse le choix de mettre "Schematic : { Name : ... }" ou directement "Name : ..."
+            // On laisse le choix de mettre "Schematic : { Name : ... }" ou directement "Name : ..."
             if (tree.ContainsKey("Schematic") && tree["Schematic"] is Dictionary<string, object> schematic)
-            {
-                if (!ignoreWarnings)
-                    checkSchem(schematic);
-                return TreeToSchem(schematic, folderPath, ignoreWarnings);
-            }
-            else
-            {
-                if (!ignoreWarnings)
-                    checkSchem(tree);
-                return TreeToSchem(tree, folderPath, ignoreWarnings);
-            }
+                tree = schematic;
+
+            if (!ignoreWarnings)
+                // Vérification des mots-clés et des types de valeurs
+                checkSchem(tree);
+
+            // Création du schematic à partir de l'arbre
+            return TreeToSchem(tree, folderPath, ignoreWarnings);
         }
 
+        /// <summary>
+        /// Etats de l'automate à états finis de WordParser()
+        /// </summary>
         private enum WordParserState
         {
-            out_,
-            comment,
-            aphanum,
-            num,
-            str
-            // autres : {}[]:, (un seul caractère)
+            out_, // l'automate n'est pas dans un mot
+            comment, // commentaire commençant par #
+            aphanum, // mot-clé alphanumérique (commence par une lettre ou _)
+            num, // nombre entier
+            str // chaîne de caratères entre "
         }
+        private static bool IsSeparator(char c) => c == '\t' || c == ' ' || c == '\r' || c == '\n';
+        private static bool IsPonctuation(char c) => c == '{' || c == '}' || c == '[' || c == ']' || c == ':' || c == ',';
         /// <summary>
         /// Permet de séparer la chaîne d'entrée en différents mots : nombres, mot-clés, chaînes, opérateurs...
         /// </summary>
-        private static string[] WordParser(string s, bool print=false)
+        private static string[] WordParser(string s)
         {
             List<string> words = new List<string>();
             StringBuilder currentWord = new StringBuilder();
@@ -111,12 +124,12 @@ namespace Wiring
                         {
                             state = WordParserState.comment;
                         }
-                        else if (('a' <= s[i] && s[i] <= 'z') || ('A' <= s[i] && s[i] <= 'Z') || s[i] == '_')
+                        else if (char.IsLetter(s[i]) || s[i] == '_')
                         {
                             state = WordParserState.aphanum;
                             currentWord = new StringBuilder(new string(s[i], 1));
                         }
-                        else if (('0' <= s[i] && s[i] <= '9') || s[i] == '-' || s[i] == '+')
+                        else if (char.IsDigit(s[i]) || s[i] == '-' || s[i] == '+')
                         {
                             state = WordParserState.num;
                             currentWord = new StringBuilder(new string(s[i], 1));
@@ -126,11 +139,11 @@ namespace Wiring
                             state = WordParserState.str;
                             currentWord = new StringBuilder(new string(s[i], 1));
                         }
-                        else if (s[i] == '{' || s[i] == '}' || s[i] == '[' || s[i] == ']' || s[i] == ':' || s[i] == ',')
+                        else if (IsPonctuation(s[i]))
                         {
                             words.Add(new string(s[i], 1));
                         }
-                        else if (s[i] == '\t' || s[i] == ' ' || s[i] == '\r' || s[i] == '\n')
+                        else if (IsSeparator(s[i]))
                         {
                         }
                         else
@@ -145,7 +158,7 @@ namespace Wiring
                         }
                         break;
                     case WordParserState.aphanum:
-                        if (('a' <= s[i] && s[i] <= 'z') || ('A' <= s[i] && s[i] <= 'Z') || s[i] == '_' || '0' <= s[i] && s[i] <= '9')
+                        if (char.IsLetterOrDigit(s[i]) || s[i] == '_')
                         {
                             currentWord.Append(s[i]);
                         }
@@ -158,13 +171,13 @@ namespace Wiring
                         {
                             throw new SyntaxException(i, s[i], state);
                         }
-                        else if (s[i] == '{' || s[i] == '}' || s[i] == '[' || s[i] == ']' || s[i] == ':' || s[i] == ',')
+                        else if (IsPonctuation(s[i]))
                         {
                             state = WordParserState.out_;
                             words.Add(currentWord.ToString());
                             words.Add(new string(s[i], 1));
                         }
-                        else if (s[i] == '\t' || s[i] == ' ' || s[i] == '\n' || s[i] == '\r')
+                        else if (IsSeparator(s[i]))
                         {
                             state = WordParserState.out_;
                             words.Add(currentWord.ToString());
@@ -180,16 +193,16 @@ namespace Wiring
                             state = WordParserState.comment;
                             words.Add(currentWord.ToString());
                         }
-                        else if (('0' <= s[i] && s[i] <= '9'))
+                        else if (char.IsDigit(s[i]))
                         {
                             currentWord.Append(s[i]);
                         }
-                        else if (s[i] == '\t' || s[i] == ' ' || s[i] == '\n' || s[i] == '\r')
+                        else if (IsSeparator(s[i]))
                         {
                             state = WordParserState.out_;
                             words.Add(currentWord.ToString());
                         }
-                        else if (s[i] == '{' || s[i] == '}' || s[i] == '[' || s[i] == ']' || s[i] == ':' || s[i] == ',')
+                        else if (IsPonctuation(s[i]))
                         {
                             state = WordParserState.out_;
                             words.Add(currentWord.ToString());
@@ -214,26 +227,23 @@ namespace Wiring
                         break;
                 }
             }
-            if (print)
-            {
-                foreach (string w in words)
-                    Console.Write("(" + w + "), ");
-                Console.WriteLine("");
-            }
             return words.ToArray();
         }
 
+        /// <summary>
+        /// Etats de l'automate à états finis de CreateTree()
+        /// </summary>
         private enum CreateTreeState
         {
-            name,
+            name, // clé
             colon,
-            value,
+            value, // valeur
             comma
         }
         /// <summary>
         /// Permet d'organiser une liste de mots sous forme d'un arbre de dictionnaires et de listes
         /// </summary>
-        private static Dictionary<string, object> CreateTree(string[] w, ref int start, bool print = false)
+        private static Dictionary<string, object> CreateTree(string[] w, ref int start)
         {
             Dictionary<string, object> Tree = new Dictionary<string, object>();
             CreateTreeState state = CreateTreeState.name;
@@ -244,30 +254,25 @@ namespace Wiring
                 switch (state)
                 {
                     case CreateTreeState.name:
-                        if (('a' <= w[i][0] && w[i][0] <= 'z') || ('A' <= w[i][0] && w[i][0] <= 'Z') || w[i][0] == '_')
+                        if (char.IsLetter(w[i][0]) || w[i][0] == '_')
                         {
                             state = CreateTreeState.colon;
                             currentName = w[i];
                         }
                         else
-                        {
                             throw new StructureException(i, w[i], state);
-                        }
                         break;
                     case CreateTreeState.colon:
                         if (w[i] == ":")
-                        {
                             state = CreateTreeState.value;
-                        } else
-                        {
+                        else
                             throw new StructureException(i, w[i], state);
-                        }
                         break;
                     case CreateTreeState.value:
                         state = CreateTreeState.comma;
                         if (w[i][0] == '"')
                             Tree.Add(currentName, w[i].Substring(1));
-                        else if (('0' <= w[i][0] && w[i][0] <= '9') || w[i][0] == '+' || w[i][0] == '-')
+                        else if (char.IsDigit(w[i][0]) || w[i][0] == '+' || w[i][0] == '-')
                             Tree.Add(currentName, int.Parse(w[i]));
                         else if (w[i] == "true")
                             Tree.Add(currentName, true);
@@ -284,33 +289,19 @@ namespace Wiring
                             Tree.Add(currentName, CreateList(w, ref i));
                         }
                         else
-                        {
                             throw new StructureException(i, w[i], state);
-                        }
                         break;
                     case CreateTreeState.comma:
                         if (w[i][0] == ',')
-                        {
                             state = CreateTreeState.name;
-                        }
                         else
-                        {
                             throw new StructureException(i, w[i], state);
-                        }
                         break;
                 }
             }
             if (state != CreateTreeState.comma)
             {
                 throw new StructureException(w.Length-1, w[w.Length-1], state);
-            }
-            if (print)
-            {
-                foreach (string str in Tree.Keys)
-                {
-                    Console.Write("(" + str + " | " + Tree[str] + "), ");
-                }
-                Console.WriteLine("");
             }
             start=i;
             return Tree;
@@ -324,7 +315,7 @@ namespace Wiring
                 
                 if (w[i][0] == '"')
                     list.Add(w[i].Substring(1));
-                else if (('0' <= w[i][0] && w[i][0] <= '9') || w[i][0] == '+' || w[i][0] == '-')
+                else if (char.IsDigit(w[i][0]) || w[i][0] == '+' || w[i][0] == '-')
                     list.Add(int.Parse(w[i]));
                 else if (w[i] == "true")
                     list.Add(true);
@@ -541,9 +532,13 @@ namespace Wiring
                         if (wiresId.Count < 2) throw new InvalidValueException("Wires", wiresId, "Component");
                         Diode dio = new Diode(SchemWires[wiresId[0]], SchemWires[wiresId[1]], new Vector2(X, Y));
                         if (tree.ContainsKey("Data") && tree["Data"] is Dictionary<string, object> data1)
+                        {
                             if (data1.ContainsKey("delay") && data1["delay"] is int delay)
-                                for (int i=0; i<delay; i++)
+                                for (int i = 0; i < delay; i++)
                                     dio.changeDelay();
+                            if (data1.ContainsKey("value") && data1["value"] is bool value)
+                                dio.changeValue(value);
+                        }
                         comp = dio;
                         break;
                     case "BlackBox":
@@ -554,7 +549,7 @@ namespace Wiring
                                 newSchem = TreeToSchem(schematic, folderPath, ignoreWarnings);
                             else if (data2.ContainsKey("path") && data2["path"] is string path)
                                 newSchem = Read(folderPath + '\\' + path, ignoreWarnings);
-
+                        
                         comp = new BlackBox(newSchem, new Vector2(X, Y));
                         // la création d'une blackbox fabrique automatiquement des fils, que l'on veut remplacer
                         int askedWires = comp.wires.Count;
