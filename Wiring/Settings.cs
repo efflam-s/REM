@@ -10,7 +10,7 @@ namespace Wiring
     /// <summary>
     /// Permet de gérer les paramètres (le menu "paramètres" et bientôt le fichier)
     /// </summary>
-    public static class Settings
+    internal static class Settings
     {
         static InputManager Inpm = new InputManager();
         static Texture2D CheckBox, CheckOn;

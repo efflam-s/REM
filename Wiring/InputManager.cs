@@ -10,10 +10,12 @@ namespace Wiring
     /// </summary>
     public class InputManager
     {
-        public MouseState MsState, prevMsState;
-        public KeyboardState KbState, prevKbState;
-        public Vector2 mousePositionOnClic;
-        public TimeSpan timeOnClic; // actuellement non utilisé
+        public MouseState MsState;
+        public MouseState prevMsState { get; private set; }
+        public KeyboardState KbState;
+        public KeyboardState prevKbState { get; private set; }
+        public Vector2 mousePositionOnClic { get; private set; }
+        public TimeSpan timeOnClic { get; private set; } // actuellement non utilisé
 
         public Vector2 MsPosition() => MsState.Position.ToVector2();
         public Vector2 MsPosition(MouseState mouseState) => mouseState.Position.ToVector2();
@@ -27,7 +29,10 @@ namespace Wiring
 
         public InputManager()
         {
-
+            MsState = new MouseState();
+            KbState = new KeyboardState();
+            mousePositionOnClic = new Vector2();
+            timeOnClic = new TimeSpan();
         }
         /// <summary>
         /// A excécuter au début d'un Update(), avant d'utiliser ses variables
@@ -79,9 +84,12 @@ namespace Wiring
                     rightClic = ClicState.Up;
         }
 
+        /// <summary>
+        /// Stockage des infos importantes du clic (position + temps)
+        /// </summary>
+        /// <param name="gameTime"></param>
         public void SaveClic(GameTime gameTime)
         {
-            // stockage des infos importantes du clic (position + temps)
             mousePositionOnClic = MsPosition();
             timeOnClic = gameTime.TotalGameTime;
         }

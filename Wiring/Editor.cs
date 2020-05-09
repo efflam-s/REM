@@ -13,7 +13,7 @@ namespace Wiring
     /// <summary>
     /// La partie éditeur de l'application. Permet d'ouvrir, de créer, de modifier et d'enregistrer des schematics
     /// </summary>
-    public class Editor
+    internal class Editor
     {
         private static Texture2D select; // texture du rectangle de selection
         private static MouseCursor scissor, hand, grab, magnifier; // textures des curseurs
@@ -139,10 +139,6 @@ namespace Wiring
                             // rectangle selection
                             tool = Tool.Select;
                         }
-                        else
-                        {
-
-                        }
                     }
                     else
                     {
@@ -193,7 +189,7 @@ namespace Wiring
                                 schemPile.Add(bb.schem);
                                 clearSelection();
                             }
-                            else// if (!selected.Contains(hoveredComponent))
+                            else
                             {
                                 // selection d'un composant
                                 if (!Inpm.Control && !Inpm.Alt)
@@ -208,22 +204,17 @@ namespace Wiring
                         else if (hoveredWire != null)
                         {
                             // Suppression d'un fil (ou d'une partie de fil) (à mettre dans une fonction ?)
-                            if (hoveredWire.components.Count() <= 2 || (Inpm.MsPosition() - hoveredWire.Node()).Length() < 5)
-                                mainSchem.DeleteWire(hoveredWire);
-                            else
+                            Vector2 node = hoveredWire.Node();
+                            foreach (Component c in hoveredWire.components)
                             {
-                                Vector2 node = hoveredWire.Node();
-                                foreach (Component c in hoveredWire.components)
+                                if (Wire.touchLine(Inpm.MsPosition(), node, c.plugPosition(hoveredWire)))
                                 {
-                                    if (Wire.touchLine(Inpm.MsPosition(), node, c.plugPosition(hoveredWire)))
-                                    {
-                                        c.wires[c.wires.IndexOf(hoveredWire)] = new Wire();
-                                        c.Update();
-                                    }
+                                    c.wires[c.wires.IndexOf(hoveredWire)] = new Wire();
+                                    c.Update();
                                 }
-                                mainSchem.ReloadWiresFromComponents();
-                                hoveredWire.Update();
                             }
+                            mainSchem.ReloadWiresFromComponents();
+                            hoveredWire.Update();
                         }
                     }
                 }
@@ -232,7 +223,7 @@ namespace Wiring
                     // Pendant le clic
                     if (hover(Inpm.mousePositionOnClic) != null && hasMoved(Inpm.MsPosition(), Camera) && (MovingComp != null || selected.Contains(hoveredComponent)))
                     {
-                        // déplacement d'un composant ou de la sélection
+                        // Déplacement d'un composant ou de la sélection
                         tool = Tool.Move;
                     }
                 }
@@ -241,7 +232,7 @@ namespace Wiring
                     // pas de clic
                     if (!Inpm.Alt && !Inpm.Control && Inpm.OnPressed(Keys.Delete) && selected.Count() > 0)
                     {
-                        // suppression de la selection
+                        // Suppression de la selection
                         foreach (Component c in selected)
                         {
                             mainSchem.DeleteComponent(c);
@@ -254,7 +245,7 @@ namespace Wiring
                     }
                     if (Inpm.Control && !Inpm.Alt && Inpm.OnPressed(Keys.A))
                     {
-                        // selectionner tout
+                        // Sélectionner tout
                         clearSelection();
                         foreach (Component c in mainSchem.components)
                         {
@@ -270,15 +261,15 @@ namespace Wiring
             }
             else if (tool == Tool.Move)
             {
-                // déplacement de composant(s)
+                // Déplacement de composant(s)
                 if (MovingComp != null)
                 {
-                    // composant seul, non sélectionné
+                    // Composant seul, non sélectionné
                     MovingComp.position = Inpm.MsPosition() + relativePositionToMouse[0];
                 }
                 else
                 {
-                    // sélection
+                    // Sélection
                     for (int i = 0; i < selected.Count; i++)
                     {
                         selected[i].position = Inpm.MsPosition() + relativePositionToMouse[i];
@@ -286,7 +277,7 @@ namespace Wiring
                 }
                 if ((Inpm.leftClic == InputManager.ClicState.Clic && !isMouseInScreen) || (Inpm.leftClic == InputManager.ClicState.Up && Inpm.rightClic == InputManager.ClicState.Clic))
                 {
-                    // Annulation de création de composant
+                    // Annulation de création de composant => un peu sale ?
                     mainSchem.DeleteComponent(MovingComp);
                     MovingComp = null;
                     tool = Tool.Edit;
@@ -310,7 +301,7 @@ namespace Wiring
                 }
                 if (Inpm.leftClic == InputManager.ClicState.Declic)
                 {
-                    // fin de déplacement
+                    // Fin de déplacement
                     MovingComp = null;
                     tool = Tool.Edit;
                 }
@@ -319,7 +310,7 @@ namespace Wiring
             {
                 if (Inpm.leftClic == InputManager.ClicState.Declic)
                 {
-                    // rectangle de selection
+                    // Rectangle de selection
                     foreach (Component c in mainSchem.components)
                     {
                         bool rectInComp = rectInComponent(Inpm.MsPosition(), Inpm.mousePositionOnClic, c.position);
@@ -332,8 +323,6 @@ namespace Wiring
                             selected.Remove(c);
                         }
                     }
-                    // fin de selection
-                    //if (Inpm.leftClic == InputManager.ClicState.Declic)
                     tool = Tool.Edit;
                 }
             }
@@ -341,7 +330,6 @@ namespace Wiring
             {
                 if (Inpm.leftClic == InputManager.ClicState.Clic)
                 {
-                    // stockage des infos importantes du clic (position + temps)
                     Inpm.SaveClic(gameTime);
                 }
                 else if (Inpm.leftClic == InputManager.ClicState.Declic)
@@ -350,7 +338,7 @@ namespace Wiring
                     {
                         if (hoveredComponent is Input i && !Inpm.Control && !Inpm.Alt)
                         {
-                            // switch d'un input
+                            // Switch d'un input
                             i.changeValue();
                         }
                         else if (hoveredComponent is Diode d && !Inpm.Control && !Inpm.Alt)
@@ -359,7 +347,7 @@ namespace Wiring
                         }
                         else if (hoveredComponent is BlackBox bb && !Inpm.Control && !Inpm.Alt)
                         {
-                            // ouvrir une schematic de blackbox
+                            // Ouvrir un schematic de blackbox
                             schemPile.Add(bb.schem);
                             clearSelection();
                         }
@@ -376,12 +364,13 @@ namespace Wiring
 
                         if (start != end && start != null && end != null)
                         {
-                            bool OK = true;
+                            // Vérifie qu'il n'y a aucun composant en commun reliés au fil
+                            bool noCommonComponent = true;
                             foreach (Component c1 in end.components)
                                 foreach (Component c2 in start.components)
                                     if (c1 == c2)
-                                        OK = false;
-                            if (OK)
+                                        noCommonComponent = false;
+                            if (noCommonComponent)
                             {
                                 foreach (Component c in end.components)
                                 {
@@ -403,6 +392,7 @@ namespace Wiring
             }
             else if (tool == Tool.Pan)
             {
+                // Déplacement panoramique
                 if (Inpm.leftClic == InputManager.ClicState.Clic)
                 {
                     Inpm.SaveClic(gameTime);
@@ -414,43 +404,30 @@ namespace Wiring
             }
             else if (tool == Tool.Zoom && isMouseInScreen)
             {
-                if (Inpm.leftClic == InputManager.ClicState.Clic)
+                if (Inpm.leftClic == InputManager.ClicState.Clic || Inpm.rightClic == InputManager.ClicState.Clic)
                 {
-                    // Zoom avec clic
-                    float scale = (float)Math.Pow(2, 120.0 / 720);
-                    Vector3 CameraPosition = Camera.Translation;
-                    float Zoom = Camera.M11;
-                    // around scale to fit between 1 and 8
+                    float scale = 1;
+                    // Zoom avec clic gauche
+                    if (Inpm.leftClic == InputManager.ClicState.Clic) scale = (float)Math.Pow(2, 120.0 / 720);
+                    // Dézoom avec clic droit
+                    if (Inpm.rightClic == InputManager.ClicState.Clic) scale = (float)Math.Pow(2, -120.0 / 720);
+
+                    float Zoom = Camera.M11; // pas trouvé de meilleur moyen pour trouver la valeur du zoom que M11
+                    // Clamp scale to fit between 1 and 8
                     if (Zoom * scale < 1)
                         scale = 1 / Zoom;
                     if (Zoom * scale > 8)
                         scale = 8 / Zoom;
-                    Vector2 originalMousePosition = Vector2.Transform(Inpm.MsPosition(), Camera);
-                    Camera = Matrix.CreateTranslation(new Vector3(-Inpm.MsState.X, -Inpm.MsState.Y, 0)) * Matrix.CreateScale(scale * Zoom) * Matrix.CreateTranslation(CameraPosition + new Vector3(Inpm.MsState.X, Inpm.MsState.Y, 0) * Zoom);
-                }
-                if (Inpm.rightClic == InputManager.ClicState.Clic)
-                {
-                    // Dezoom avec clic draoit
-                    float scale = (float)Math.Pow(2, -120.0 / 720);
+
                     Vector3 CameraPosition = Camera.Translation;
-                    float Zoom = Camera.M11;
-                    // around scale to fit between 1 and 8
-                    if (Zoom * scale < 1)
-                        scale = 1 / Zoom;
-                    if (Zoom * scale > 8)
-                        scale = 8 / Zoom;
-                    Vector2 originalMousePosition = Vector2.Transform(Inpm.MsPosition(), Camera);
                     Camera = Matrix.CreateTranslation(new Vector3(-Inpm.MsState.X, -Inpm.MsState.Y, 0)) * Matrix.CreateScale(scale * Zoom) * Matrix.CreateTranslation(CameraPosition + new Vector3(Inpm.MsState.X, Inpm.MsState.Y, 0) * Zoom);
                 }
             }
 
-            //prevKbState = KbState;
-            //prevMsState = MsState;
-
-            //if ((gameTime.TotalGameTime - gameTime.ElapsedGameTime).TotalMilliseconds % 2000 > gameTime.TotalGameTime.TotalMilliseconds % 2000)
+            //if ((gameTime.TotalGameTime - gameTime.ElapsedGameTime).TotalMilliseconds % 1000 > gameTime.TotalGameTime.TotalMilliseconds % 1000) // N'update qu'une fois toute les secondes
             mainSchem.Update(gameTime);
 
-            // debug
+            // Debug : écrit la valeur des outputs sélectionnées (+ les milisecondes du temps)
             /*foreach (Component c in selected)
             {
                 if (c is Output o)
@@ -497,7 +474,7 @@ namespace Wiring
             return null;
         }
         /// <summary>
-        /// Détemine si la souris a bougée de plus de 4 pixels depuis le dernier clic
+        /// Détemine si la souris a bougée de plus de 4 pixels depuis le dernier clic (norme infinie)
         /// </summary>
         private bool hasMoved(Vector2 MousePosition, Matrix Camera)
         {
@@ -505,11 +482,17 @@ namespace Wiring
             Vector2 v = Vector2.Transform(Inpm.mousePositionOnClic, Camera) - Vector2.Transform(MousePosition, Camera);
             return Math.Max(Math.Abs(v.X), Math.Abs(v.Y)) > 4;
         }
+        /// <summary>
+        /// Vérifie si un réctangle de sélection touche un composant de position donné
+        /// </summary>
         private bool rectInComponent(Vector2 Corner1, Vector2 Corner2, Vector2 CompPosition)
         {
             return Math.Min(Corner1.X, Corner2.X) < CompPosition.X + Component.size / 2 && Math.Max(Corner1.X, Corner2.X) > CompPosition.X - Component.size / 2
                 && Math.Min(Corner1.Y, Corner2.Y) < CompPosition.Y + Component.size / 2 && Math.Max(Corner1.Y, Corner2.Y) > CompPosition.Y - Component.size / 2;
         }
+        /// <summary>
+        /// Extiste peut-être : Math.Clamp ou qqch comme ça
+        /// </summary>
         private float minMax(float x, float min, float max)
         {
             if (min < x && x < max)
@@ -574,7 +557,7 @@ namespace Wiring
                                 Mouse.SetCursor(MouseCursor.Arrow);
                             break;
                         case Tool.Select:
-                            Mouse.SetCursor(MouseCursor.Crosshair); // peut-etre a modifier pour un curseur curstom
+                            Mouse.SetCursor(MouseCursor.Crosshair); // peut-etre à modifier pour un curseur curstom
                             break;
                         case Tool.Move:
                             Mouse.SetCursor(MouseCursor.SizeAll);
@@ -613,6 +596,9 @@ namespace Wiring
                 }
             }
         }
+        /// <summary>
+        /// Ajoute un composant et le sélectionne dans l'outil Move
+        /// </summary>
         public void AddComponent(Component c)
         {
             c.position = Inpm.MsPosition();
