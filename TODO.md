@@ -14,7 +14,8 @@
 
 #### A faire maintenant :
 * Système de delay : vérifier les bugs / rendre plus propre ?
-* Diode : savegarder leur état
+* Diode : séparer clairement les 3 modes (ou en fusionner 2)
+* Diode : gérer proprement le passage entre ces états
 * Changer le nom du projet
 * Mettre sur github et supprimer le repo gitlab
 

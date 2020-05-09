@@ -50,7 +50,43 @@ namespace Wiring.Wiring
         }
         public override void Update()
         {
-            if (delay == Delay.Second || delay == Delay.Tick)
+            if (state == State.Down && wires[0].value)
+            {
+                state = State.Rise;
+            }
+            if (state == State.Up && !wires[0].value)
+            {
+                state = State.Fall;
+            }
+
+            if (wires[1].value != GetOutput(wires[1]))
+                wires[1].Update();
+            base.Update();
+        }
+        /// <summary>
+        /// S'execute une et une seule fois à chaque update du jeu
+        /// </summary>
+        public void UpdateTime(GameTime gameTime)
+        {
+            if (state == State.Rise || state == State.Fall)
+                time += gameTime.ElapsedGameTime;
+            if (delay == Delay.Second && time >= TimeSpan.FromSeconds(1))
+                MustUpdate = true;
+
+            if (delay == Delay.Tick)
+            {
+                if (state == State.Rise)
+                {
+                    state = State.Up;
+                    MustUpdate = true;
+                }
+                else if (state == State.Fall)
+                {
+                    state = State.Down;
+                    MustUpdate = true;
+                }
+            }
+            else
             {
                 if (state == State.Down)
                 {
@@ -62,7 +98,7 @@ namespace Wiring.Wiring
                 }
                 else if (state == State.Rise)
                 {
-                    if (time >= TimeSpan.FromSeconds(1) || (delay == Delay.Tick && time > TimeSpan.Zero))
+                    if (time >= TimeSpan.FromSeconds(1))
                     {
                         time = TimeSpan.Zero;
                         state = State.Up;
@@ -82,27 +118,54 @@ namespace Wiring.Wiring
                     {
                         state = State.Up;
                     }
-                    if (time >= TimeSpan.FromSeconds(1) || (delay == Delay.Tick && time > TimeSpan.Zero))
+                    if (time >= TimeSpan.FromSeconds(1))
                     {
                         time = TimeSpan.Zero;
                         state = State.Down;
                     }
                 }
             }
-
-            if (wires[1].value != GetOutput(wires[1]))
-                wires[1].Update();
-            base.Update();
-        }
-        /// <summary>
-        /// S'execute une et une seule fois à chaque update du jeu
-        /// </summary>
-        public void UpdateTime(GameTime gameTime)
-        {
-            if (state == State.Rise || state == State.Fall)
-                time += gameTime.ElapsedGameTime;
-            if (((delay == Delay.Tick && time > TimeSpan.Zero) || (delay == Delay.Second && time >= TimeSpan.FromSeconds(1))) && time != TimeSpan.Zero)
-                MustUpdate = true;
+            /*if (state == State.Down)
+            {
+                if (wires[0].value)
+                {
+                    state = delay == Delay.Zero ? State.Up : State.Rise;
+                    time = TimeSpan.Zero;
+                }
+            }
+            else if (state == State.Rise)
+            {
+                if (time >= TimeSpan.FromSeconds(1) || delay == Delay.Tick || delay == Delay.Zero)
+                {
+                    time = TimeSpan.Zero;
+                    state = State.Up;
+                }
+                if (!wires[0].value && (delay == Delay.Tick || delay == Delay.Zero))
+                {
+                    time = TimeSpan.Zero;
+                    state = delay == Delay.Zero ? State.Fall : State.Down;
+                }
+            }
+            else if (state == State.Up)
+            {
+                if (!wires[0].value)
+                {
+                    state = delay == Delay.Zero ? State.Down : State.Fall;
+                    time = TimeSpan.Zero;
+                }
+            }
+            else if (state == State.Fall)
+            {
+                if (wires[0].value)
+                {
+                    state = delay == Delay.Tick ? State.Rise : State.Up;
+                }
+                if (time >= TimeSpan.FromSeconds(1) || delay == Delay.Tick || delay == Delay.Zero)
+                {
+                    time = TimeSpan.Zero;
+                    state = State.Down;
+                }
+            }*/
         }
 
         public override Vector2 plugPosition(Wire wire)

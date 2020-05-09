@@ -127,6 +127,9 @@ namespace Wiring.Wiring
             {
                 if (c.MustUpdate)
                     c.Update();
+            }
+            foreach (Component c in components)
+            {
                 if (c is Diode d)
                     d.UpdateTime(gameTime);
                 if (c is BlackBox bb)
