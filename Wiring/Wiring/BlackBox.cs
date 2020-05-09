@@ -15,21 +15,21 @@ namespace Wiring.Wiring
     {
         public static Texture2D texture;
         public Schematic schem;
-        private List<Input> inputs; // liste des composants Input du schematic
-        private List<Output> outputs; // liste des composants Output du schematic
+        private List<Input> schemInputs; // liste des composants Input du schematic
+        private List<Output> schemOutputs; // liste des composants Output du schematic
 
         public BlackBox(Schematic schem, Vector2 position) : base(position)
         {
             this.schem = schem;
-            inputs = new List<Input>();
-            outputs = new List<Output>();
+            schemInputs = new List<Input>();
+            schemOutputs = new List<Output>();
             ReloadPlugsFromSchematic(false);
         }
         public BlackBox(string name, Vector2 position) : base(position)
         {
             schem = new Schematic(name);
-            inputs = new List<Input>();
-            outputs = new List<Output>();
+            schemInputs = new List<Input>();
+            schemOutputs = new List<Output>();
         }
         public static new void LoadContent(ContentManager Content)
         {
@@ -39,25 +39,25 @@ namespace Wiring.Wiring
         public override bool GetOutput(Wire wire)
         {
             int i = wires.IndexOf(wire);
-            if (i >= inputs.Count && i < wires.Count)
+            if (i >= schemInputs.Count && i < wires.Count)
             {
-                return outputs[i - inputs.Count].GetValue();
+                return schemOutputs[i - schemInputs.Count].GetValue();
             }
 
             return base.GetOutput(wire);
         }
         public override void Update()
         {
-            for (int i = 0; i < inputs.Count; i++)
+            for (int i = 0; i < schemInputs.Count; i++)
             {
-                inputs[i].changeValue(wires[i].value);
+                schemInputs[i].changeValue(wires[i].value);
             }
             foreach (Component c in schem.components)
             {
                 if (c.MustUpdate)
                     c.Update();
             }
-            for (int i = inputs.Count; i < outputs.Count + inputs.Count; i++)
+            for (int i = schemInputs.Count; i < schemOutputs.Count + schemInputs.Count; i++)
             {
                 // update les wires sortant qui ont changé
                 if (wires[i].value != GetOutput(wires[i]))
@@ -86,18 +86,18 @@ namespace Wiring.Wiring
         }
         public override Vector2 plugPosition(Wire wire)
         {
-            if (inputs.Count + outputs.Count != wires.Count)
+            if (schemInputs.Count + schemOutputs.Count != wires.Count)
                 throw new Exception("inapropriate number of wires");
             for (int i = 0; i < wires.Count; i++)
             {
                 if (wire == wires[i]) // on a trouvé le fil
                 {
-                    if (i < inputs.Count)
+                    if (i < schemInputs.Count)
                     {
-                        return position + new Vector2(-1 - size/2, (inputs.Count == 1) ? 0 : -6 + 12f * i / (inputs.Count - 1));
+                        return position + new Vector2(-1 - size/2, (schemInputs.Count == 1) ? 0 : -6 + 12f * i / (schemInputs.Count - 1));
                     } else
                     {
-                        return position + new Vector2(1 + size/2, (outputs.Count == 1) ? 0 : -6 + 12f * (i - inputs.Count) / (outputs.Count - 1));
+                        return position + new Vector2(1 + size/2, (schemOutputs.Count == 1) ? 0 : -6 + 12f * (i - schemInputs.Count) / (schemOutputs.Count - 1));
                     }
                 }
             }
@@ -115,27 +115,27 @@ namespace Wiring.Wiring
         /// <param name="recursive"></param>
         public void ReloadPlugsFromSchematic(bool recursive)
         {
-            if (inputs.Count + outputs.Count != wires.Count)
+            if (schemInputs.Count + schemOutputs.Count != wires.Count)
                 throw new Exception("inapropriate number of wires");
 
-            int prevInCount = inputs.Count, prevOutCount = outputs.Count;
+            int prevInCount = schemInputs.Count, prevOutCount = schemOutputs.Count;
             reloadInOutFromSchematic();
 
-            if (inputs.Count > prevInCount)
+            if (schemInputs.Count > prevInCount)
                 // il manque des fils d'input
-                for (int i = prevInCount; i < inputs.Count; i++)
+                for (int i = prevInCount; i < schemInputs.Count; i++)
                     wires.Insert(prevInCount, new Wire());
-            else if (inputs.Count < prevInCount)
+            else if (schemInputs.Count < prevInCount)
                 // il y a des fils en trop
-                wires.RemoveRange(inputs.Count, prevInCount - inputs.Count);
+                wires.RemoveRange(schemInputs.Count, prevInCount - schemInputs.Count);
 
-            if (outputs.Count > prevOutCount)
+            if (schemOutputs.Count > prevOutCount)
                 // il manque des fils d'output
-                for (int i = prevOutCount; i < outputs.Count; i++)
+                for (int i = prevOutCount; i < schemOutputs.Count; i++)
                     wires.Add(new Wire());
-            else if (outputs.Count < prevOutCount)
+            else if (schemOutputs.Count < prevOutCount)
                 // il y a des fils en trop
-                wires.RemoveRange(inputs.Count + outputs.Count, prevOutCount - outputs.Count);
+                wires.RemoveRange(schemInputs.Count + schemOutputs.Count, prevOutCount - schemOutputs.Count);
 
             plugWires();
 
@@ -165,23 +165,23 @@ namespace Wiring.Wiring
         }
         private void reloadInOutFromSchematic()
         {
-            inputs.Clear();
-            outputs.Clear();
+            schemInputs.Clear();
+            schemOutputs.Clear();
             // Récupère tout les composants de type Input et Output du schematic pour les stocker dans inputs et outputs
             foreach (Component c in schem.components)
             {
                 if (c is Input i)
                 {
-                    inputs.Add(i);
+                    schemInputs.Add(i);
                 }
                 if (c is Output o)
                 {
-                    outputs.Add(o);
+                    schemOutputs.Add(o);
                 }
             }
             // trie les Input et Output par hauteur
-            inputs.Sort((x, y) => x.position.Y <= y.position.Y ? x.position.Y == y.position.Y ? 0 : -1 : 1);
-            outputs.Sort((x, y) => x.position.Y <= y.position.Y ? x.position.Y == y.position.Y ? 0 : -1 : 1);
+            schemInputs.Sort((x, y) => x.position.Y <= y.position.Y ? x.position.Y == y.position.Y ? 0 : -1 : 1);
+            schemOutputs.Sort((x, y) => x.position.Y <= y.position.Y ? x.position.Y == y.position.Y ? 0 : -1 : 1);
         }
     }
 }

@@ -41,22 +41,26 @@ namespace Wiring.Wiring
         {
             if (wire == wires[1])
             {
-                if (delay == Delay.Zero)
+                /*if (delay == Delay.Zero)
                     return wires[0].value;
-                else
+                else*/
                     return state == State.Fall || state == State.Up;
             }
             return base.GetOutput(wire);
         }
         public override void Update()
         {
+            if (delay == Delay.Zero)
+                state = wires[0].value ? State.Up : State.Down;
             if (state == State.Down && wires[0].value)
             {
                 state = State.Rise;
+                time = TimeSpan.Zero;
             }
             if (state == State.Up && !wires[0].value)
             {
                 state = State.Fall;
+                time = TimeSpan.Zero;
             }
 
             if (wires[1].value != GetOutput(wires[1]))
@@ -68,10 +72,6 @@ namespace Wiring.Wiring
         /// </summary>
         public void UpdateTime(GameTime gameTime)
         {
-            if (state == State.Rise || state == State.Fall)
-                time += gameTime.ElapsedGameTime;
-            if (delay == Delay.Second && time >= TimeSpan.FromSeconds(1))
-                MustUpdate = true;
 
             if (delay == Delay.Tick)
             {
@@ -86,42 +86,20 @@ namespace Wiring.Wiring
                     MustUpdate = true;
                 }
             }
-            else
+            else if (delay == Delay.Second)
             {
-                if (state == State.Down)
+                if (state == State.Rise || state == State.Fall)
                 {
-                    if (wires[0].value)
-                    {
-                        state = State.Rise;
-                        time = TimeSpan.Zero;
-                    }
-                }
-                else if (state == State.Rise)
-                {
+                    time += gameTime.ElapsedGameTime;
                     if (time >= TimeSpan.FromSeconds(1))
                     {
                         time = TimeSpan.Zero;
-                        state = State.Up;
+                        state = state == State.Rise ? State.Up : State.Down;
+                        MustUpdate = true;
                     }
-                }
-                else if (state == State.Up)
-                {
-                    if (!wires[0].value)
-                    {
-                        state = State.Fall;
-                        time = TimeSpan.Zero;
-                    }
-                }
-                else if (state == State.Fall)
-                {
-                    if (wires[0].value)
+                    if (state == State.Fall && wires[0].value)
                     {
                         state = State.Up;
-                    }
-                    if (time >= TimeSpan.FromSeconds(1))
-                    {
-                        time = TimeSpan.Zero;
-                        state = State.Down;
                     }
                 }
             }

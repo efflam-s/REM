@@ -216,15 +216,13 @@ namespace Wiring
                                 foreach (Component c in hoveredWire.components)
                                 {
                                     if (Wire.touchLine(Inpm.MsPosition(), node, c.plugPosition(hoveredWire)))
+                                    {
                                         c.wires[c.wires.IndexOf(hoveredWire)] = new Wire();
+                                        c.Update();
+                                    }
                                 }
                                 mainSchem.ReloadWiresFromComponents();
                                 hoveredWire.Update();
-                            }
-                            // update les composant voisins
-                            foreach(Component c in hoveredWire.components)
-                            {
-                                c.Update();
                             }
                         }
                     }
