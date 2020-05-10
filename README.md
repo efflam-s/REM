@@ -1,8 +1,8 @@
-## Wiring
+## REM Electronic Machines
 
 ---
 
-Projet de simulation de logique électronique minimaliste.
+Logiciel de simulation de logique électronique minimaliste.
 
 Fait en C# avec Monogame
 

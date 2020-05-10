@@ -1,6 +1,6 @@
 ﻿.vs
-Wiring/bin/Windows/x86/Debug
-Wiring/obj
-Wiring/Content/bin
-Wiring/Content/obj
+REM/bin/Windows/x86/Debug
+REM/obj
+REM/Content/bin
+REM/Content/obj
 Documentation (fr)

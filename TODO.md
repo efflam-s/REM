@@ -19,11 +19,12 @@
 * Composant : `Comment`
 * Bug : annuler un enregistrement sauvegarde quand même un chemin
 * Bug : affichage du fil allumé pdt la création pour une blackbox sans plugs
-* Texture de fond de l'éditeur
+* Raccourcis pour les créations de composants (chiffres ?)
 * ? Faire en sorte que échap ne demande pas la création d'une nouvelle blackbox
 * Améliorer l'UI : mettre un hover (+ toggle ?) dans UIObject
+* Mettre Component.Draw() dans la classe base
 * ? Séparer les fils d'input et d'output dans les composants
-* ? Revoir de système de tools : boutons pour chaque, boolean toogle, tool Wire à partir d'un plug
+* ? Revoir de système de tools : boutons pour chaque, boolean toggle, tool Wire à partir d'un plug
 * Cursor création de fil
 * Couper/Copier/Coller
 * ? Duplication d'une séléction multiple (ou supprimer la duplication ?)
@@ -31,8 +32,6 @@
 * ? Afficher des infos sur le composant hovered ou sélectionné
 * Outil déplacement : flèches directionelles
 * ? Créer une blackbox à partir de la selection
-* Raccourcis pour les créations de composants (chiffres ?)
-* Pouvoir connecter un même fil plusieurs fois sur un composant
 * Curseur : changer les ciseaux ![Red](Wiring/Content/WireNodeOn.png)
 * Fixer le stackoverflow
 
@@ -42,6 +41,7 @@
 * Ajustement auto de la Camera
 * Personnalisation des BlackBox : image
 * et/ou : Certains noms donnent des images aux BlackBox
+* Pouvoir connecter un même fil plusieurs fois sur un composant
 * Angle des composants
 * Menu de simulation (pas d'édition possible, possibilité de cacher des composants/fils, performances accrues ?)
 * Faire des fils personnalisés : nodes où on veut
@@ -59,19 +59,19 @@
 
 ---
 
-## Paramètres...
-
-#### Ouverture
-
-[ ] Ignorer les avertissements<br/>
-(?) Améliore les performances durant l'ouverture, déconseillé si vous éditez le code de vos schematics
-
-[ ] Ouvrir dans une nouvelle boîte noire
-
-#### Enregistrement
-
-[ ] Ne pas enregistrer les boîtes noires <br/>
-(?) Il faudra les enregistrer séparément, sous leur nom actuel
-
-[ ] Optimiser la taille du fichier<br/>
-(?) La lisibilité du code en sera réduite
+Paramètres de couleur :
+* Button text
+* Button hover
+* Button toggle
+* ButtonBar border
+* ButtonBar background
+* ButtonBar text
+* Tooltip border
+* Tooltip background
+* Tooltip text
+* Menu border
+* Menu background
+* Menu text
+* Editor background
+* Wire on
+* Wire off
