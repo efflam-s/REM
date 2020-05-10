@@ -6,6 +6,8 @@ Logiciel de simulation de logique électronique minimaliste.
 
 Fait en C# avec Monogame
 
+Ouvrir l'application : "REM Electronic Machines.exe.lnk" dans le dossier principal
+
 
 Raccourcis clavier *(présents et futurs)* :
 * S : Outil de base : sélection, déplacement des composants, suppression de fils, ouverture de boîtes noires et changement d'état des composants
