@@ -22,7 +22,7 @@
 * ? Afficher des infos sur le composant hovered ou sélectionné
 * Outil déplacement : flèches directionelles
 * ? Créer une blackbox à partir de la selection
-* Curseur : changer les ciseaux ![Red](Wiring/Content/WireNodeOn.png)
+* Curseur : changer les ciseaux ![Red](REM/Content/WireNodeOn.png)
 * Fixer le stackoverflow
 * Angle des composants
 
@@ -43,11 +43,11 @@
 * Effets sonores + animations
 * Composant `Random` : à chaque impulsion, renvoie  aléatoirement 1 ou 0 jusqu'à la fin de l'impulsion
 * Selection au lasso
-* "Librarie standard" de blackboxes utiles (and, add, mux...) ![Red](Wiring/Content/WireNodeOn.png)
+* "Librarie standard" de blackboxes utiles (and, add, mux...) ![Red](REM/Content/WireNodeOn.png)
 * Pouvoir transformer les blackbox en bitmap pour gagner en efficacité
 * ET/OU : Composant `Bitmap`
 * Pouvoir scéler une boite noire
-* Fichier de langue => traduction ![Red](Wiring/Content/WireNodeOn.png)
+* Fichier de langue => traduction ![Red](REM/Content/WireNodeOn.png)
 
 ---
 

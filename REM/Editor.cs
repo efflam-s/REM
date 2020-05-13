@@ -289,7 +289,7 @@ namespace REM
                     MovingComp = null;
                     tool = Tool.Edit;
                 }
-                if ((Inpm.leftClic == InputManager.ClicState.Down && Inpm.rightClic == InputManager.ClicState.Clic))
+                if (Inpm.leftClic == InputManager.ClicState.Down && Inpm.rightClic == InputManager.ClicState.Clic)
                 {
                     // Annulation de déplacement de composant
                     if (MovingComp != null)
@@ -431,6 +431,11 @@ namespace REM
                             }
                         }
                     }
+                }
+                else if (Inpm.rightClic == InputManager.ClicState.Clic)
+                {
+                    // Annulation de création de fil
+                    tool = Tool.Edit;
                 }
             }
             else if (tool == Tool.Pan)

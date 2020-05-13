@@ -143,7 +143,7 @@ namespace REM
                     code.Append("delay:");
                 code.Append((int)d.delay);
                 if (indent)
-                    code.Append(",\r\n" + tab(tabulation) + "value : ");
+                    code.Append(",\r\n" + tab(tabulation+1) + "value : ");
                 else
                     code.Append(",value:");
                 code.Append(d.GetOutput(d.wires[1]) ? "true" : "false");
