@@ -1,24 +1,14 @@
 ## Liste de trucs à faire : Projet Wiring
 
-
-#### Relecture et Nettoyage du projet :
-* Editor
-
-#### Documentation :
-* Les outils : S, H/Z
-* Les fils (C)
-* Les différents composants
-
 #### A faire maintenant :
-* Changer le nom du projet
-* Mettre sur github et supprimer le repo gitlab
-
-#### A faire plus tard :
+* Bug : Savegarde de Diode.value : mauvaise valeur d'indentation
 * Outil Wire : clic droit pour annuler l'action en cours
 * Fichier de settings (settings d'enregistrement + couleurs de texte, tooltip...)
 * Composant : `Comment`
 * Bug : annuler un enregistrement sauvegarde quand même un chemin
 * Bug : affichage du fil allumé pdt la création pour une blackbox sans plugs
+
+#### A faire plus tard :
 * Raccourcis pour les créations de composants (chiffres ?)
 * ? Faire en sorte que échap ne demande pas la création d'une nouvelle blackbox
 * Améliorer l'UI : mettre un hover (+ toggle ?) dans UIObject
@@ -34,15 +24,16 @@
 * ? Créer une blackbox à partir de la selection
 * Curseur : changer les ciseaux ![Red](Wiring/Content/WireNodeOn.png)
 * Fixer le stackoverflow
+* Angle des composants
 
 #### Eventuellement, si j'ai le courage :
+* Faire une version Linux
 * Modes de mise à jour : tout mettre à jour, normal, aléatoire
 * Bug : le double-clic à l'ouverture fait aussi un clic sur l'application
 * Ajustement auto de la Camera
 * Personnalisation des BlackBox : image
 * et/ou : Certains noms donnent des images aux BlackBox
 * Pouvoir connecter un même fil plusieurs fois sur un composant
-* Angle des composants
 * Menu de simulation (pas d'édition possible, possibilité de cacher des composants/fils, performances accrues ?)
 * Faire des fils personnalisés : nodes où on veut
 * OU : Fils à angle droit
@@ -55,11 +46,17 @@
 * "Librarie standard" de blackboxes utiles (and, add, mux...) ![Red](Wiring/Content/WireNodeOn.png)
 * Pouvoir transformer les blackbox en bitmap pour gagner en efficacité
 * ET/OU : Composant `Bitmap`
+* Pouvoir scéler une boite noire
 * Fichier de langue => traduction ![Red](Wiring/Content/WireNodeOn.png)
 
 ---
 
-Paramètres de couleur :
+#### Documentation :
+* Les outils : S, H/Z
+* Les fils (C)
+* Les différents composants
+
+#### Paramètres de couleur :
 * Button text
 * Button hover
 * Button toggle

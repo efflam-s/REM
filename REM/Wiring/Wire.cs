@@ -15,10 +15,20 @@ namespace REM.Wiring
         public static Texture2D wOn, wOff, nodeOn, nodeOff;
         public bool value { get; private set; }
         public List<Component> components; // List of connected components
+        public Vector2 Node;
         public Wire()
         {
             components = new List<Component>();
             value = false;
+            Node = Vector2.Zero;
+        }
+        public void ResetNodePosition()
+        {
+            Node = Vector2.Zero;
+            foreach (Component c in components)
+                Node += c.plugPosition(this);
+            Node /= components.Count;
+            Node.X = (int)Node.X; Node.Y = (int)Node.Y;
         }
         public static void LoadContent(ContentManager Content)
         {
@@ -45,39 +55,37 @@ namespace REM.Wiring
         }
         public void Draw(SpriteBatch spriteBatch)
         {
-            if (components.Count() == 2)
+            if (components.Count() > 1)
             {
-                // fil simple
-                drawLine(spriteBatch, components[0].plugPosition(this), components[1].plugPosition(this), value);
-            }
-            else if (components.Count() > 2)
-            {
-                // fil avec noeud
-                Vector2 node = Node();
                 foreach (Component c in components)
-                    drawLine(spriteBatch, node, c.plugPosition(this), value);
-                spriteBatch.Draw(value ? nodeOn : nodeOff, node - new Vector2(nodeOn.Width, nodeOn.Height)/2, Color.White);
+                    drawLine(spriteBatch, Node, c.plugPosition(this), value);
+                if (components.Count() > 2)
+                    DrawNode(spriteBatch);
             }
         }
+        public void DrawNode(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Draw(value ? nodeOn : nodeOff, Node - new Vector2(nodeOn.Width, nodeOn.Height) / 2, Color.White);
+        }
+
         public bool touchWire(Vector2 position)
         {
-            if (components.Count() == 2)
+            if (touchNode(position))
+                return true;
+
+            if (components.Count() > 1)
             {
-                // fil simple
-                if (touchLine(position, components[1].plugPosition(this), components[0].plugPosition(this)))
-                    return true;
-            }
-            else if (components.Count() > 2)
-            {
-                // fil avec noeud
-                Vector2 node = Node();
                 foreach (Component c in components)
                 {
-                    if (touchLine(position, node, c.plugPosition(this)))
+                    if (touchLine(position, Node, c.plugPosition(this)))
                         return true;
                 }
             }
             return false;
+        }
+        public bool touchNode(Vector2 position)
+        {
+            return Vector2.Distance(Node, position) <= 2;
         }
         public static void drawLine(SpriteBatch spriteBatch, Vector2 A, Vector2 B, bool value)
         {
@@ -99,18 +107,6 @@ namespace REM.Wiring
             Vector2 relativ = position - A;
             relativ = new Vector2(relativ.X * (float)Math.Cos(angle) + relativ.Y * (float)Math.Sin(angle), relativ.Y * (float)Math.Cos(angle) - relativ.X * (float)Math.Sin(angle));
             return -strokeWeight/2 <= relativ.Y && relativ.Y <= strokeWeight/2 && 0 <= relativ.X && relativ.X <= ab.Length();
-        }
-        /// <summary>
-        /// Renvoie le point moyen des plugs associés au fil
-        /// </summary>
-        public Vector2 Node()
-        {
-            Vector2 node = Vector2.Zero;
-            foreach (Component c in components)
-                node += c.plugPosition(this);
-            node /= components.Count;
-            node.X = (int)node.X; node.Y = (int)node.Y;
-            return node;
         }
     }
 }

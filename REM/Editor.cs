@@ -25,7 +25,7 @@ namespace REM
          * Pan : Outil de déplacement panoramique (caméra)
          * Zoom : Outil de zoom/dezoom (clic gauche : zoom, clic droit : dezoom)
          */
-        public enum Tool { Edit, Select, Move, Wire, Pan, Zoom }
+        public enum Tool { Edit, Select, Move, Wire, MoveWire, Pan, Zoom }
         public Tool tool;
         public List<Schematic> schemPile; // pile des schematics parents
         public Schematic mainSchem
@@ -38,6 +38,7 @@ namespace REM
         public void clearSelection() { selected.Clear(); }
         List<Vector2> relativePositionToMouse; // la liste de leur positions relative à la souris (ou la position relative du composant déplacé en 0)
         Component MovingComp; // le composant déplacé non sélectionné
+        Wire MovingWire; // le fil déplacé
 
         InputManager Inpm;
 
@@ -138,6 +139,12 @@ namespace REM
                                 clearSelection();
                             // rectangle selection
                             tool = Tool.Select;
+                        } else if (hoveredWire.touchNode(Inpm.MsPosition())) {
+                            // préparation déplacement d'un fil
+                            tool = Tool.MoveWire;
+                            MovingWire = hoveredWire;
+                            relativePositionToMouse.Clear();
+                            relativePositionToMouse.Add(hoveredWire.Node - Inpm.MsPosition());
                         }
                     }
                     else
@@ -146,7 +153,7 @@ namespace REM
                         {
                             if (!selected.Contains(hoveredComponent))
                             {
-                                // preparation deplacement d'un seul composant (pas dans la selection)
+                                // preparation déplacement d'un seul composant (pas dans la selection)
                                 relativePositionToMouse.Clear();
                                 relativePositionToMouse.Add(hoveredComponent.position - Inpm.MsPosition());
                                 MovingComp = hoveredComponent;
@@ -204,7 +211,7 @@ namespace REM
                         else if (hoveredWire != null)
                         {
                             // Suppression d'un fil (ou d'une partie de fil) (à mettre dans une fonction ?)
-                            Vector2 node = hoveredWire.Node();
+                            Vector2 node = hoveredWire.Node;
                             foreach (Component c in hoveredWire.components)
                             {
                                 if (Wire.touchLine(Inpm.MsPosition(), node, c.plugPosition(hoveredWire)))
@@ -306,6 +313,31 @@ namespace REM
                     tool = Tool.Edit;
                 }
             }
+            else if (tool == Tool.MoveWire)
+            {
+                // Déplacement de fil
+                if (MovingWire != null)
+                {
+                    MovingWire.Node = Inpm.MsPosition() + relativePositionToMouse[0];
+                }
+
+                if ((Inpm.leftClic == InputManager.ClicState.Down && Inpm.rightClic == InputManager.ClicState.Clic))
+                {
+                    // Annulation de déplacement de fil
+                    if (MovingWire != null)
+                    {
+                        MovingWire.Node = Inpm.mousePositionOnClic + relativePositionToMouse[0];
+                    }
+                    MovingWire = null;
+                    tool = Tool.Edit;
+                }
+                if (Inpm.leftClic == InputManager.ClicState.Declic)
+                {
+                    // Fin de déplacement
+                    MovingWire = null;
+                    tool = Tool.Edit;
+                }
+            }
             else if (tool == Tool.Select)
             {
                 if (Inpm.leftClic == InputManager.ClicState.Declic)
@@ -377,8 +409,19 @@ namespace REM
                                     c.wires[c.wires.IndexOf(end)] = start;
                                     //start.components.Add(c);
                                 }
-                                //mainSchem.wires.Remove(end);
                                 mainSchem.ReloadWiresFromComponents();
+                                if (hoveredWire != null)
+                                {
+                                    start.Node = Inpm.MsPosition();
+                                }
+                                else if (hoverWire(Inpm.mousePositionOnClic) != null)
+                                {
+                                    start.Node = Inpm.mousePositionOnClic;
+                                }
+                                else
+                                {
+                                    start.ResetNodePosition();
+                                }
                                 bool updated = start.Update();
                                 if (!updated)
                                 {
@@ -502,8 +545,14 @@ namespace REM
             else
                 return max;
         }
+
         public void Draw(SpriteBatch spriteBatch, Rectangle Window)
         {
+            if (hoverWire(Inpm.MsPosition()) != null && (tool == Tool.Edit || tool == Tool.MoveWire) && hoverWire(Inpm.MsPosition()).components.Count == 2)
+            {
+                // dessin du noeud du fil à deux connexions si on le touche et qu'on peut le déplacer
+                hoverWire(Inpm.MsPosition()).DrawNode(spriteBatch);
+            }
             foreach (Component c in selected)
             {
                 c.DrawSelected(spriteBatch);
@@ -520,7 +569,7 @@ namespace REM
                 if (hoveredClic != null)
                     start = hoveredClic.plugPosition(hoveredClic.nearestPlugWire(Inpm.mousePositionOnClic));
                 else if (hoveredWireClic != null)
-                    start = hoveredWireClic.Node();
+                    start = hoveredWireClic.Node;
                 else
                     throw new InvalidOperationException("pas de fil ou de composant sélectionné pour le début de la création du fil");
 
@@ -529,30 +578,35 @@ namespace REM
                 if (hovered != null && hovered.nearestPlugWire(Inpm.MsPosition()) != null)
                     end = hovered.plugPosition(hovered.nearestPlugWire(Inpm.MsPosition()));
                 else if (hoveredWire != null)
-                    end = hoveredWire.Node();
+                    end = hoveredWire.Node;
                 else
                     end = Inpm.MsPosition();
 
                 Wire.drawLine(spriteBatch, start, end, hovered != null || hoveredWire != null);
             }
 
+
             if (Window.Contains(Mouse.GetState().Position))
             {
+                // Choix du curseur
                 if (Inpm.middleClic == InputManager.ClicState.Down)
                     // panoramique avec middleclic
                     Mouse.SetCursor(grab);
                 else
                     switch (tool)
                     {
-                        // Choix du curseur
                         case Tool.Edit:
                             Component hovered = hover(Inpm.MsPosition());
                             if (!Inpm.Control && !Inpm.Alt &&
                                     (hovered is Input || hovered is Diode || hovered is BlackBox))
                                 Mouse.SetCursor(MouseCursor.Hand);
-                            else if (!Inpm.Control &&
-                                    hoverWire(Inpm.MsPosition()) != null && hovered == null)
-                                Mouse.SetCursor(scissor);
+                            else if (!Inpm.Control && hoverWire(Inpm.MsPosition()) != null && hovered == null)
+                            {
+                                if (hoverWire(Inpm.MsPosition()).touchNode(Inpm.MsPosition()))
+                                    Mouse.SetCursor(MouseCursor.SizeAll);
+                                else
+                                    Mouse.SetCursor(scissor);
+                            }
                             else
                                 Mouse.SetCursor(MouseCursor.Arrow);
                             break;
@@ -560,6 +614,9 @@ namespace REM
                             Mouse.SetCursor(MouseCursor.Crosshair); // peut-etre à modifier pour un curseur curstom
                             break;
                         case Tool.Move:
+                            Mouse.SetCursor(MouseCursor.SizeAll);
+                            break;
+                        case Tool.MoveWire:
                             Mouse.SetCursor(MouseCursor.SizeAll);
                             break;
                         case Tool.Zoom:
@@ -611,9 +668,13 @@ namespace REM
         }
         public string GetInfos()
         {
+            string wires = "[";
+            foreach (Wire w in mainSchem.wires)
+                wires += w.GetHashCode() + " ";
+            wires += ']';
             return "M : ("+Inpm.MsState.X+", "+Inpm.MsState.Y+
                 ")  Composants : "+mainSchem.components.Count()+" Selection : "+selected.Count()+
-                "  Fils : "+mainSchem.wires.Count();
+                "  Fils : "+wires;
         }
     }
 }
