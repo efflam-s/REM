@@ -10,24 +10,24 @@ Ouvrir l'application : "REM Electronic Machines.exe.lnk" dans le dossier princip
 
 
 Raccourcis clavier *(présents et futurs)* :
-* S : Outil de base : sélection, déplacement des composants, suppression de fils, ouverture de boîtes noires et changement d'état des composants
-* C : Ajouter une connexion (un fil)
-* H ou clic milieu : Déplacement panoramique
-* Z ou ctrl+roulette : Zoomer (clic gauche zoom, clic droit dézoom)
+* <kbd>S</kbd> : Outil de base : sélection, déplacement des composants, suppression de fils, ouverture de boîtes noires et changement d'état des composants
+* <kbd>C</kbd> : Ajouter une connexion (un fil)
+* <kbd>H</kbd> ou clic milieu : Déplacement panoramique
+* <kbd>Z</kbd> ou ctrl+roulette : Zoomer (clic gauche zoom, clic droit dézoom)
 * roulette et shift+roulette : déplacement vertical et horizontal
-* suppr : Supprimer le(s) composants sélectionnés
-* ctrl+A : Tout selectionner
-* ctrl+R : Renommer le schéma courant
-* ctrl+D : Dupliquer **un seul** composant *(bientôt plusieurs ?)*
-* echap : retour au schéma parent
-* ctrl+S : enregistrer le schéma courant
-* ctrl+shift+S : enregistrer le schéma courant sous un nom et un emplacement donné (fenêtre windows)
-* ctrl+O : ouvrir un schéma à partir d'un fichier .schem (fenêtre windows)
+* <kbd>suppr</kbd> : Supprimer le(s) composants sélectionnés
+* <kbd>ctrl+A</kbd> : Tout selectionner
+* <kbd>ctrl+R</kbd> : Renommer le schéma courant
+* <kbd>ctrl+D</kbd> : Dupliquer **un seul** composant *(bientôt plusieurs ?)*
+* <kbd>echap</kbd> : retour au schéma parent
+* <kbd>ctrl+S</kbd> : enregistrer le schéma courant
+* <kbd>ctrl+shift+S</kbd> : enregistrer le schéma courant sous un nom et un emplacement donné (fenêtre windows)
+* <kbd>ctrl+O</kbd> : ouvrir un schéma à partir d'un fichier .schem (fenêtre windows)
 * clic droit lors de la création ou du déplacement d'un composant : annuler l'action
 * clic droit lors de la création d'un fil *(à venir)* : annuler l'action
 * flèches directionnelles *(à venir ?)* : déplacement du composant cliqué/nouvellement créé
-* ctrl+X *(à venir)* : couper
-* ctrl+C *(à venir)* : copier
-* ctrl+V *(à venir)* : coller
-* ctrl+Z *(à venir ?)* : annuler
-* ctrl+Y ou ctrl+shift+Z *(à venir ?)* : refaire
+* <kbd>ctrl+X</kbd> *(à venir)* : couper
+* <kbd>ctrl+C</kbd> *(à venir)* : copier
+* <kbd>ctrl+V</kbd> *(à venir)* : coller
+* <kbd>ctrl+Z</kbd> *(à venir ?)* : annuler
+* <kbd>ctrl+Y</kbd> ou <kbd>ctrl+shift+Z</kbd> *(à venir ?)* : refaire
